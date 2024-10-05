@@ -22,10 +22,12 @@
 
 #include "LIEF/errors.hpp"
 #include "LIEF/BinaryStream/BinaryStream.hpp"
+#include "LIEF/visibility.h"
+
 namespace LIEF {
 
 //! Stream interface over a std::ifstream
-class FileStream : public BinaryStream {
+class LIEF_API FileStream : public BinaryStream {
   public:
   static result<FileStream> from_file(const std::string& file);
   FileStream(std::ifstream fs, uint64_t size) :
@@ -36,7 +38,6 @@ class FileStream : public BinaryStream {
 
   FileStream() = delete;
 
-  // VectorStream should not be copyable for performances reasons
   FileStream(const FileStream&) = delete;
   FileStream& operator=(const FileStream&) = delete;
 

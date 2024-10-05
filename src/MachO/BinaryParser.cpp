@@ -133,6 +133,11 @@ ok_error_t BinaryParser::init_and_parse() {
   type_          = type;
   binary_->original_size_ = stream_->size();
 
+  bool should_swap = type == MACHO_TYPES::MH_CIGAM_64 ||
+                     type == MACHO_TYPES::MH_CIGAM;
+
+  stream_->set_endian_swap(should_swap);
+
   return is64_ ? parse<details::MachO64>() :
                  parse<details::MachO32>();
 }
@@ -330,8 +335,6 @@ ok_error_t BinaryParser::parse_dyld_exports() {
     return ok();
   }
 
-  uint64_t end_offset = offset + size;
-
   SegmentCommand* linkedit = binary_->segment_from_offset(offset);
 
   if (linkedit == nullptr) {
@@ -373,8 +376,6 @@ ok_error_t BinaryParser::parse_dyldinfo_export() {
   if (offset == 0 || size == 0) {
     return ok();
   }
-
-  uint64_t end_offset = offset + size;
 
   SegmentCommand* linkedit = binary_->segment_from_offset(offset);
 
@@ -419,6 +420,49 @@ ok_error_t BinaryParser::parse_overlay() {
   return ok();
 }
 
+
+ok_error_t BinaryParser::parse_indirect_symbols(DynamicSymbolCommand& cmd,
+                                                std::vector<Symbol*>& symtab,
+                                                BinaryStream& indirect_stream)
+{
+  for (size_t i = 0; i < cmd.nb_indirect_symbols(); ++i) {
+    uint32_t index = 0;
+    auto res = indirect_stream.read<uint32_t>();
+    if (!res) {
+      LIEF_ERR("Can't read indirect symbol #{}", index);
+      return make_error_code(lief_errors::read_error);
+    }
+    index = *res;
+
+    if (index == details::INDIRECT_SYMBOL_ABS) {
+      cmd.indirect_symbols_.push_back(const_cast<Symbol*>(&Symbol::indirect_abs()));
+      continue;
+    }
+
+    if (index == details::INDIRECT_SYMBOL_LOCAL) {
+      cmd.indirect_symbols_.push_back(const_cast<Symbol*>(&Symbol::indirect_local()));
+      continue;
+    }
+
+    if (index == (details::INDIRECT_SYMBOL_LOCAL | details::INDIRECT_SYMBOL_ABS)) {
+      cmd.indirect_symbols_.push_back(const_cast<Symbol*>(&Symbol::indirect_abs_local()));
+      continue;
+    }
+
+    if (index >= symtab.size()) {
+      LIEF_ERR("Indirect symbol index is out of range ({}/0x{:x} vs max sym: {})",
+               index, index, symtab.size());
+      continue;
+    }
+
+    Symbol* indirect = symtab[index];
+    LIEF_DEBUG("  indirectsyms[{}] = {}", index, indirect->name());
+    cmd.indirect_symbols_.push_back(indirect);
+  }
+  LIEF_DEBUG("indirect_symbols_.size(): {} (nb_indirect_symbols: {})",
+             cmd.indirect_symbols_.size(), cmd.nb_indirect_symbols());
+  return ok();
+}
 
 } // namespace MachO
 } // namespace LIEF

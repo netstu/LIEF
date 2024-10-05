@@ -17,16 +17,34 @@
 #include <cstdint>
 #include <ostream>
 
+#include "LIEF/visibility.h"
+
 namespace LIEF {
 struct range_t {
   uint64_t low = 0;
   uint64_t high = 0;
 
+  bool contains(uint64_t value, bool strict = true) const {
+    if (strict) {
+      return low <= value && value < high;
+    }
+      return low <= value && value <= high;
+  }
+
   uint64_t size() const {
     return high - low;
   }
 
-  friend std::ostream& operator<<(std::ostream& os, const range_t& range);
+  friend bool operator==(const range_t& lhs, const range_t& rhs) {
+    return lhs.high == rhs.high && lhs.low == rhs.low;
+  }
+
+  friend bool operator!=(const range_t& lhs, const range_t& rhs) {
+    return !(lhs == rhs);
+  }
+
+  friend LIEF_API
+    std::ostream& operator<<(std::ostream& os, const range_t& range);
 };
 
 }

@@ -12,13 +12,15 @@ target_sources(LIB_LIEF PRIVATE
   ChainedBindingInfo.cpp
   ChainedBindingInfoList.cpp
   ChainedFixup.cpp
+  ChainedPointerAnalysis.cpp
   CodeSignature.cpp
   CodeSignatureDir.cpp
-  Convert.cpp
+  endianness_support.cpp
   DataCodeEntry.cpp
   DataInCode.cpp
   DyldBindingInfo.cpp
   DyldChainedFixups.cpp
+  DyldChainedFixupsCreator.cpp
   DyldChainedFormat.cpp
   DyldEnvironment.cpp
   DyldExportsTrie.cpp
@@ -50,6 +52,7 @@ target_sources(LIB_LIEF PRIVATE
   SegmentCommand.cpp
   SegmentSplitInfo.cpp
   SourceVersion.cpp
+  Stub.cpp
   SubClient.cpp
   SubFramework.cpp
   Symbol.cpp

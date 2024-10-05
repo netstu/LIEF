@@ -20,13 +20,16 @@
 #include <vector>
 #include <array>
 #include <cstddef>
+#include <memory>
 
 #include "LIEF/errors.hpp"
 #include "LIEF/span.hpp"
+#include "LIEF/visibility.h"
 #include "LIEF/BinaryStream/BinaryStream.hpp"
 
 namespace LIEF {
-class SpanStream : public BinaryStream {
+class VectorStream;
+class LIEF_API SpanStream : public BinaryStream {
   public:
   using BinaryStream::p;
   using BinaryStream::end;
@@ -58,10 +61,14 @@ class SpanStream : public BinaryStream {
     SpanStream(data.data(), data.size())
   {}
 
+  std::unique_ptr<SpanStream> clone() const {
+    return std::make_unique<SpanStream>(*this);
+  }
+
   SpanStream() = delete;
 
-  SpanStream(const SpanStream&) = delete;
-  SpanStream& operator=(const SpanStream&) = delete;
+  SpanStream(const SpanStream& other) = default;
+  SpanStream& operator=(const SpanStream& other) = default;
 
   SpanStream(SpanStream&& other) noexcept = default;
   SpanStream& operator=(SpanStream&& other) noexcept = default;
@@ -98,6 +105,8 @@ class SpanStream : public BinaryStream {
     }
     return data_.subspan(offset, data_.size() - offset);
   }
+
+  std::unique_ptr<VectorStream> to_vector() const;
 
   static bool classof(const BinaryStream& stream) {
     return stream.type() == BinaryStream::STREAM_TYPE::SPAN;

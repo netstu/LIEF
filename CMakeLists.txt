@@ -127,12 +127,9 @@ if(NOT LIEF_PY_LIEF_EXT)
 endif()
 
 if(NOT LIEF_OPT_MBEDTLS_EXTERNAL)
-  set_source_files_properties(${mbedtls_src_crypto} PROPERTIES GENERATED TRUE)
-  set_source_files_properties(${mbedtls_src_x509} PROPERTIES GENERATED TRUE)
-  set_source_files_properties(${mbedtls_src_tls} PROPERTIES GENERATED TRUE)
-  target_sources(LIB_LIEF PRIVATE ${mbedtls_src_crypto}
-                                  ${mbedtls_src_x509}
-                                  ${mbedtls_src_tls})
+  set_source_files_properties(${mbedtls_src_files} PROPERTIES GENERATED TRUE)
+  target_sources(LIB_LIEF PRIVATE ${mbedtls_src_files})
+  target_compile_definitions(LIB_LIEF PRIVATE -DMBEDTLS_NO_PLATFORM_ENTROPY)
 
   target_include_directories(LIB_LIEF SYSTEM PRIVATE
                              ${MBEDTLS_INCLUDE_DIRS}
@@ -260,7 +257,7 @@ endif()
 
 if(LIEF_OPT_UTFCPP_EXTERNAL)
   find_package(utf8cpp REQUIRED)
-  target_link_libraries(LIB_LIEF PRIVATE utf8cpp)
+  target_link_libraries(LIB_LIEF PRIVATE utf8cpp::utf8cpp)
 else()
   add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/internal/utfcpp/utf8.h
     COMMAND

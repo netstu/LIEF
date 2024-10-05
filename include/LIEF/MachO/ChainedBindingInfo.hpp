@@ -23,9 +23,11 @@
 
 namespace LIEF {
 namespace MachO {
-class Symbol;
 class BinaryParser;
 class Builder;
+class DyldChainedFixupsCreator;
+class ChainedBindingInfoList;
+class Symbol;
 
 namespace details {
 struct dyld_chained_ptr_arm64e_bind;
@@ -47,9 +49,10 @@ class LIEF_API ChainedBindingInfo : public BindingInfo {
 
   friend class BinaryParser;
   friend class Builder;
+  friend class DyldChainedFixupsCreator;
+  friend class ChainedBindingInfoList;
 
   public:
-
   ChainedBindingInfo() = delete;
   explicit ChainedBindingInfo(DYLD_CHAINED_FORMAT fmt, bool is_weak);
 
@@ -79,21 +82,21 @@ class LIEF_API ChainedBindingInfo : public BindingInfo {
   }
 
   uint64_t address() const override {
-    return /* imagebase */ address_ + offset_;
+    return address_;
   }
 
   void address(uint64_t address) override {
-    offset_ = address - /* imagebase */ address_;
+    address_ = address;
   }
 
   uint64_t sign_extended_addend() const;
 
-  BindingInfo::TYPES type() const override {
-    return BindingInfo::TYPES::CHAINED;
+  TYPES type() const override {
+    return TYPES::CHAINED;
   }
 
   static bool classof(const BindingInfo* info) {
-    return info->type() == BindingInfo::TYPES::CHAINED;
+    return info->type() == TYPES::CHAINED;
   }
 
   ~ChainedBindingInfo() override {
@@ -108,7 +111,7 @@ class LIEF_API ChainedBindingInfo : public BindingInfo {
     return os;
   }
 
-  private:
+  protected:
   void clear();
   enum class BIND_TYPES {
     UNKNOWN = 0,

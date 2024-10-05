@@ -30,14 +30,16 @@
 
 
 namespace LIEF {
+class SpanStream;
 namespace MachO {
 
-class BinaryParser;
 class Binary;
+class BinaryParser;
 class Builder;
-class Section;
-class Relocation;
+class DyldChainedFixupsCreator;
 class DyldInfo;
+class Relocation;
+class Section;
 
 namespace details {
 struct segment_command_32;
@@ -47,6 +49,7 @@ struct segment_command_64;
 //! Class which represents a LoadCommand::TYPE::SEGMENT / LoadCommand::TYPE::SEGMENT_64 command
 class LIEF_API SegmentCommand : public LoadCommand {
 
+  friend class DyldChainedFixupsCreator;
   friend class BinaryParser;
   friend class Binary;
   friend class Section;
@@ -184,6 +187,9 @@ class LIEF_API SegmentCommand : public LoadCommand {
     return data_;
   }
 
+  //! Return a stream over the content of this segment
+  std::unique_ptr<SpanStream> stream() const;
+
   //! The original index of this segment or -1 if not defined
   int8_t index() const {
     return this->index_;
@@ -231,6 +237,11 @@ class LIEF_API SegmentCommand : public LoadCommand {
 
   //! Check if the current segment embeds the given section name
   bool has_section(const std::string& section_name) const;
+
+  bool is(VM_PROTECTIONS prot) const {
+    return (init_protection() & (uint32_t)prot) > 0 ||
+           (max_protection() & (uint32_t)prot) > 0;
+  }
 
   std::ostream& print(std::ostream& os) const override;
 

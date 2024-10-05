@@ -27,6 +27,7 @@ class DylibCommand;
 class SegmentCommand;
 class Symbol;
 class BinaryParser;
+class DyldChainedFixupsCreator;
 
 //! Class that provides an interface over a *binding* operation.
 //!
@@ -38,6 +39,7 @@ class BinaryParser;
 class LIEF_API BindingInfo : public Object {
 
   friend class BinaryParser;
+  friend class DyldChainedFixupsCreator;
 
   public:
   enum class TYPES {
@@ -135,6 +137,20 @@ class LIEF_API BindingInfo : public Object {
   ~BindingInfo() override = default;
 
   void accept(Visitor& visitor) const override;
+
+  template<class T>
+  const T* cast() const {
+    static_assert(std::is_base_of<BindingInfo, T>::value, "Require BindingInfo inheritance");
+    if (T::classof(this)) {
+      return static_cast<const T*>(this);
+    }
+    return nullptr;
+  }
+
+  template<class T>
+  T* cast() {
+    return const_cast<T*>(static_cast<const BindingInfo*>(this)->cast<T>());
+  }
 
   LIEF_API friend std::ostream& operator<<(std::ostream& os, const BindingInfo& binding_info);
 

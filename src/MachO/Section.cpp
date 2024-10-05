@@ -22,6 +22,7 @@
 #include "fmt_formatter.hpp"
 
 #include "LIEF/Visitor.hpp"
+#include "LIEF/BinaryStream/SpanStream.hpp"
 
 #include "LIEF/MachO/Section.hpp"
 #include "LIEF/MachO/Relocation.hpp"
@@ -151,9 +152,12 @@ span<const uint8_t> Section::content() const {
     return {};
   }
 
-  uint64_t relative_offset = offset_ - segment_->file_offset();
+  int64_t relative_offset = offset_ - segment_->file_offset();
+  if (relative_offset < 0) {
+    relative_offset = virtual_address_ - segment_->virtual_address();
+  }
   span<const uint8_t> content = segment_->content();
-  if (relative_offset > content.size() || (relative_offset + size_) > content.size()) {
+  if (relative_offset > (int64_t)content.size() || (relative_offset + size_) > content.size()) {
     LIEF_ERR("Section's size is bigger than segment's size");
     return {};
   }
@@ -231,6 +235,10 @@ void Section::accept(Visitor& visitor) const {
   visitor.visit(*this);
 }
 
+std::unique_ptr<SpanStream> Section::stream() const {
+  return std::make_unique<SpanStream>(content());
+}
+
 std::ostream& operator<<(std::ostream& os, const Section& section) {
   const auto& flags = section.flags_list();
   os << fmt::format(
@@ -242,7 +250,7 @@ std::ostream& operator<<(std::ostream& os, const Section& section) {
     section.relocation_offset(), section.numberof_relocations(),
     section.reserved1(), section.reserved2(), section.reserved3(),
     flags
-  ) << '\n';
+  );
   return os;
 }
 

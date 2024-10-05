@@ -2,6 +2,7 @@ mod utils;
 use std::path::Path;
 use std::env;
 use lief::logging;
+use lief::macho::Relocation;
 use lief::generic::Binary as GenericBinary;
 use lief::macho::binding_info::{self, AsGeneric};
 use lief::macho::commands::{Command, Commands};
@@ -38,6 +39,7 @@ fn explore_macho(_: &str, macho: &lief::macho::Binary) {
     format!("{macho:?}");
     format!("{}", macho.entrypoint());
     format!("{:?}", macho.header());
+    println!("{:?}:{}:{}", macho.platform(), macho.is_ios(), macho.is_macos());
     for section in macho.sections() {
         format!("{section:?}");
         format!("{:?}", section.segment());
@@ -50,6 +52,11 @@ fn explore_macho(_: &str, macho: &lief::macho::Binary) {
         format!("{:?}", binding);
     }
 
+    for stub in macho.symbol_stubs() {
+        format!("{stub:?}");
+        format!("{}", stub.raw().len());
+    }
+
     for command in macho.commands() {
         format!("{command:?}");
         match command {
@@ -57,6 +64,7 @@ fn explore_macho(_: &str, macho: &lief::macho::Binary) {
                 println!("TYPE: {:?}", gen.command_type());
             }
             Commands::DyldChainedFixups(cmd) => {
+                format!("{}", cmd.payload().len());
                 for binding in cmd.bindings() {
                     format!("{:?}", binding);
                 }
@@ -148,10 +156,23 @@ fn explore_macho(_: &str, macho: &lief::macho::Binary) {
 
     for reloc in macho.relocations() {
         format!("{reloc:?}");
+
+        match reloc {
+            Relocation::Dyld(_) => {
+            }
+            Relocation::Fixup(fixup) => {
+                format!("{}", fixup.next());
+            }
+            Relocation::Object(_) => {
+            }
+            Relocation::Generic(_) => {
+            }
+        }
     }
 
     for sym in macho.symbols() {
         format!("{sym:?}");
+        format!("{}", sym.demangled_name());
     }
 
     if let Some(info) = macho.dyld_info() {

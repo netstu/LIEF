@@ -141,6 +141,19 @@ class LIEF_API BinaryParser : public LIEF::Parser {
   template<class MACHO_T>
   ok_error_t infer_indirect_bindings();
 
+  template<class MACHO_T>
+  ok_error_t parse_symtab(SymbolCommand& cmd,
+                          SpanStream& nlist_s,
+                          SpanStream& string_s);
+
+  ok_error_t parse_indirect_symbols(DynamicSymbolCommand& cmd,
+                                    std::vector<Symbol*>& symtab,
+                                    BinaryStream& indirect_stream);
+
+
+  template<class MACHO_T>
+  ok_error_t parse_data_in_code(DataInCode& cmd, BinaryStream& stream);
+
   using it_opaque_segments = void*; // To avoid including Binary.hpp. It must contains it_opaque_segments
 
   template<class MACHO_T>
@@ -177,25 +190,31 @@ class LIEF_API BinaryParser : public LIEF::Parser {
                       int64_t addend, bool is_weak);
 
   template<class MACHO_T>
-  ok_error_t process_fixup(SegmentCommand& segment, uint64_t chain_offset,
+  ok_error_t process_fixup(SegmentCommand& segment,
+                           uint64_t chain_address, uint64_t chain_offset,
                            const details::dyld_chained_starts_in_segment& seg_info);
 
   template<class MACHO_T>
-  result<uint64_t> next_chain(uint64_t chain_offset, const details::dyld_chained_starts_in_segment& seg_info);
+  result<uint64_t> next_chain(uint64_t& chain_address, uint64_t chain_offset,
+                              const details::dyld_chained_starts_in_segment& seg_info);
 
   template<class MACHO_T>
-  ok_error_t walk_chain(SegmentCommand& segment, uint64_t chain_offset,
+  ok_error_t walk_chain(SegmentCommand& segment,
+                        uint64_t chain_address, uint64_t chain_offset,
                         const details::dyld_chained_starts_in_segment& seg_info);
 
-  ok_error_t do_chained_fixup(SegmentCommand& segment, uint32_t chain_offset,
+  ok_error_t do_chained_fixup(SegmentCommand& segment,
+                              uint64_t chain_address, uint32_t chain_offset,
                               const details::dyld_chained_starts_in_segment& seg_info,
                               const details::dyld_chained_ptr_arm64e& fixup);
 
-  ok_error_t do_chained_fixup(SegmentCommand& segment, uint32_t chain_offset,
+  ok_error_t do_chained_fixup(SegmentCommand& segment,
+                              uint64_t chain_address, uint32_t chain_offset,
                               const details::dyld_chained_starts_in_segment& seg_info,
                               const details::dyld_chained_ptr_generic64& fixup);
 
-  ok_error_t do_chained_fixup(SegmentCommand& segment, uint32_t chain_offset,
+  ok_error_t do_chained_fixup(SegmentCommand& segment,
+                              uint64_t chain_address, uint32_t chain_offset,
                               const details::dyld_chained_starts_in_segment& seg_info,
                               const details::dyld_chained_ptr_generic32 & fixup);
 

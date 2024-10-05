@@ -19,6 +19,7 @@
 #include <nanobind/stl/string.h>
 #include <nanobind/stl/unique_ptr.h>
 #include "nanobind/extra/memoryview.hpp"
+#include "nanobind/extra/random_access_iterator.hpp"
 
 #include "LIEF/MachO/Binary.hpp"
 #include "LIEF/MachO/BuildVersion.hpp"
@@ -65,7 +66,6 @@
 #include "pyIterator.hpp"
 
 namespace LIEF::MachO::py {
-
 template<>
 void create<Binary>(nb::module_& m) {
   using namespace LIEF::py;
@@ -397,6 +397,18 @@ void create<Binary>(nb::module_& m) {
         &Binary::has_build_version,
         "``True`` if the binary has a " RST_CLASS_REF(lief.MachO.BuildVersion) " command"_doc)
 
+    .def_prop_ro("platform",
+        &Binary::platform,
+        "Return the platform for which this Mach-O has been compiled"_doc)
+
+    .def_prop_ro("is_ios",
+        &Binary::is_ios,
+        "True if this binary targets iOS"_doc)
+
+    .def_prop_ro("is_macos",
+        &Binary::is_macos,
+        "True if this binary targets macOS"_doc)
+
     .def_prop_ro("build_version",
         nb::overload_cast<>(&Binary::build_version),
         "Return the binary's " RST_CLASS_REF(lief.MachO.BuildVersion) " if any, or None"_doc,
@@ -677,6 +689,21 @@ void create<Binary>(nb::module_& m) {
         R"doc(
         Return an iterator over the binding info which can come from either
         :class:`~.DyldInfo` or :class:`~.DyldChainedFixups` commands.
+        )doc"_doc
+    )
+
+    .def_prop_ro("symbol_stubs",
+        [] (const Binary& self) {
+          auto stubs = self.symbol_stubs();
+          return nb::make_random_access_iterator(nb::type<Binary>(), "stub_iterator", stubs);
+        }, nb::keep_alive<0, 1>(),
+        R"doc(
+        Return an iterator over the symbol stubs.
+
+        These stubs are involved when calling an **imported** function and are
+        similar to the ELF's plt/got mechanism.
+
+        There are located in sections like: ``__stubs,__auth_stubs,__symbol_stub,__picsymbolstub4``
         )doc"_doc
     )
 

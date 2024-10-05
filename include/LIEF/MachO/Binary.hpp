@@ -24,8 +24,11 @@
 #include "LIEF/MachO/LoadCommand.hpp"
 #include "LIEF/MachO/Header.hpp"
 #include "LIEF/MachO/BindingInfoIterator.hpp"
+#include "LIEF/MachO/BuildVersion.hpp"
+#include "LIEF/MachO/Stub.hpp"
 
 #include "LIEF/visibility.h"
+#include "LIEF/utils.hpp"
 
 #include "LIEF/Abstract/Binary.hpp"
 
@@ -42,7 +45,6 @@ class Metadata;
 namespace MachO {
 
 class BinaryParser;
-class BuildVersion;
 class Builder;
 class CodeSignature;
 class CodeSignatureDir;
@@ -91,6 +93,14 @@ class LIEF_API Binary : public LIEF::Binary  {
   struct range_t {
     uint64_t start = 0;
     uint64_t end   = 0;
+
+    uint64_t size() const {
+      return end - start;
+    }
+
+    bool empty() const {
+      return start == end;
+    }
   };
 
   //! Internal container for storing Mach-O LoadCommand
@@ -187,6 +197,9 @@ class LIEF_API Binary : public LIEF::Binary  {
   using it_const_sub_clients = const_filter_iterator<const commands_t&, const SubClient*>;
 
   using it_bindings = iterator_range<BindingInfoIterator>;
+
+  //! Iterator type for Symbol's stub
+  using stub_iterator = iterator_range<Stub::Iterator>;
 
   public:
   Binary(const Binary&) = delete;
@@ -320,8 +333,12 @@ class LIEF_API Binary : public LIEF::Binary  {
   const LoadCommand* get(LoadCommand::TYPE type) const;
   LoadCommand* get(LoadCommand::TYPE type);
 
+  LoadCommand* add(std::unique_ptr<LoadCommand> command);
+
   //! Insert a new LoadCommand
-  LoadCommand* add(const LoadCommand& command);
+  LoadCommand* add(const LoadCommand& command) {
+    return add(command.clone());
+  }
 
   //! Insert a new LoadCommand at the specified ``index``
   LoadCommand* add(const LoadCommand& command, size_t index);
@@ -384,7 +401,9 @@ class LIEF_API Binary : public LIEF::Binary  {
   uint64_t imagebase() const override;
 
   //! Size of the binary in memory when mapped by the loader (``dyld``)
-  uint64_t virtual_size() const;
+  uint64_t virtual_size() const {
+    return align(va_ranges().size(), (uint64_t)page_size());
+  }
 
   //! Return the binary's loader (e.g. ``/usr/lib/dyld``) or an
   //! empty string if the binary does not use a loader/linker
@@ -485,7 +504,10 @@ class LIEF_API Binary : public LIEF::Binary  {
 
   //! Check if the given address is encompassed in the
   //! binary's virtual addresses range
-  bool is_valid_addr(uint64_t address) const;
+  bool is_valid_addr(uint64_t address) const {
+    const range_t& r = va_ranges();
+    return r.start <= address && address < r.end;
+  }
 
   //! Method so that the ``visitor`` can visit us
   void accept(LIEF::Visitor& visitor) const override;
@@ -737,6 +759,27 @@ class LIEF_API Binary : public LIEF::Binary  {
   BuildVersion* build_version();
   const BuildVersion* build_version() const;
 
+  //! Return the platform for which this Mach-O has been compiled for
+  BuildVersion::PLATFORMS platform() const {
+    if (const BuildVersion* version = build_version()) {
+      return version->platform();
+    }
+    return BuildVersion::PLATFORMS::UNKNOWN;
+  }
+
+  //! True if this binary targets iOS
+  bool is_ios() const {
+    return platform() == BuildVersion::PLATFORMS::IOS ||
+           has(LoadCommand::TYPE::VERSION_MIN_IPHONEOS);
+  }
+
+  //! True if this binary targets macOS
+  bool is_macos() const {
+    return platform() == BuildVersion::PLATFORMS::MACOS ||
+           has(LoadCommand::TYPE::VERSION_MIN_MACOSX);
+  }
+
+
   //! ``true`` if the binary has the command LC_DYLD_CHAINED_FIXUPS.
   bool has_dyld_chained_fixups() const {
     return dyld_chained_fixups() != nullptr;
@@ -781,6 +824,14 @@ class LIEF_API Binary : public LIEF::Binary  {
 
   //! Return Objective-C metadata if present
   std::unique_ptr<objc::Metadata> objc_metadata() const;
+
+  //! Return an iterator over the symbol stubs.
+  //!
+  //! These stubs are involved when calling an **imported** function and are
+  //! similar to the ELF's plt/got mechanism.
+  //!
+  //! There are located in sections like: `__stubs,__auth_stubs,__symbol_stub,__picsymbolstub4`
+  stub_iterator symbol_stubs() const;
 
   template<class T>
   LIEF_LOCAL bool has_command() const;
@@ -845,9 +896,8 @@ class LIEF_API Binary : public LIEF::Binary  {
 
   //! Check if the binary is supporting ARM64 pointer authentication (arm64e)
   bool support_arm64_ptr_auth() const {
-    static constexpr auto CPU_SUBTYPE_ARM64E = 2;
     return header().cpu_type() == Header::CPU_TYPE::ARM64 &&
-           (header().cpu_subtype() & ~Header::CPU_SUBTYPE_MASK) == CPU_SUBTYPE_ARM64E;
+           (header().cpu_subtype() & ~Header::CPU_SUBTYPE_MASK) == Header::CPU_SUBTYPE_ARM64_ARM64E;
   }
 
   //! Return an iterator over the binding info which can come from either

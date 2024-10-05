@@ -4,6 +4,7 @@ target_sources(pyLIEF PRIVATE
   pyBuildVersion.cpp
   pyBuilder.cpp
   pyChainedBindingInfo.cpp
+  pyChainedPointerAnalysis.cpp
   pyCodeSignature.cpp
   pyCodeSignatureDir.cpp
   pyDataCodeEntry.cpp
@@ -38,6 +39,7 @@ target_sources(pyLIEF PRIVATE
   pySegmentCommand.cpp
   pySegmentSplitInfo.cpp
   pySourceVersion.cpp
+  pyStub.cpp
   pySubClient.cpp
   pySubFramework.cpp
   pySymbol.cpp

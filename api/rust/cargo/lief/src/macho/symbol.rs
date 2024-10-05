@@ -28,6 +28,7 @@ pub enum Category {
     UNDEFINED,
     INDIRECT_ABS,
     INDIRECT_LOCAL,
+    INDIRECT_ABS_LOCAL,
     UNKNOWN(u32),
 }
 
@@ -40,6 +41,7 @@ impl From<u32> for Category {
             0x00000003 => Category::UNDEFINED,
             0x00000004 => Category::INDIRECT_ABS,
             0x00000005 => Category::INDIRECT_LOCAL,
+            0x00000006 => Category::INDIRECT_ABS_LOCAL,
             _ => Category::UNKNOWN(value),
         }
     }
@@ -104,6 +106,11 @@ impl Symbol<'_> {
     /// Return the library in which this symbol is defined (if any)
     pub fn library(&self) -> Option<Dylib> {
         into_optional(self.ptr.library())
+    }
+
+    /// Try to demangle the symbol or return an empty string if it is not possible
+    pub fn demangled_name(&self) -> String {
+        self.ptr.demangled_name().to_string()
     }
 }
 

@@ -591,7 +591,6 @@ uint32_t Binary::page_size() const {
   return get_pagesize(*this);
 }
 
-
 void Binary::sort_segments() {
   commands_t::iterator start = commands_.end();
   commands_t::iterator end = commands_.end();
@@ -811,13 +810,12 @@ void Binary::shift_command(size_t width, uint64_t from_offset) {
     // Update relocations
     for (auto& entry : fixups->chained_starts_in_segments()) {
       for (auto& reloc : entry.segment.relocations()) {
-        if (RelocationFixup::classof(reloc)) {
-          auto& fixup = static_cast<RelocationFixup&>(reloc);
-          if (fixup.offset() > from_offset) {
-            fixup.offset(fixup.offset() + width);
+        if (auto* fixup = reloc.cast<RelocationFixup>()) {
+          if (fixup->offset() > from_offset) {
+            fixup->offset(fixup->offset() + width);
           }
-          if (fixup.target() > virtual_address) {
-            fixup.target(fixup.target() + width);
+          if (fixup->target() > virtual_address) {
+            fixup->target(fixup->target() + width);
           }
           // No need to update the virtual address since
           // it is bound to the offset
@@ -827,6 +825,10 @@ void Binary::shift_command(size_t width, uint64_t from_offset) {
     for (ChainedBindingInfo& bind : fixups->bindings()) {
       if (bind.offset() > from_offset) {
         bind.offset(bind.offset() + width);
+      }
+
+      if (bind.address() > virtual_address) {
+        bind.address(bind.address() + width);
       }
       // We don't need to update the virtual address,
       // as it is bound to the offset
@@ -950,10 +952,9 @@ ok_error_t Binary::shift(size_t value) {
   return ok();
 }
 
-
-LoadCommand* Binary::add(const LoadCommand& command) {
+LoadCommand* Binary::add(std::unique_ptr<LoadCommand> command) {
   static constexpr uint32_t shift_value = 0x4000;
-  const int32_t size_aligned = align(command.size(), pointer_size());
+  const int32_t size_aligned = align(command->size(), pointer_size());
 
   // Check there is enough spaces between the load command table
   // and the raw content
@@ -962,7 +963,7 @@ LoadCommand* Binary::add(const LoadCommand& command) {
       return nullptr;
     }
     available_command_space_ += shift_value;
-    return add(command);
+    return add(std::move(command));
   }
 
   available_command_space_ -= size_aligned;
@@ -989,26 +990,25 @@ LoadCommand* Binary::add(const LoadCommand& command) {
   std::vector<uint8_t> content = {std::begin(content_ref), std::end(content_ref)};
 
   // Copy the command data
-  std::copy(std::begin(command.data()), std::end(command.data()),
+  std::copy(std::begin(command->data()), std::end(command->data()),
             std::begin(content) + loadcommands_end);
 
   load_cmd_segment->content(std::move(content));
 
   // Add the command in the Binary
-  std::unique_ptr<LoadCommand> copy(command.clone());
-  copy->command_offset(loadcommands_end);
+  command->command_offset(loadcommands_end);
 
 
   // Update cache
-  if (DylibCommand::classof(copy.get())) {
-    libraries_.push_back(copy->as<DylibCommand>());
+  if (DylibCommand::classof(command.get())) {
+    libraries_.push_back(command->as<DylibCommand>());
   }
 
-  if (SegmentCommand::classof(copy.get())) {
-    add_cached_segment(*copy->as<SegmentCommand>());
+  if (SegmentCommand::classof(command.get())) {
+    add_cached_segment(*command->as<SegmentCommand>());
   }
-  LoadCommand* ptr = copy.get();
-  commands_.push_back(std::move(copy));
+  LoadCommand* ptr = command.get();
+  commands_.push_back(std::move(command));
   return ptr;
 }
 
@@ -1055,12 +1055,12 @@ LoadCommand* Binary::add(const LoadCommand& command, size_t index) {
     }
   }
 
-  if (DylibCommand::classof(copy.get())) {
-    libraries_.push_back(copy->as<DylibCommand>());
+  if (auto* lib = copy->cast<DylibCommand>()) {
+    libraries_.push_back(lib);
   }
 
-  if (SegmentCommand::classof(copy.get())) {
-    add_cached_segment(*copy->as<SegmentCommand>());
+  if (auto* segment = copy->cast<SegmentCommand>()) {
+    add_cached_segment(*segment);
   }
   LoadCommand* copy_ptr = copy.get();
   commands_.insert(std::begin(commands_) + index, std::move(copy));
@@ -1082,19 +1082,17 @@ bool Binary::remove(const LoadCommand& command) {
 
   LoadCommand* cmd_rm = it->get();
 
-  if (DylibCommand::classof(cmd_rm)) {
+  if (auto* lib = cmd_rm->cast<DylibCommand>()) {
     auto it_cache = std::find(std::begin(libraries_), std::end(libraries_), cmd_rm);
     if (it_cache == std::end(libraries_)) {
-      const auto* lib = cmd_rm->as<const DylibCommand>();
       LIEF_WARN("Library {} not found in cache. The binary object is likely in an inconsistent state", lib->name());
     } else {
       libraries_.erase(it_cache);
     }
   }
 
-  if (SegmentCommand::classof(cmd_rm)) {
+  if (const auto* seg = cmd_rm->cast<const SegmentCommand>()) {
     auto it_cache = std::find(std::begin(segments_), std::end(segments_), cmd_rm);
-    const auto* seg = cmd_rm->as<const SegmentCommand>();
     if (it_cache == std::end(segments_)) {
       LIEF_WARN("Segment {} not found in cache. The binary object is likely in an inconsistent state", seg->name());
     } else {
@@ -1830,23 +1828,12 @@ SegmentCommand* Binary::get_segment(const std::string& name) {
   return const_cast<SegmentCommand*>(static_cast<const Binary*>(this)->get_segment(name));
 }
 
-uint64_t Binary::virtual_size() const {
-  uint64_t virtual_size = 0;
-  for (const SegmentCommand* segment : segments_) {
-    virtual_size = std::max(virtual_size, segment->virtual_address() + segment->virtual_size());
-  }
-  virtual_size -= imagebase();
-  virtual_size = align(virtual_size, static_cast<uint64_t>(page_size()));
-  return virtual_size;
-}
-
 uint64_t Binary::imagebase() const {
   if (const SegmentCommand* _TEXT = get_segment("__TEXT")) {
     return _TEXT->virtual_address();
   }
   return 0;
 }
-
 
 std::string Binary::loader() const {
   if (const DylinkerCommand* cmd = dylinker()) {
@@ -1855,17 +1842,14 @@ std::string Binary::loader() const {
   return "";
 }
 
-bool Binary::is_valid_addr(uint64_t address) const {
-  range_t r = va_ranges();
-  return r.start <= address && address < r.end;
-}
-
-
 Binary::range_t Binary::va_ranges() const {
   uint64_t min = uint64_t(-1);
   uint64_t max = 0;
 
   for (const SegmentCommand* segment : segments_) {
+    if (segment->name_ == "__PAGEZERO") {
+      continue;
+    }
     min = std::min<uint64_t>(min, segment->virtual_address());
     max = std::max(max, segment->virtual_address() + segment->virtual_size());
   }
@@ -2424,6 +2408,48 @@ void Binary::refresh_seg_offset() {
   for (SegmentCommand* segment : segments_) {
     offset_seg_[segment->file_offset()] = segment;
   }
+}
+
+Binary::stub_iterator Binary::symbol_stubs() const {
+  static stub_iterator empty_iterator(
+    Stub::Iterator{},
+    Stub::Iterator{}
+  );
+
+  std::vector<const Section*> stub_sections;
+  stub_sections.reserve(3);
+
+  uint32_t total = 0;
+
+  for (const Section& section : sections()) {
+    if (section.type() != Section::TYPE::SYMBOL_STUBS) {
+      continue;
+    }
+
+    const uint32_t stride = section.reserved2();
+    if (stride == 0) {
+      continue;
+    }
+
+    const uint32_t count = section.content().size() / stride;
+    if (count == 0) {
+      continue;
+    }
+
+    total += count;
+    stub_sections.push_back(&section);
+  }
+
+  if (stub_sections.empty() || total == 0) {
+    return empty_iterator;
+  }
+  Stub::Iterator begin(
+      {header_.cpu_type(), header_.cpu_subtype()},
+      std::move(stub_sections), 0
+  );
+  Stub::Iterator end({}, {}, total);
+
+  return make_range(std::move(begin), std::move(end));
 }
 
 Binary::~Binary() = default;
