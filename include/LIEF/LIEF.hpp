@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2024 R. Thomas
- * Copyright 2017 - 2024 Quarkslab
+/* Copyright 2017 - 2025 R. Thomas
+ * Copyright 2017 - 2025 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,8 @@
 #include <LIEF/DWARF.hpp>
 #include <LIEF/PDB.hpp>
 #include <LIEF/ObjC.hpp>
+#include <LIEF/DyldSharedCache.hpp>
+#include <LIEF/ASM.hpp>
 #include <LIEF/logging.hpp>
 #include <LIEF/platforms.hpp>
 #include <LIEF/debug_loc.hpp>

@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2024 R. Thomas
- * Copyright 2017 - 2024 Quarkslab
+/* Copyright 2017 - 2025 R. Thomas
+ * Copyright 2017 - 2025 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -329,6 +329,12 @@ void Segment::content(std::vector<uint8_t> content) {
   if (node.size() < content.size()) {
       LIEF_INFO("You inserted 0x{:x} bytes in the segment {}@0x{:x} which is 0x{:x} wide",
                 content.size(), to_string(type()), virtual_size(), node.size());
+  }
+
+  auto max_offset = (int64_t)node.offset() + (int64_t)content.size();
+  if (max_offset < 0 || max_offset > (int64_t)binary_content.size()) {
+    LIEF_ERR("Write out of range");
+    return;
   }
 
   physical_size(node.size());

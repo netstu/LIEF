@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2024 R. Thomas
- * Copyright 2017 - 2024 Quarkslab
+/* Copyright 2017 - 2025 R. Thomas
+ * Copyright 2017 - 2025 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,18 +30,21 @@
 
 namespace LIEF::MachO::py {
 
+
+// (rtti)Trick to avoid duplication clash with SegmentCommand::it_relocations
+class section_it_relocations : public Section::it_relocations {
+  public:
+  using Section::it_relocations::it_relocations;
+};
+
 template<>
 void create<Section>(nb::module_& m) {
   using namespace LIEF::py;
 
   nb::class_<Section, LIEF::Section> sec(m, "Section",
       "Class that represents a Mach-O section"_doc);
-  try {
-    /*
-     * it_relocations could be already registered by the SegmentCommand
-     */
-    init_ref_iterator<Section::it_relocations>(sec, "it_relocations");
-  } catch (const std::runtime_error&) { }
+
+  init_ref_iterator<section_it_relocations>(sec, "it_relocations");
 
   enum_<Section::TYPE>(sec, "TYPE")
   #define PY_ENUM(x) to_string(x), x
@@ -71,7 +74,7 @@ void create<Section>(nb::module_& m) {
   #undef PY_ENUM
   ;
 
-  enum_<Section::FLAGS>(sec, "FLAGS", nb::is_arithmetic())
+  enum_<Section::FLAGS>(sec, "FLAGS", nb::is_flag())
   #define PY_ENUM(x) to_string(x), x
     .value(PY_ENUM(Section::FLAGS::PURE_INSTRUCTIONS))
     .value(PY_ENUM(Section::FLAGS::NO_TOC))

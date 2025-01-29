@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2024 R. Thomas
- * Copyright 2017 - 2024 Quarkslab
+/* Copyright 2017 - 2025 R. Thomas
+ * Copyright 2017 - 2025 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,11 +30,11 @@ class logger;
 namespace LIEF {
 namespace logging {
 
-//! **Hierarchical** logging level
-//!
-//! From a given level set, all levels below this ! level are enabled
-//!
-//! For example, if LOG_INFO is enabled then LOG_WARN, LOG_ERR are also enabled
+/// **Hierarchical** logging level
+///
+/// From a given level set, all levels below this ! level are enabled
+///
+/// For example, if LEVEL::INFO is enabled then LEVEL::WARN, LEVEL::ERR are also enabled
 enum class LEVEL : uint32_t {
   OFF = 0,
 
@@ -46,24 +46,24 @@ enum class LEVEL : uint32_t {
   CRITICAL,
 };
 
-//! Current log level
+/// Current log level
 LIEF_API LEVEL get_level();
 
 LIEF_API const char* to_string(LEVEL e);
 
-//! Globally disable the logging module
+/// Globally disable the logging module
 LIEF_API void disable();
 
-//! Globally enable the logging module
+/// Globally enable the logging module
 LIEF_API void enable();
 
-//! Change the logging level (**hierarchical**)
+/// Change the logging level (**hierarchical**)
 LIEF_API void set_level(LEVEL level);
 
-//! Change the logger as a file-base logging and set its path
+/// Change the logger as a file-base logging and set its path
 LIEF_API void set_path(const std::string& path);
 
-//! Log a message with the LIEF's logger
+/// Log a message with the LIEF's logger
 LIEF_API void log(LEVEL level, const std::string& msg);
 
 LIEF_API void log(LEVEL level, const std::string& fmt,
@@ -79,6 +79,96 @@ void log(LEVEL level, const std::string& fmt, const Args &... args) {
 LIEF_API void set_logger(std::shared_ptr<spdlog::logger> logger);
 
 LIEF_API void reset();
+
+inline void enable_debug() {
+  set_level(LEVEL::DEBUG);
+}
+
+inline void debug(const std::string& msg) {
+  log(LEVEL::DEBUG, msg);
+}
+
+inline void debug(const std::string& fmt, const std::vector<std::string>& args) {
+  log(LEVEL::DEBUG, fmt, args);
+}
+
+template <typename... Args>
+void debug(const std::string& fmt, const Args &... args) {
+  std::vector<std::string> vec_args;
+  vec_args.insert(vec_args.end(), { static_cast<decltype(vec_args)::value_type>(args)...});
+  return debug(fmt, vec_args);
+}
+
+// -----------------------------------------------------------------------------
+
+inline void info(const std::string& msg) {
+  log(LEVEL::INFO, msg);
+}
+
+inline void info(const std::string& fmt, const std::vector<std::string>& args) {
+  log(LEVEL::INFO, fmt, args);
+}
+
+template <typename... Args>
+void info(const std::string& fmt, const Args &... args) {
+  std::vector<std::string> vec_args;
+  vec_args.insert(vec_args.end(), { static_cast<decltype(vec_args)::value_type>(args)...});
+  return info(fmt, vec_args);
+}
+
+// -----------------------------------------------------------------------------
+
+inline void warn(const std::string& msg) {
+  log(LEVEL::WARN, msg);
+}
+
+inline void warn(const std::string& fmt, const std::vector<std::string>& args) {
+  log(LEVEL::WARN, fmt, args);
+}
+
+template <typename... Args>
+void warn(const std::string& fmt, const Args &... args) {
+  std::vector<std::string> vec_args;
+  vec_args.insert(vec_args.end(), { static_cast<decltype(vec_args)::value_type>(args)...});
+  return warn(fmt, vec_args);
+}
+
+// -----------------------------------------------------------------------------
+
+inline void err(const std::string& msg) {
+  log(LEVEL::ERR, msg);
+}
+
+inline void err(const std::string& fmt, const std::vector<std::string>& args) {
+  log(LEVEL::ERR, fmt, args);
+}
+
+template <typename... Args>
+void err(const std::string& fmt, const Args &... args) {
+  std::vector<std::string> vec_args;
+  vec_args.insert(vec_args.end(), { static_cast<decltype(vec_args)::value_type>(args)...});
+  return err(fmt, vec_args);
+}
+
+// -----------------------------------------------------------------------------
+
+inline void critical(const std::string& msg) {
+  log(LEVEL::CRITICAL, msg);
+}
+
+inline void critical(const std::string& fmt, const std::vector<std::string>& args) {
+  log(LEVEL::CRITICAL, fmt, args);
+}
+
+template <typename... Args>
+void critical(const std::string& fmt, const Args &... args) {
+  std::vector<std::string> vec_args;
+  vec_args.insert(vec_args.end(), { static_cast<decltype(vec_args)::value_type>(args)...});
+  return critical(fmt, vec_args);
+}
+
+// -----------------------------------------------------------------------------
+
 
 class Scoped {
   public:
@@ -106,6 +196,7 @@ class Scoped {
   private:
   LEVEL level_ = LEVEL::INFO;
 };
+
 
 }
 }

@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2024 R. Thomas
- * Copyright 2017 - 2024 Quarkslab
+/* Copyright 2017 - 2025 R. Thomas
+ * Copyright 2017 - 2025 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -199,6 +199,11 @@ span<const uint8_t> Section::content() const {
   }
   const std::vector<uint8_t>& binary_content = datahandler_->content();
   DataHandler::Node& node = res.value();
+  auto end_offset = (int64_t)node.offset() + (int64_t)node.size();
+  if (end_offset <= 0 || end_offset > (int64_t)binary_content.size()) {
+    return {};
+  }
+
   const uint8_t* ptr = binary_content.data() + node.offset();
   return {ptr, ptr + node.size()};
 }
@@ -248,6 +253,12 @@ void Section::content(const std::vector<uint8_t>& data) {
               data.size(), name(), node.size());
   }
 
+  auto max_offset = (int64_t)node.offset() + (int64_t)data.size();
+  if (max_offset < 0 || max_offset > (int64_t)binary_content.size()) {
+    LIEF_ERR("Write out of range");
+    return;
+  }
+
   size(data.size());
 
   std::copy(std::begin(data), std::end(data),
@@ -291,6 +302,12 @@ void Section::content(std::vector<uint8_t>&& data) {
   }
 
   size(data.size());
+
+  auto max_offset = (int64_t)node.offset() + (int64_t)data.size();
+  if (max_offset < 0 || max_offset > (int64_t)binary_content.size()) {
+    LIEF_ERR("Write out of range");
+    return;
+  }
 
   std::move(std::begin(data), std::end(data),
             std::begin(binary_content) + node.offset());
@@ -429,9 +446,48 @@ const char* to_string(Section::TYPE e) {
     ENTRY(ARM_OVERLAYSECTION),
     ENTRY(HEX_ORDERED),
     ENTRY(X86_64_UNWIND),
+
+    ENTRY(MIPS_LIBLIST),
+    ENTRY(MIPS_MSYM),
+    ENTRY(MIPS_CONFLICT),
+    ENTRY(MIPS_GPTAB),
+    ENTRY(MIPS_UCODE),
+    ENTRY(MIPS_DEBUG),
     ENTRY(MIPS_REGINFO),
+    ENTRY(MIPS_PACKAGE),
+    ENTRY(MIPS_PACKSYM),
+    ENTRY(MIPS_RELD),
+    ENTRY(MIPS_IFACE),
+    ENTRY(MIPS_CONTENT),
     ENTRY(MIPS_OPTIONS),
+    ENTRY(MIPS_SHDR),
+    ENTRY(MIPS_FDESC),
+    ENTRY(MIPS_EXTSYM),
+    ENTRY(MIPS_DENSE),
+    ENTRY(MIPS_PDESC),
+    ENTRY(MIPS_LOCSYM),
+    ENTRY(MIPS_AUXSYM),
+    ENTRY(MIPS_OPTSYM),
+    ENTRY(MIPS_LOCSTR),
+    ENTRY(MIPS_LINE),
+    ENTRY(MIPS_RFDESC),
+    ENTRY(MIPS_DELTASYM),
+    ENTRY(MIPS_DELTAINST),
+    ENTRY(MIPS_DELTACLASS),
+    ENTRY(MIPS_DWARF),
+    ENTRY(MIPS_DELTADECL),
+    ENTRY(MIPS_SYMBOL_LIB),
+    ENTRY(MIPS_EVENTS),
+    ENTRY(MIPS_TRANSLATE),
+    ENTRY(MIPS_PIXIE),
+    ENTRY(MIPS_XLATE),
+    ENTRY(MIPS_XLATE_DEBUG),
+    ENTRY(MIPS_WHIRL),
+    ENTRY(MIPS_EH_REGION),
+    ENTRY(MIPS_XLATE_OLD),
+    ENTRY(MIPS_PDR_EXCEPTION),
     ENTRY(MIPS_ABIFLAGS),
+    ENTRY(MIPS_XHASH),
 
     ENTRY(RISCV_ATTRIBUTES),
   };

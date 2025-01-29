@@ -556,3 +556,20 @@ def test_issue_1049():
 def test_xbox_file():
     pe = lief.PE.parse(get_sample("PE/backcompat.exe"))
     assert pe.header.machine == lief.PE.Header.MACHINE_TYPES.POWERPCBE
+
+def test_issue_1115():
+    """
+    Infinite loop in PE resource tree
+    """
+    pe = lief.PE.parse(get_sample("PE/issue_1115.pe"))
+    assert pe is not None
+
+def test_large_ordinal():
+    """
+    Issue coming from Goblin project: goblin/issues/428
+    """
+    pe = lief.PE.parse(get_sample("PE/special_import_forwarder_tls.exe.bin"))
+    imp = pe.imports[0]
+    assert imp.name == "abcd.dll"
+
+    assert imp.entries[0].ordinal == 0xc8c6

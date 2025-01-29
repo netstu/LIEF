@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2024 R. Thomas
- * Copyright 2017 - 2024 Quarkslab
+/* Copyright 2017 - 2025 R. Thomas
+ * Copyright 2017 - 2025 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@
 
 #include <spdlog/spdlog.h>
 #include <spdlog/fmt/fmt.h>
+#include <spdlog/fmt/ranges.h>
 
 #define LIEF_TRACE(...) LIEF::logging::Logger::instance().trace(__VA_ARGS__)
 #define LIEF_DEBUG(...) LIEF::logging::Logger::instance().debug(__VA_ARGS__)
@@ -53,6 +54,7 @@ namespace logging {
 class Logger {
   public:
   static constexpr auto DEFAULT_NAME = "LIEF";
+  using instances_t = std::unordered_map<std::string, Logger*>;
   Logger(const Logger&) = delete;
   Logger& operator=(const Logger&) = delete;
 
@@ -127,8 +129,6 @@ class Logger {
   Logger(Logger&&) noexcept = default;
   Logger& operator=(Logger&&) noexcept = default;
 
-  static void destroy();
-  static inline std::unordered_map<std::string, Logger*> instances_;
   std::shared_ptr<spdlog::logger> sink_;
 };
 

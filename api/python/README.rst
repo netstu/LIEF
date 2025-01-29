@@ -15,6 +15,7 @@ LIEF Extended:
 
   * DWARF/PDB Support
   * Objective-C Metadata
+  * dyld shared cache
 
 Checkout: https://lief.re/doc/latest/extended/intro.html for the details
 
@@ -52,7 +53,7 @@ Contact
 =======
 
 * **Mail**: contact at lief.re
-* **Discord**: `LIEF <https://discord.com/invite/7hRFGWYedu>`_
+* **Discord**: `LIEF <https://discord.gg/jGQtyAYChJ>`_
 
 Authors
 =======

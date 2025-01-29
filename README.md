@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <a href="https://discord.gg/7hRFGWYedu">
+  <a href="https://discord.gg/jGQtyAYChJ">
     <img src="https://img.shields.io/discord/1117013848914931762">
   </a>
   &nbsp;
@@ -38,27 +38,40 @@
   <a href="https://twitter.com/LIEF_project">
    <img alt="Twitter Follow" src="https://img.shields.io/twitter/follow/lief_project">
   </a>
+  &nbsp;
+  <a href="https://gurubase.io/g/lief">
+    <img src="https://img.shields.io/badge/Gurubase-Ask%20LIEF%20Guru-006BFF">
+  </a>
 </p>
 
 <br />
 <p align="center">
-  <a href="https://lief-project.github.io/blog/"><b>Blog</b></a> •
-  <a href="https://lief-project.github.io/doc/latest/index.html"><b>Documentation</b></a> •
+  <a href="https://lief.re/blog/"><b>Blog</b></a> •
+  <a href="https://lief.re/doc/latest/index.html"><b>Documentation</b></a> •
   <a href="#user-content-about-1"><b>About</b></a>
 </p>
 <br />
 
 # About
 
-The purpose of this project is to provide a cross platform library which can parse,
+The purpose of this project is to provide a cross-platform library to parse,
 modify and abstract ELF, PE and MachO formats.
 
-Main features:
+**Main features**:
 
-  * **Parsing**: LIEF can parse ELF, PE, MachO, OAT, DEX, VDEX, ART and provides an user-friendly API to access to format internals.
-  * **Modify**: LIEF enables to modify some parts of these formats
+  * **Parsing**: LIEF can parse ELF, PE, MachO, OAT, DEX, VDEX, ART and provides an user-friendly API to access to internals.
+  * **Modify**: LIEF can use to modify some parts of these formats (adding a section, changing a symbol's name, ...)
   * **Abstract**: Three formats have common features like sections, symbols, entry point... LIEF factors them.
   * **API**: LIEF can be used in C++, Python, Rust and C
+
+**Extended features**:
+
+  * [**DWARF/PDB** Support](https://lief.re/doc/latest/extended/debug_info/index.html)
+  * [**Objective-C** Metadata](https://lief.re/doc/latest/extended/objc/index.html)
+  * [**Dyld Shared Cache**](https://lief.re/doc/latest/extended/dsc/index.html) with support for extracting Dylib
+  * [**Disassembler**](https://lief.re/doc/latest/extended/disassembler/index.html): AArch64, x86/x86-64, ARM, RISC-V, Mips, PowerPC, eBPF
+  * [**Assembler**](https://lief.re/doc/latest/extended/assembler/index.html): AArch64, x86/x86-64
+
 
 # Content
 
@@ -66,22 +79,23 @@ Main features:
 - [Download / Install](#downloads--install)
 - [Getting started](#getting-started)
 - [Documentation](#documentation)
-  - [Sphinx](https://lief-project.github.io/doc/stable/index.html)
-  - [Doxygen](https://lief-project.github.io/doc/latest/doxygen/index.html)
+  - [Rust](https://lief.re/doc/stable/rust/lief/)
+  - [Sphinx](https://lief.re/doc/latest/index.html)
+  - [Doxygen](https://lief.re/doc/latest/doxygen/index.html)
   - Tutorials:
-    - [Parse and manipulate formats](https://lief-project.github.io/doc/latest/tutorials/01_play_with_formats.html)
-    - [Create a PE from scratch](https://lief-project.github.io/doc/latest/tutorials/02_pe_from_scratch.html)
-    - [Play with ELF symbols](https://lief-project.github.io/doc/latest/tutorials/03_elf_change_symbols.html)
-    - [ELF Hooking](https://lief-project.github.io/doc/latest/tutorials/04_elf_hooking.html)
-    - [Infecting the plt/got](https://lief-project.github.io/doc/latest/tutorials/05_elf_infect_plt_got.html)
-    - [PE Hooking](https://lief-project.github.io/doc/latest/tutorials/06_pe_hooking.html)
-    - [PE Resources](https://lief-project.github.io/doc/latest/tutorials/07_pe_resource.html)
-    - [Transforming an ELF executable into a library](https://lief-project.github.io/doc/latest/tutorials/08_elf_bin2lib.html)
-    - [How to use frida on a non-rooted device](https://lief-project.github.io/doc/latest/tutorials/09_frida_lief.html)
-    - [Android formats](https://lief-project.github.io/doc/latest/tutorials/10_android_formats.html)
-    - [Mach-O modification](https://lief-project.github.io/doc/latest/tutorials/11_macho_modification.html)
-    - [ELF Coredump](https://lief-project.github.io/doc/latest/tutorials/12_elf_coredump.html)
-    - [PE Authenticode](https://lief-project.github.io/doc/latest/tutorials/13_pe_authenticode.html)
+    - [Parse and manipulate formats](https://lief.re/doc/latest/tutorials/01_play_with_formats.html)
+    - [Create a PE from scratch](https://lief.re/doc/latest/tutorials/02_pe_from_scratch.html)
+    - [Play with ELF symbols](https://lief.re/doc/latest/tutorials/03_elf_change_symbols.html)
+    - [ELF Hooking](https://lief.re/doc/latest/tutorials/04_elf_hooking.html)
+    - [Infecting the plt/got](https://lief.re/doc/latest/tutorials/05_elf_infect_plt_got.html)
+    - [PE Hooking](https://lief.re/doc/latest/tutorials/06_pe_hooking.html)
+    - [PE Resources](https://lief.re/doc/latest/tutorials/07_pe_resource.html)
+    - [Transforming an ELF executable into a library](https://lief.re/doc/latest/tutorials/08_elf_bin2lib.html)
+    - [How to use frida on a non-rooted device](https://lief.re/doc/latest/tutorials/09_frida_lief.html)
+    - [Android formats](https://lief.re/doc/latest/tutorials/10_android_formats.html)
+    - [Mach-O modification](https://lief.re/doc/latest/tutorials/11_macho_modification.html)
+    - [ELF Coredump](https://lief.re/doc/latest/tutorials/12_elf_coredump.html)
+    - [PE Authenticode](https://lief.re/doc/latest/tutorials/13_pe_authenticode.html)
 - [Contact](#contact)
 - [About](#about)
   - [Authors](#authors)
@@ -90,11 +104,26 @@ Main features:
 
 ## Downloads / Install
 
-First, make sure to have an updated version of setuptools:
+## C++
 
-```console
-pip install setuptools --upgrade
+```cmake
+find_package(LIEF REQUIRED)
+target_link_libraries(my-project LIEF::LIEF)
 ```
+
+## Rust
+
+```toml
+[package]
+name    = "my-awesome-project"
+version = "0.0.1"
+edition = "2021"
+
+[dependencies]
+lief = "0.16.2"
+```
+
+## Python
 
 To install the latest **version** (release):
 
@@ -105,22 +134,23 @@ pip install lief
 To install nightly build:
 
 ```console
-pip install [--user] --index-url https://lief.s3-website.fr-par.scw.cloud/latest lief==0.16.0.dev0
+pip install [--user] --force-reinstall --index-url https://lief.s3-website.fr-par.scw.cloud/latest lief==0.17.0.dev0
 ```
 
 ### Packages
 
+- LIEF Extended: https://extended.lief.re (GitHub OAuth)
 - **Nightly**:
   * SDK: https://lief.s3-website.fr-par.scw.cloud/latest/sdk
   * Python Wheels: https://lief.s3-website.fr-par.scw.cloud/latest/lief
-- **v0.15.1**: https://github.com/lief-project/LIEF/releases/tag/0.15.1
+- **v0.16.2**: https://github.com/lief-project/LIEF/releases/tag/0.16.2
 
 Here are guides to install or integrate LIEF:
 
-  * [Python](https://lief-project.github.io/doc/latest/installation.html#python)
-  * [VisualStudio](https://lief-project.github.io/doc/latest/installation.html#visual-studio-integration)
-  * [XCode](https://lief-project.github.io/doc/latest/installation.html#xcode-integration)
-  * [CMake](https://lief-project.github.io/doc/latest/installation.html#cmake-integration)
+  * [Python](https://lief.re/doc/latest/installation.html#python)
+  * [Visual Studio](https://lief.re/doc/latest/installation.html#visual-studio-integration)
+  * [XCode](https://lief.re/doc/latest/installation.html#xcode-integration)
+  * [CMake](https://lief.re/doc/latest/installation.html#cmake-integration)
 
 ## Getting started
 
@@ -160,7 +190,6 @@ if let Some(Binary::PE(pe)) = Binary::parse(path.as_str()) {
     }
 }
 ```
-
 
 ### C++
 
@@ -215,10 +244,9 @@ int main(int argc, char** argv) {
 
 ## Documentation
 
-* [Main documentation](https://lief-project.github.io/doc/latest/index.html)
-* [Tutorial](https://lief-project.github.io/doc/latest/tutorials/index.html)
-* [API](https://lief-project.github.io/doc/latest/api/index.html)
-* [Doxygen](https://lief-project.github.io/doc/latest/doxygen/index.html)
+* [Main documentation](https://lief.re/doc/latest/index.html)
+* [Doxygen](https://lief.re/doc/latest/doxygen/index.html)
+* [Rust](https://lief.re/doc/stable/rust/lief/)
 
 ## Contact
 
@@ -229,11 +257,11 @@ int main(int argc, char** argv) {
 
 ### Authors
 
-Romain Thomas ([@rh0main](https://twitter.com/rh0main)) - [Quarkslab](https://www.quarkslab.com)
+Romain Thomas ([@rh0main](https://www.romainthomas.fr/)) - Formerly at [Quarkslab](https://www.quarkslab.com)
 
 ### License
 
-LIEF is provided under the [Apache 2.0 license](https://github.com/lief-project/LIEF/blob/0.15.1/LICENSE).
+LIEF is provided under the [Apache 2.0 license](https://github.com/lief-project/LIEF/blob/0.16.1/LICENSE).
 
 ### Bibtex
 

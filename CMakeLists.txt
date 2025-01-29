@@ -1,4 +1,6 @@
 cmake_minimum_required(VERSION 3.24)
+project(LIEF LANGUAGES C CXX)
+
 enable_language(C)
 enable_language(CXX)
 
@@ -34,8 +36,16 @@ elseif(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/.git"
   include(LIEFGit)
 else()
   set(LIEF_VERSION_MAJOR "0")
-  set(LIEF_VERSION_MINOR "16")
+  set(LIEF_VERSION_MINOR "17")
   set(LIEF_VERSION_PATCH "0")
+endif()
+
+if (DEFINED ENV{LIEF_COMMIT})
+  set(LIEF_COMMIT_HASH "$ENV{LIEF_COMMIT}")
+endif()
+
+if (DEFINED ENV{LIEF_BRANCH})
+  set(LIEF_GIT_BRANCH "$ENV{LIEF_BRANCH}")
 endif()
 
 # LIEF Project
@@ -143,6 +153,10 @@ else()
                         MbedTLS::mbedcrypto MbedTLS::mbedx509)
 endif()
 
+target_compile_definitions(LIB_LIEF PRIVATE
+  -DMBEDTLS_CONFIG_FILE="${CMAKE_CURRENT_SOURCE_DIR}/config/mbedtls/config.h"
+)
+
 if(WIN32 AND BUILD_SHARED_LIBS)
   target_link_libraries(LIB_LIEF PRIVATE ws2_32)
 endif()
@@ -159,6 +173,16 @@ if(BUILD_SHARED_LIBS OR LIEF_FORCE_API_EXPORTS)
   target_compile_definitions(LIB_LIEF PRIVATE -DLIEF_EXPORTS)
 else()
   target_compile_definitions(LIB_LIEF PRIVATE -DLIEF_STATIC)
+endif()
+
+
+if(LIEF_ENABLE_JSON)
+  # Make nlohmann/json is only using C++11 API.
+  # Especially, MSVC[14.37.32822] is buggy with (no)rtti & std::any
+  # Ref:
+  # - https://github.com/nlohmann/json/issues/3900
+  # - https://github.com/microsoft/STL/issues/4349#issuecomment-1920093172
+  target_compile_definitions(LIB_LIEF PRIVATE JSON_HAS_CPP_11)
 endif()
 
 # Logging Configuration

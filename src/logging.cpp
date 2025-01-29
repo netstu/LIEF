@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2024 R. Thomas
- * Copyright 2017 - 2024 Quarkslab
+/* Copyright 2017 - 2025 R. Thomas
+ * Copyright 2017 - 2025 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,14 @@
 namespace LIEF {
 namespace logging {
 
+
+std::shared_ptr<spdlog::logger>
+  create_basic_logger_mt(const std::string& name, const std::string& path, bool truncate = false)
+{
+  spdlog::filename_t fname(path.begin(), path.end());
+  return spdlog::basic_logger_mt(name, fname, truncate);
+}
+
 static std::shared_ptr<spdlog::logger> default_logger(
   [[maybe_unused]] const std::string& name = "LIEF",
   [[maybe_unused]] const std::string& logcat_tag = "lief",
@@ -45,7 +53,7 @@ static std::shared_ptr<spdlog::logger> default_logger(
 #endif
   }
   else if (current_platform() == PLATFORMS::PLAT_IOS) {
-    sink = spdlog::basic_logger_mt(name, filepath, truncate);
+    sink = create_basic_logger_mt(name, filepath, truncate);
   }
   else {
     sink = spdlog::stderr_color_mt(name);
@@ -79,15 +87,28 @@ LEVEL Logger::get_level() {
   return LEVEL::TRACE;
 }
 
+
 Logger& Logger::instance(const char* name) {
-  if (auto it = instances_.find(name); it != instances_.end()) {
+  static Logger::instances_t instances;
+  static std::mutex mu;
+  std::lock_guard LK(mu);
+
+  if (auto it = instances.find(name); it != instances.end()) {
     return *it->second;
   }
-  if (instances_.empty()) {
-    std::atexit(destroy);
+
+  if (instances.empty()) {
+    std::atexit([] {
+      std::lock_guard LK(mu);
+      for (const auto& [name, instance] : instances) {
+        delete instance;
+      }
+      instances.clear();
+    });
   }
+
   auto* impl = new Logger(default_logger(/*name=*/name));
-  instances_.insert({name, impl});
+  instances.insert({name, impl});
   return *impl;
 }
 
@@ -95,17 +116,10 @@ void Logger::reset() {
   set_logger(default_logger());
 }
 
-void Logger::destroy() {
-  for (const auto& [name, instance] : instances_) {
-    delete instance;
-  }
-  instances_.clear();
-}
-
 Logger& Logger::set_log_path(const std::string& path) {
   auto& registry = spdlog::details::registry::instance();
   registry.drop(DEFAULT_NAME);
-  auto logger = spdlog::basic_logger_mt(DEFAULT_NAME, path, /*truncate=*/true);
+  auto logger = create_basic_logger_mt(DEFAULT_NAME, path, /*truncate=*/true);
   set_logger(std::move(logger));
   return *this;
 }

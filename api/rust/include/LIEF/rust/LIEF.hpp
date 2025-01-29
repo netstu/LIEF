@@ -1,4 +1,4 @@
-/* Copyright 2024 R. Thomas
+/* Copyright 2024 - 2025 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,8 @@
 #include "LIEF/rust/PDB.hpp"
 #include "LIEF/rust/DWARF.hpp"
 #include "LIEF/rust/ObjC.hpp"
+#include "LIEF/rust/DyldSharedCache.hpp"
+#include "LIEF/rust/ASM.hpp"
 
 #include "LIEF/rust/Span.hpp"
 #include "LIEF/rust/range.hpp"

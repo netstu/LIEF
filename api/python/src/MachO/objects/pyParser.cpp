@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2024 R. Thomas
- * Copyright 2017 - 2024 Quarkslab
+/* Copyright 2017 - 2025 R. Thomas
+ * Copyright 2017 - 2025 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,7 +51,7 @@ void create<Parser>(nb::module_& m) {
     Parse the given binary (from raw bytes) and return a :class:`~lief.MachO.FatBinary` object
 
     One can configure the parsing with the ``config`` parameter. See :class:`~lief.MachO.ParserConfig`
-    )delim"_doc, "raw"_a, "config"_a = ParserConfig::quick(),
+    )delim"_doc, "raw"_a, "config"_a = ParserConfig::deep(),
     nb::rv_policy::take_ownership);
 
   m.def("parse_from_memory",
@@ -82,7 +82,7 @@ void create<Parser>(nb::module_& m) {
 
     One can configure the parser with the ``config`` parameter. See :class:`~lief.MachO.ParserConfig`
     )delim"_doc,
-    "obj"_a, "config"_a = ParserConfig::quick(),
+    "obj"_a, "config"_a = ParserConfig::deep(),
     nb::rv_policy::take_ownership);
 }
 

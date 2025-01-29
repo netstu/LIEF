@@ -2,6 +2,8 @@ use lief_ffi as ffi;
 
 use num_traits::{cast, Num};
 use std::mem::size_of;
+use std::pin::Pin;
+use std::path::Path;
 
 use super::data_directory::{DataDirectories, DataDirectory};
 use super::debug;
@@ -52,9 +54,12 @@ impl FromFFI<ffi::PE_Binary> for Binary {
 
 impl Binary {
     /// Parse from a file path given as a string
-    pub fn parse(path: &str) -> Self {
-        let bin = ffi::PE_Binary::parse(path);
-        Self { ptr: bin }
+    pub fn parse(path: &str) -> Option<Self> {
+        let ffi = ffi::PE_Binary::parse(path);
+        if ffi.is_null() {
+            return None;
+        }
+        Some(Binary::from_ffi(ffi))
     }
 
     /// DosHeader which starts the PE files
@@ -248,6 +253,10 @@ impl Binary {
         to_slice!(self.ptr.get_content_from_virtual_address(address, size));
     }
 
+    pub fn functions(&self) -> generic::Functions {
+        generic::Functions::new(self.ptr.functions())
+    }
+
     /// Get the integer value at the given virtual address
     pub fn get_int_from_virtual_address<T>(&self, addr: u64) -> Result<T, Error>
     where
@@ -303,6 +312,11 @@ impl Binary {
 
         Err(Error::NotSupported)
     }
+
+    /// Write back the current PE binary into the file specified in parameter
+    pub fn write(&mut self, output: &Path) {
+        self.ptr.as_mut().unwrap().write(output.to_str().unwrap());
+    }
 }
 
 impl std::fmt::Debug for Binary {
@@ -314,6 +328,16 @@ impl std::fmt::Debug for Binary {
 impl generic::Binary for Binary {
     fn as_generic(&self) -> &ffi::AbstractBinary {
         self.ptr.as_ref().unwrap().as_ref()
+    }
+
+    fn as_pin_mut_generic(&mut self) -> Pin<&mut ffi::AbstractBinary> {
+        unsafe {
+            Pin::new_unchecked({
+                (self.ptr.as_ref().unwrap().as_ref()
+                    as *const ffi::AbstractBinary
+                    as *mut ffi::AbstractBinary).as_mut().unwrap()
+            })
+        }
     }
 }
 

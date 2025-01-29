@@ -1,14 +1,77 @@
-Changelog
-=========
+.. _changelog-ref:
 
-0.16.0 - Not Released Yet
+:fa:`solid fa-code-compare` Changelog
+=====================================
+
+0.17.0 - Not Released Yet
 -------------------------
 
-:Abstract:
+:DSC:
 
-  * Add :meth:`lief.Binary.get_int_from_virtual_address` / :cpp:func:`LIEF::Binary::get_int_from_virtual_address`
-    to read an **integer** value at a specific virtual address
+  * Add enum for the latest dyld shared cache version introducing
+    changes in the header layout (``dyld-1231.3 - 2024-09-24``)
 
+    .. code-block:: diff
+
+         uint64_t    dynamicDataOffset;
+         uint64_t    dynamicDataMaxSize;
+      +  uint32_t    tproMappingsOffset;
+      +  uint32_t    tproMappingsCount;
+      };
+
+  * Fix symbol resolution issue: :issue:`1127`
+
+:Mach-O:
+
+  * Add support for |lief-macho-atom-info| command (``LC_ATOM_INFO``)
+
+:ELF:
+
+  * Fix issue when parsing the dynamic table with an invalid offset (bug found
+    by :github_user:`lebr0nli`)
+
+:Extended:
+
+  * Fix issue in the Python bindings while trying to access ``lief.__LIEF_MAIN_COMMIT__``
+
+:Build System:
+
+  * LIEF is now available in `vcpkg <https://github.com/microsoft/vcpkg/tree/master/ports/lief>`_.
+    Many thanks to :github_user:`luadebug` for this support.
+
+0.16.2 - January 1st, 2025
+----------------------------
+
+:Compilation:
+
+  * Fix broken ``aarch64`` Python wheel which is related to a toolchain issue
+    (:issue:`1146`)
+
+0.16.1 - December 26th, 2024
+----------------------------
+
+:MachO:
+
+  * Various fixes from :github_user:`DzenIsRich` & :github_user:`peledins-zimperium`
+    Thanks to them, Mach-O modification is more reliable.
+
+  * Fix issue when building with ``-DLIEF_MACHO=ON`` (see: :issue:`1138`)
+
+:Rust:
+
+  * Fix min-rustc version issue (see: :commit:`75a27f0e`)
+
+:Compilation:
+
+  * Fix missing ``LIEF_API`` visibility (:commit:`e01f92a0`, :pr:`1140`)
+
+0.16.0 - December 10th, 2024
+----------------------------
+
+:Abstraction:
+
+  * Add |get_int_from_virtual_address| to read an **integer** value
+    at a specific virtual address
 
     **C++**
 
@@ -34,32 +97,38 @@ Changelog
       elf: &lief::elf::Binary
       let value: i16 = elf.get_int_from_virtual_address::<i16>(0x401126).unwrap();
 
+  * Global code cleaning (especially, |lief-header-architectures| and
+    |lief-header-modes| is now more meaningful)
+  * Re-scope ``lief.ARCHITECTURES`` into |lief-header-architectures|
+  * Re-scope ``lief.MODES`` into |lief-header-modes|
+  * Re-scope ``lief.OBJECT_TYPES`` into |lief-header-object-types|
+  * Re-scope ``lief.ENDIANNESS`` into |lief-header-endianness|
+
 
 :MachO:
 
   * Fix endianness support (:issue:`1110`)
   * Add helpers to determine the platform targeted by a Mach-O binary:
 
-    - :attr:`lief.MachO.Binary.is_ios`
-    - :attr:`lief.MachO.Binary.is_macos`
-    - :attr:`lief.MachO.Binary.platform`
+    - |lief-macho-binary-is-ios|
+    - |lief-macho-binary-is-macos|
+    - |lief-macho-binary-platform|
 
-  * Expose an iterator over the stub entries located in ``__stubs,__auth_stubs,__symbol_stub,__picsymbolstub4``
+  * Expose an iterator over the stub entries located in ``__stubs,__auth_stubs,__symbol_stub,__picsymbolstub4``:
 
-    - :attr:`lief.MachO.Binary.symbol_stubs`, :class:`lief.MachO.Stub`
-    - :cpp:func:`LIEF::MachO::Binary::symbol_stubs`, :cpp:class:`LIEF::MachO::Stub`
+    |lief-macho-binary-symbol_stubs| - |lief-macho-stub|
 
-  * Add support for the ``LC_SUBCLIENT`` command: :class:`lief.MachO.SubClient`
-  * Add support for the ``LC_ROUTINE/LC_ROUTINE64`` command: :class:`lief.MachO.Routine`
-  * Expose an iterator for the indirect symbols in :class:`lief.MachO.DynamicSymbolCommand`: :attr:`~lief.MachO.DynamicSymbolCommand.indirect_symbols`
-  * Add :attr:`lief.MachO.Binary.bindings` / :cpp:func:`LIEF::MachO::Binary::bindings`
-    to iterate over the bindings info located in :class:`lief.MachO.DyldInfo` or
-    :class:`lief.MachO.ChainedBindingInfo`
-  * Add :class:`lief.MachO.IndirectBindingInfo` / :cpp:class:`LIEF::MachO::IndirectBindingInfo`
-    to represent a binding operation inferred from the indirect symbol table.
+  * Add support for the ``LC_SUBCLIENT`` command: |lief-macho-subclient|
+  * Add support for the ``LC_ROUTINE/LC_ROUTINE64`` command: |lief-macho-routine|
+  * Expose an iterator for the indirect symbols in |lief-macho-dynamicsymbolcommand|
+  * Add |lief-macho-binary-bindings|
+    to iterate over the bindings info located in |lief-macho-dyldinfo| or
+    |lief-macho-chainedbindinginfo|
+  * Add |lief-macho-indirectbindinginfo| to represent a binding operation
+    inferred from the indirect symbol table.
 
-    This can be handy if a Mach-O does not have the commands :class:`~lief.MachO.DyldInfo`
-    or :class:`~lief.MachO.ChainedBindingInfo` (e.g. extracted shared cache library)
+    This can be handy if a Mach-O does not have the commands |lief-macho-dyldinfo|
+    or |lief-macho-chainedbindinginfo| (e.g. extracted shared cache library)
 
 :PE:
 
@@ -67,6 +136,13 @@ Changelog
 
 :ELF:
 
+  * Fix issue when multiple empty strings are present in the ``.symtab`` section
+    (:pr:`1124`)
+  * Add |lief-elf-relocation-resolve| to resolve the value of relocations
+  * Add support for eBPF relocations.
+  * Add support for ``GNU_PROPERTY_AARCH64_FEATURE_PAUTH`` GNU property note:
+    |lief-elf-aarch64pauth|.
+  * Add |lief-elf-binary-target-android| to check if an ELF targets Android
   * Fix a critical error when rewriting ELF file with ``DT_RELR`` relocations.
     This error leads to a crash of the modified binary.
   * Fix error while (re)generating ELF's RELR relocations (:issue:`1097`)
@@ -76,21 +152,94 @@ Changelog
 
 :Rust:
 
+  * Mutable API are progressively introduced:
+
+    - ELF:
+
+      - :rust:method:`lief::elf::Binary::write [struct]`
+      - :rust:method:`lief::elf::Binary::write_with_config [struct]`
+      - :rust:method:`lief::elf::Binary::add_library [struct]`
+
+    - PE:
+
+      - :rust:method:`lief::pe::Binary::write [struct]`
+
+    - MachO:
+
+      - :rust:method:`lief::macho::Binary::write [struct]`
+      - :rust:method:`lief::macho::Binary::write_with_config [struct]`
+      - :rust:method:`lief::macho::Binary::add_library [struct]`
+
   * Thanks to :github_user:`Huntragon` Rust bindings can be used without openssl (see: :pr:`1105`)
+  * Rust precompiled Linux packages are now supported for Debian 10 & Ubuntu 19.10.
+    Before, they require at least Debian 11 & Ubuntu 20.04
+  * Add support for the ``x86_64-unknown-linux-musl`` target which allows to
+    generate full static executable.
+  * Add :rust:enum:`lief::elf::header::Arch`
+  * Add :rust:struct:`lief::elf::dynamic::Flags`
+
+:ObjC:
+
+
+  * The header-like generation (|lief-objc-metadata-to_decl|) is now including
+    method's address as a comment:
+
+    **Before**
+
+    .. code-block:: objc
+
+      @interface GCKUIImageHints<NSCopying,NSSecureCoding> {
+          long long _imageType;
+          NSObject<NSSecureCoding> * _customData;
+          struct CGSize _imageSize;
+      }
+      + (bool)supportsSecureCoding:(GCKUIImageHints *)self :(SEL)id;
+      - (bool)isEqual:(GCKUIImageHints *)self :(SEL)id :(NSObject *)arg2;
+
+    **After**
+
+    .. code-block:: objc
+
+      @interface GCKUIImageHints<NSCopying,NSSecureCoding> {
+          long long _imageType;
+          NSObject<NSSecureCoding> * _customData;
+          struct CGSize _imageSize;
+      }
+      // Address: 0x00001aa448
+      + (bool)supportsSecureCoding:(GCKUIImageHints *)self :(SEL)id;
+      // Address: 0x00001aa5ec
+      - (bool)isEqual:(GCKUIImageHints *)self :(SEL)id :(NSObject *)arg2;
+
+  * Fix |lief-objc-method-address| for *small* methods.
+  * The output of |lief-objc-metadata-to_decl_opt| can now be configured with
+    |lief-objc-declopt|.
+
+:DWARF:
+
+  * Add |lief-dwarf-function-is-external|
+  * Add |lief-dwarf-cu-imported-functions|
+  * Add ``DW_TAG_typedef`` support
 
 :Extended:
-  * :attr:`lief.ELF.Symbol.demangled_name` /
-    :cpp:func:`LIEF::ELF::Symbol::demangled_name` is working on **all** platforms
+
+  .. note::
+
+    * `LIEF extended <https://extended.lief.re>`_ is now open to everyone
+    * C++ SDK is now available
+    * Rust package is now available
+
+  * Initial assembler support: :ref:`Assembler <extended-assembler>`
+  * Initial disassembler support: :ref:`Disassembler <extended-disassembler>`
+  * Linux Python wheels are now ``manylinux_2_27`` compliants. In other words,
+    they are working with a glibc from at least 2018.
+  * Support for :ref:`Dyld shared cache <extended-dsc>`
+  * |lief-elf-symbol-demangled_name| is working on **all** platforms
     (not only unix-based builds)
-  * :attr:`lief.MachO.Symbol.demangled_name` /
-    :cpp:func:`LIEF::MachO::Symbol::demangled_name` is working on **all** platforms
+  * |lief-macho-symbol-demangled_name| is working on **all** platforms
     (not only unix-based builds)
-  * Add :attr:`lief.PE.DelayImportEntry.demangled_name` /
-    :cpp:func:`LIEF::PE::DelayImportEntry::demangled_name`
-  * Add :attr:`lief.PE.ImportEntry.demangled_name` /
-    :cpp:func:`LIEF::PE::ImportEntry::demangled_name`
-  * Add :attr:`lief.PE.ExportEntry.demangled_name` /
-    :cpp:func:`LIEF::PE::ExportEntry::demangled_name`
+  * |lief-pe-delayimportentry-demangled_name|
+  * |lief-pe-importentry-demangled_name|
+  * |lief-pe-exportentry-demangled_name|
 
     .. code-block:: python
 
@@ -106,14 +255,29 @@ Changelog
                 # e.g. void __cdecl std::_Xlength_error(char const *)
                 print(entry.demangled_name)
 
-  * Add :func:`lief.demangle` / :cpp:func:`LIEF::demangle` to demangle symbols
-    (c.f. :issue:`1054`)
+  * Add |demangle| to demangle symbols (c.f. :issue:`1054`)
   * The extended version is now using a versioning matching LIEF regular version
+
+:Python Bindings:
+
+  * Upgrade nanobind from ``1.8.0`` to ``2.4.0``
+  * ``*.pyi`` stubs are now generated by nanobind (replacing mypy's stugen)
 
 :Dependencies:
 
   * Upgrade MbedTLS from ``3.2.1`` to ``3.6.1``
 
+:doc:
+
+  * Global restructuring of the documentation
+
+  * Add Sphinx cross-reference support for Rust. For instance, this link:
+    :rust:method:`lief::elf::Binary::debug_info [struct]` references the
+    documentation of ``debug_info`` in the Rust documentation page.
+
+  * Add cross-api menu directive. For instance, this *link*: |lief-dwarf-debug-info|
+    toggles a menu to access the documentation of DWARF's debug info for Rust,
+    Python & C++.
 
 0.15.1 - July 23th, 2024
 ------------------------
@@ -799,8 +963,7 @@ This release contains several security fixes:
 
     .. seealso::
 
-      - :ref:`C++ API for errors handling <cpp-api-error-handling>`
-      - :ref:`Python API for errors handling <python-api-error-handling>`
+      - :ref:`Error Handling section<err_handling>`
       - `List of the functions that changed <https://gist.github.com/romainthomas/37da45b043c5f8b8db6be2767611f625>`_
 
 
@@ -1643,3 +1806,5 @@ Acknowledgements
 ----------------------
 
 First public release
+
+.. include:: ./_cross_api.rst

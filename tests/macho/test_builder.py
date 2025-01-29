@@ -13,6 +13,11 @@ from utils import get_sample, is_apple_m1, is_osx, is_x86_64, sign, chmod_exe, i
 
 lief.logging.set_level(lief.logging.LEVEL.INFO)
 
+def align_to(value, alignment):
+    # llvm::alignTo
+    assert (alignment & (alignment - 1)) == 0 # is power of two
+    return (value + alignment - 1) & ~(alignment - 1)
+
 def dyld_check(path: str):
     dyld_info_path = "/usr/bin/dyld_info"
     if not pathlib.Path(dyld_info_path).exists():
@@ -159,6 +164,9 @@ def test_add_section_id(tmp_path):
     original = lief.MachO.parse(bin_path.as_posix()).at(0)
     output = f"{tmp_path}/test_add_section_id.id.bin"
 
+    checked, err = lief.MachO.check_layout(original)
+    assert checked, err
+
     # Add 50 sections
     for i in range(50):
         section = lief.MachO.Section(f"__lief_{i}", [0x90] * 0x100)
@@ -178,6 +186,52 @@ def test_add_section_id(tmp_path):
 
         print(stdout)
         assert re.search(r'uid=', stdout) is not None
+
+def test_extend_section_1(tmp_path):
+    """ This test calls add_section followed by extend_section repeatedly.
+    """
+    bin_path = pathlib.Path(get_sample("MachO/MachO64_x86-64_binary_id.bin"))
+    original = lief.MachO.parse(bin_path.as_posix()).at(0)
+    output = f"{tmp_path}/test_extend_section.bin"
+
+    text_segment = original.get_segment("__TEXT")
+
+    for i in range(9, -1, -1):
+        section = lief.MachO.Section(f"__lief_{i}")
+        section.alignment = i
+        section = original.add_section(text_segment, section)
+        assert original.extend_section(section, 1 << section.alignment)
+
+    original.write(output)
+    new = lief.MachO.parse(output).at(0)
+
+    checked, err = lief.MachO.check_layout(new)
+    assert checked, err
+
+def test_extend_section_2(tmp_path):
+    """ This test makes multiple calls to add_section, and then it
+        extends each added section using extend_section.
+    """
+    bin_path = pathlib.Path(get_sample("MachO/MachO64_x86-64_binary_id.bin"))
+    original = lief.MachO.parse(bin_path.as_posix()).at(0)
+    output = f"{tmp_path}/test_extend_section.bin"
+
+    text_segment = original.get_segment("__TEXT")
+
+    sections = []
+    for i in range(3):
+        section = lief.MachO.Section(f"__lief_{i}")
+        section.alignment = 2 # 2^2 == 4 bytes
+        sections.append(original.add_section(text_segment, section))
+
+    for section in sections:
+        assert original.extend_section(section, 1000)
+
+    original.write(output)
+    new = lief.MachO.parse(output).at(0)
+
+    checked, err = lief.MachO.check_layout(new)
+    assert checked, err
 
 @pytest.mark.skipif(is_github_ci(), reason="sshd does not work on Github Action")
 def test_add_section_ssh(tmp_path):
