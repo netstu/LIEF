@@ -29,6 +29,14 @@
 
   * Fix issue when parsing the dynamic table with an invalid offset (bug found
     by :github_user:`lebr0nli`)
+  * Enhance support for IA64 architecture.
+  * Introduce :attr:`lief.ELF.Segment.raw_flags` to access the raw (integer)
+    value of the flag
+
+
+:PE:
+
+  * Fix missing original forwarded function name (:issue:`1166`)
 
 :Extended:
 
@@ -38,6 +46,24 @@
 
   * LIEF is now available in `vcpkg <https://github.com/microsoft/vcpkg/tree/master/ports/lief>`_.
     Many thanks to :github_user:`luadebug` for this support.
+
+
+0.16.3 - February 1st, 2025
+---------------------------
+
+:ELF:
+
+  * Fix issue when parsing the dynamic table with an invalid offset (bug found
+    by :github_user:`lebr0nli`)
+  * Fix endianness issue with ``IA64`` binaries (:issue:`1164`)
+
+:PE:
+
+  * Fix missing original forwarded function name (:issue:`1166`)
+
+:Misc:
+
+  * Add support for spdlog compiled with ``SPDLOG_WCHAR_FILENAMES`` (:issue:`1147`)
 
 0.16.2 - January 1st, 2025
 ----------------------------

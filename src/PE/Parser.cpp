@@ -414,7 +414,7 @@ Parser::parse_resource_node(const details::pe_resource_directory_table& director
     if ((id & 0x80000000) != 0u) {
       uint32_t offset        = id & (~ 0x80000000);
       uint32_t string_offset = base_offset + offset;
-      LIEF_ERR("base_offset=0x{:04x}, string_offset=0x{:04x}",
+      LIEF_DEBUG("base_offset=0x{:04x}, string_offset=0x{:04x}",
                base_offset, string_offset);
 
       auto res_length = stream_->peek<uint16_t>(string_offset);
@@ -979,11 +979,26 @@ ok_error_t Parser::parse_exports() {
 
       // Split on '.'
       const size_t dot_pos = fwd_str.find('.');
+      bool is_valid_fwd = false;
       if (dot_pos != std::string::npos) {
         library  = fwd_str.substr(0, dot_pos);
         function = fwd_str.substr(dot_pos + 1);
+        is_valid_fwd = true;
       }
       entry.set_forward_info(std::move(library), std::move(function));
+
+      if (is_valid_fwd) {
+        if (auto name_rva = name_table_value(*stream_, name_table_offset, i)) {
+          uint32_t name_offset = binary_->rva_to_offset(*name_rva);
+          if (auto name = stream_->peek_string_at(name_offset)) {
+            const bool is_valid = !name->empty() &&
+              name->size() <= MAX_EXPORT_NAME_SIZE && is_printable(*name);
+            if (is_valid) {
+              entry.name_ = std::move(*name);
+            }
+          }
+        }
+      }
     }
   }
 
