@@ -24,7 +24,12 @@
 #include "LIEF/iterators.hpp"
 
 namespace LIEF {
+class BinaryStream;
+
 namespace PE {
+class Parser;
+class Builder;
+class Binary;
 
 class RelocationEntry;
 
@@ -37,17 +42,25 @@ struct pe_base_relocation_block;
 class LIEF_API Relocation : public Object {
   friend class Parser;
   friend class Builder;
+  friend class Binary;
 
   public:
   using entries_t        = std::vector<std::unique_ptr<RelocationEntry>>;
   using it_entries       = ref_iterator<entries_t&, RelocationEntry*>;
   using it_const_entries = const_ref_iterator<const entries_t&, RelocationEntry*>;
 
-  Relocation() = default;
+  Relocation();
+  Relocation(uint32_t base, uint32_t block_size);
+  Relocation(uint32_t base);
+
   Relocation(const Relocation& other);
   Relocation& operator=(Relocation other);
+
+  Relocation(Relocation&&);
+  Relocation& operator=(Relocation&& other);
+
   Relocation(const details::pe_base_relocation_block& header);
-  ~Relocation() override = default;
+  ~Relocation() override;
 
   void swap(Relocation& other);
 
@@ -57,7 +70,11 @@ class LIEF_API Relocation : public Object {
   }
 
   /// The total number of bytes in the base relocation block.
-  /// ``block_size = sizeof(BaseRelocationBlock) + nb_of_relocs * sizeof(uint16_t = RelocationEntry)``
+  ///
+  /// ```
+  /// block_size = sizeof(BaseRelocationBlock) +
+  ///              nb_of_relocs * sizeof(uint16_t = RelocationEntry)
+  /// ```
   uint32_t block_size() const {
     return block_size_;
   }
@@ -66,6 +83,7 @@ class LIEF_API Relocation : public Object {
   it_const_entries entries() const {
     return entries_;
   }
+
   it_entries entries() {
     return entries_;
   }
@@ -73,6 +91,7 @@ class LIEF_API Relocation : public Object {
   void virtual_address(uint32_t virtual_address) {
     virtual_address_ = virtual_address;
   }
+
   void block_size(uint32_t block_size) {
     block_size_ = block_size;
   }
@@ -83,9 +102,13 @@ class LIEF_API Relocation : public Object {
 
   LIEF_API friend std::ostream& operator<<(std::ostream& os, const Relocation& relocation);
 
+  using relocations_t = std::vector<std::unique_ptr<Relocation>>;
+
+  LIEF_LOCAL static relocations_t parse(Parser& ctx, BinaryStream& stream);
+
   private:
-  uint32_t  block_size_ = 0;
-  uint32_t  virtual_address_ = 0;
+  uint32_t block_size_ = 0;
+  uint32_t virtual_address_ = 0;
   entries_t entries_;
 };
 

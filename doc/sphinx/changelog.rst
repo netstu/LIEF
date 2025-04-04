@@ -21,6 +21,10 @@
 
   * Fix symbol resolution issue: :issue:`1127`
 
+:PE:
+
+  * Please check :ref:`LIEF 0.17.0 - PE changelog <pe_0170_changelog>`
+
 :Mach-O:
 
   * Add support for |lief-macho-atom-info| command (``LC_ATOM_INFO``)
@@ -33,20 +37,89 @@
   * Introduce :attr:`lief.ELF.Segment.raw_flags` to access the raw (integer)
     value of the flag
 
+:DWARF:
 
-:PE:
+  * LIEF extended can now process DWARF debug info in PE binaries
 
-  * Fix missing original forwarded function name (:issue:`1166`)
+:PDB:
+
+  * Add support for CodeView symbols: ``S_COMPILE3, S_COMPILE2, S_BUILDINFO, S_ENVBLOCK``.
+    These symbols are exposed through the interface |lief-pdb-buildmetadata|,
+    which can be accessed using |lief-pdb-compilationunit-buildmetadata|.
+    This metadata provides build time information such as:
+
+    .. code-block:: text
+
+        Module Name : * Linker *
+        Build Metadata:
+          Frontend Version: 0.0.0.0
+          Backend Version : 14.37.32825.0
+          Tool Version    : Microsoft (R) LINK
+          Language        : LINK
+          Target          : X64
+          Environment:
+            cwd: C:\Users\romai\dev\rust\ast-grep
+            exe: C:\Program Files\Microsoft Visual Studio\2022\Community\[...]
+            pdb: C:\Users\romai\dev\rust\ast-grep\target\debug\deps\ast_grep.pdb
+            cmd:  /NOLOGO /LIBPATH:C:\Users\romai\dev\rust\ast-grep\target\[...]
+
+
+        Module Name : std-4ee9ee8805e6ac55.std.ddad90bab7781587-cgu.0.rcgu.o
+        Object      : C:\Users\romai\scoop\persist\rustup\.rustup\toolchains\[...]
+        Build Metadata:
+          Frontend Version: 1.74.0.0
+          Backend Version : 17004.0.0.0
+          Tool Version    : clang LLVM (rustc version 1.74.0 (79e9716c9 2023-11-13))
+          Language        : RUST
+          Target          : X64
+          Build Info:
+            Current directory: /rustc/79e9716c980570bfd1f666e3b16ac583f0168962
+            Build tool       : C:\a\rust\rust\build\x86_64-pc-windows-msvc\stage1\bin\rustc.exe
+            Source file      : library\std\src\lib.rs\@\std.ddad90bab7781587-cgu.0
+            Command line     : "-cc1" "--crate-name" "std" "--edition=2021" [...]
+
 
 :Extended:
 
   * Fix issue in the Python bindings while trying to access ``lief.__LIEF_MAIN_COMMIT__``
+  * Use LLVM 20.1.2
+
+:Rust:
+
+  * Add support for ARM64 on Windows (``aarch64-pc-windows-msvc``)
 
 :Build System:
 
   * LIEF is now available in `vcpkg <https://github.com/microsoft/vcpkg/tree/master/ports/lief>`_.
     Many thanks to :github_user:`luadebug` for this support.
 
+:Dependencies:
+
+  * Move to spdlog 1.15.1
+
+:Utilities:
+
+  * Add |lief-dump|
+
+0.16.4 - February 23rd, 2025
+----------------------------
+
+:Python:
+
+  * Relax checks on the enum verification. As described in :issue:`1170` and
+    :issue:`1172`, an invalid enum led to an unrecoverable error. The new
+    behavior now returns the raw ``int`` value if it can't be converted into the
+    given enum.
+
+  * Upgrade nanobind to version ``v2.5.0``
+
+:PE:
+
+  * Fix export forwarding issue (:issue:`1168`)
+
+:MachO:
+
+  * Fix truncated ``nlist_t.n_type`` when rewriting a Mach-O binary
 
 0.16.3 - February 1st, 2025
 ---------------------------
@@ -90,6 +163,7 @@
 :Compilation:
 
   * Fix missing ``LIEF_API`` visibility (:commit:`e01f92a0`, :pr:`1140`)
+
 
 0.16.0 - December 10th, 2024
 ----------------------------
@@ -1083,7 +1157,7 @@ This release contains several security fixes:
 
       :class:`lief.PE.IMPHASH_MODE` and :func:`lief.PE.get_imphash`
   * Remove the padding entry (0) from the rich header
-  * :attr:`~lief.PE.LangCodeItem.items` now returns a dictionary for which the values are **bytes** (instead of
+  * ``lief.PE.LangCodeItem.items`` now returns a dictionary for which the values are **bytes** (instead of
     ``str`` object). This change is related to ``utf-16`` support.
   * :github_user:`kohnakagawa` fixed wrong enums values: :commit:`c03125045e32a9cd65c613585eb4d0385350c6d2`, :commit:`6ee808a1e4611d09c6cf0aea82a612be69584db9`, :commit:`cd05f34bae681fc8af4b5e7cc28eaef816802b6f`
   * :github_user:`kohnakagawa` fixed a bug in the PE resources parser (:commit:`a7254d1ba935783f16effbc7faddf993c57e82f7`)
@@ -1738,7 +1812,7 @@ API
     * :class:`lief.PE.ResourceData`
     * :class:`lief.PE.ResourceDirectory`
     * :class:`lief.PE.ResourceNode`
-    * :class:`lief.PE.LangCodeItem`
+    * ``lief.PE.LangCodeItem``
     * :class:`lief.PE.ResourceDialog`
     * :class:`lief.PE.ResourceDialogItem`
     * :class:`lief.PE.ResourceFixedFileInfo`

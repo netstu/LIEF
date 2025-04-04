@@ -21,6 +21,7 @@
 
 #include <nanobind/stl/string.h>
 #include <nanobind/stl/vector.h>
+#include <nanobind/extra/memoryview.hpp>
 
 #include "LIEF/utils.hpp"
 #include "LIEF/hash.hpp"
@@ -109,19 +110,19 @@ void init_logger(nb::module_& m) {
     .value(PY_ENUM(logging::LEVEL::INFO));
   #undef PY_ENUM
 
-  logging.def("disable", &logging::disable,
+  logging.def("disable", nb::overload_cast<>(&logging::disable),
               "Disable the logger globally"_doc);
 
-  logging.def("enable", &logging::enable,
+  logging.def("enable", nb::overload_cast<>(&logging::enable),
               "Enable the logger globally"_doc);
 
-  logging.def("set_level", &logging::set_level,
+  logging.def("set_level", nb::overload_cast<logging::LEVEL>(&logging::set_level),
               "Change logging level", "level"_a);
 
-  logging.def("get_level", &logging::get_level,
+  logging.def("get_level", nb::overload_cast<>(&logging::get_level),
               "Get current logging level");
 
-  logging.def("set_path", &logging::set_path,
+  logging.def("set_path", nb::overload_cast<const std::string&>(&logging::set_path),
               "Change the logger as a file-base logging and set its path"_doc,
               "path"_a);
 
@@ -150,7 +151,7 @@ void init_logger(nb::module_& m) {
               static_cast<void(*)(const std::string&)>(&logging::critical),
               "Log an :attr:`~.LEVEL.CRITICAL` message"_doc, "msg"_a);
 
-  logging.def("enable_debug", &logging::enable_debug,
+  logging.def("enable_debug", nb::overload_cast<>(&logging::enable_debug),
               "Enable :attr:`~.LEVEL.DEBUG` log level"_doc);
 
   logging.def("reset", [] {
@@ -248,6 +249,25 @@ void init(nb::module_& m) {
         This function only works with the extended version of LIEF
     )doc"_doc,
     "mangled"_a
+  );
+
+  m.def("dump", [] (nb::memoryview view, const std::string& title,
+                    const std::string& prefix, size_t limit)
+    {
+      return LIEF::dump(view.data(), view.size(), title, prefix, limit);
+    }, "buffer"_a, "title"_a = "", "prefix"_a = "", "limit"_a = 0,
+    R"doc(
+    Hexdump the provided buffer:
+
+    .. code-block:: text
+
+      +---------------------------------------------------------------------+
+      | 88 56 05 00 00 00 00 00 00 00 00 00 22 58 05 00  | .V.........."X.. |
+      | 10 71 02 00 78 55 05 00 00 00 00 00 00 00 00 00  | .q..xU.......... |
+      | 68 5c 05 00 00 70 02 00 00 00 00 00 00 00 00 00  | h\...p.......... |
+      | 00 00 00 00 00 00 00 00 00 00 00 00              | ............     |
+      +---------------------------------------------------------------------+
+    )doc"_doc
   );
 
   LIEF::py::init_extension(m);

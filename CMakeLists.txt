@@ -191,6 +191,10 @@ target_compile_definitions(LIB_LIEF PRIVATE SPDLOG_DISABLE_DEFAULT_LOGGER
                                             SPDLOG_NO_EXCEPTIONS
                                             SPDLOG_FUNCTION=)
 
+if (MSVC AND NOT CLANG_CL AND NOT LIEF_EXTERNAL_SPDLOG)
+  target_compile_definitions(LIB_LIEF PRIVATE FMT_UNICODE=0)
+endif()
+
 if(CMAKE_SYSTEM_NAME STREQUAL "iOS")
   target_compile_definitions(LIB_LIEF PRIVATE SPDLOG_NO_THREAD_ID)
 endif()
@@ -350,7 +354,7 @@ if(LIEF_ASAN)
 
   set_property(TARGET LIB_LIEF
                APPEND PROPERTY LINK_FLAGS -fsanitize=address)
-  target_link_libraries(LIB_LIEF INTERFACE asan)
+  target_link_libraries(LIB_LIEF INTERFACE libclang_rt.asan.so)
 endif()
 
 if(LIEF_LSAN)
@@ -399,13 +403,13 @@ endif()
 # Fuzzing options
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 if(LIEF_FUZZING)
-  set(FUZZING_FLAGS -fno-omit-frame-pointer -g -O2 -fsanitize=address,fuzzer-no-link)
-  set(FUZZING_LINKER_FLAGS -fsanitize=address,fuzzer-no-link)
+  set(FUZZING_FLAGS -fno-omit-frame-pointer -g -O2 -fsanitize=fuzzer-no-link)
+  set(FUZZING_LINKER_FLAGS -fsanitize=fuzzer-no-link)
   set_property(TARGET LIB_LIEF
                APPEND PROPERTY LINK_FLAGS ${FUZZING_LINKER_FLAGS})
 
   target_compile_options(LIB_LIEF PRIVATE ${FUZZING_FLAGS})
-  target_link_libraries(LIB_LIEF PUBLIC asan pthread)
+  target_link_libraries(LIB_LIEF PUBLIC pthread)
   add_subdirectory(fuzzing)
 endif()
 

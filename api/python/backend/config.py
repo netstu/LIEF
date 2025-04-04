@@ -18,10 +18,14 @@ def cmake_serialize(field: Any):
 
 class EnvStringValidator:
     def _get_env_string(self, string: str) -> str:
+        winpy_architecture = os.getenv("LIEF_TARGET_ARCHITECTURE", "")
+        if winpy_architecture == "x86_64":
+            winpy_architecture = "amd64"
         formatted = string.format(
                 python_version=os.getenv("LIEF_TARGET_PYTHON_VERSION", ""),
                 python_version_alt=os.getenv("LIEF_TARGET_PYTHON_VERSION", "").replace('.', ''),
                 architecture=os.getenv("LIEF_TARGET_ARCHITECTURE", ""),
+                winpy_architecture=winpy_architecture,
                 ci_project_dir=os.getenv("CI_PROJECT_DIR", ""),
         )
         return formatted
@@ -102,6 +106,7 @@ class BuildConfig(BaseModel):
 
 class ThridParty(BaseModel):
     spdlog: Optional[EnvString] = None
+    nanobind: Optional[EnvString] = None
 
     def cmake_dump(self) -> List[str]:
         out: List[str] = []
@@ -109,6 +114,12 @@ class ThridParty(BaseModel):
             out.extend((
                 "-DLIEF_EXTERNAL_SPDLOG=ON",
                 f"-Dspdlog_DIR={self.spdlog}"
+            ))
+
+        if self.nanobind is not None:
+            out.extend((
+                "-DLIEF_OPT_NANOBIND_EXTERNAL=ON",
+                f"-Dnanobind_DIR={self.nanobind}"
             ))
 
         return out

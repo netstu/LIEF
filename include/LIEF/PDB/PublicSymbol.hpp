@@ -16,6 +16,7 @@
 #define LIEF_PDB_PUBLIC_SYMBOL_H
 #include <memory>
 #include <string>
+#include <ostream>
 
 #include "LIEF/visibility.h"
 
@@ -107,6 +108,15 @@ class LIEF_API PublicSymbol {
   ///
   /// This function returns 0 if the RVA can't be computed.
   uint32_t RVA() const;
+
+  std::string to_string() const;
+
+  LIEF_API friend
+    std::ostream& operator<<(std::ostream& os, const PublicSymbol& sym)
+  {
+    os << sym.to_string();
+    return os;
+  }
 
   private:
   std::unique_ptr<details::PublicSymbol> impl_;

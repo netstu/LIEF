@@ -16,6 +16,7 @@
 #define LIEF_PDB_FUNCTION_H
 #include <memory>
 #include <string>
+#include <ostream>
 
 #include "LIEF/visibility.h"
 #include "LIEF/debug_loc.hpp"
@@ -96,6 +97,15 @@ class LIEF_API Function {
 
   /// Original source code location
   debug_location_t debug_location() const;
+
+  std::string to_string() const;
+
+  LIEF_API friend
+    std::ostream& operator<<(std::ostream& os, const Function& F)
+  {
+    os << F.to_string();
+    return os;
+  }
 
   private:
   std::unique_ptr<details::Function> impl_;
