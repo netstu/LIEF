@@ -2,7 +2,7 @@ use lief_ffi as ffi;
 use bitflags::bitflags;
 use crate::{to_slice, declare_fwd_iterator};
 use crate::common::{into_optional, FromFFI};
-use crate::assembly::Instructions;
+use crate::assembly::{Instructions, AssemblerConfig};
 
 use std::pin::Pin;
 
@@ -10,6 +10,9 @@ use std::pin::Pin;
 pub trait Symbol {
     #[doc(hidden)]
     fn as_generic(&self) -> &ffi::AbstractSymbol;
+
+    #[doc(hidden)]
+    fn as_pin_mut_generic(&mut self) -> Pin<&mut ffi::AbstractSymbol>;
 
     /// Symbol's name
     fn name(&self) -> String {
@@ -23,6 +26,18 @@ pub trait Symbol {
     /// Size of the symbol (can be 0)
     fn size(&self) -> u64 {
         self.as_generic().size()
+    }
+
+    fn set_name(&mut self, name: &str) {
+        self.as_pin_mut_generic().set_name(name.to_string());
+    }
+
+    fn set_value(&mut self, value: u64) {
+        self.as_pin_mut_generic().set_value(value);
+    }
+
+    fn set_size(&mut self, size: u64) {
+        self.as_pin_mut_generic().set_size(size);
     }
 }
 
@@ -214,12 +229,25 @@ pub trait Binary {
     /// let mut bin = get_binary();
     ///
     /// let Vec<u8> bytes = bin.assemble(0x12000440, r#"
-    /// xor rax, rbx;
-    /// mov rcx, rax;
+    ///     xor rax, rbx;
+    ///     mov rcx, rax;
     /// "#);
     /// ```
     fn assemble(&mut self, address: u64, asm: &str) -> Vec<u8> {
         Vec::from(self.as_pin_mut_generic().assemble(address, asm).as_slice())
+    }
+
+    /// Same as [`Binary::assemble`] but this function takes an extra [`AssemblerConfig`] that
+    /// is used to configure the assembly engine: dialect, symbols definitions.
+    fn assemble_with_config(&mut self, address: u64, asm: &str, config: &AssemblerConfig) -> Vec<u8> {
+        let ffi_config = config.into_ffi();
+        Vec::from(self.as_pin_mut_generic().assemble_with_config(address, asm, ffi_config.as_ref()).as_slice())
+    }
+
+    /// Get the default memory page size according to the architecture and the format of the
+    /// current binary
+    fn page_size(&self) -> u64 {
+        self.as_generic().page_size()
     }
 }
 
@@ -294,6 +322,17 @@ impl FromFFI<ffi::AbstractFunction> for Function {
 impl Symbol for Function {
     fn as_generic(&self) -> &lief_ffi::AbstractSymbol {
         self.ptr.as_ref().unwrap().as_ref()
+    }
+
+    fn as_pin_mut_generic(&mut self) -> Pin<&mut ffi::AbstractSymbol> {
+        unsafe {
+            Pin::new_unchecked({
+                (self.ptr.as_ref().unwrap().as_ref() as *const ffi::AbstractSymbol
+                    as *mut ffi::AbstractSymbol)
+                    .as_mut()
+                    .unwrap()
+            })
+        }
     }
 }
 

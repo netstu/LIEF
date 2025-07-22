@@ -35,9 +35,9 @@ elseif(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/.git"
        AND IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/.git" AND Git_FOUND)
   include(LIEFGit)
 else()
-  set(LIEF_VERSION_MAJOR "0")
-  set(LIEF_VERSION_MINOR "17")
-  set(LIEF_VERSION_PATCH "0")
+  set(LIEF_VERSION_MAJOR 0)
+  set(LIEF_VERSION_MINOR 17)
+  set(LIEF_VERSION_PATCH 0)
 endif()
 
 if (DEFINED ENV{LIEF_COMMIT})
@@ -113,19 +113,7 @@ message(STATUS "CMAKE_CXX_IMPLICIT_LINK_LIBRARIES: ${CMAKE_CXX_IMPLICIT_LINK_LIB
 message(STATUS "CMAKE_SYSTEM_PROCESSOR:            ${CMAKE_SYSTEM_PROCESSOR}")
 message(STATUS "CMAKE_MSVC_RUNTIME_LIBRARY:        ${CMAKE_MSVC_RUNTIME_LIBRARY}")
 
-if(LIEF_INSTALL)
-  if(UNIX)
-    include(GNUInstallDirs)
-    set(CMAKE_INSTALL_LIBDIR "lib")
-  else()
-    set(CMAKE_INSTALL_LIBDIR      "lib")
-    set(CMAKE_INSTALL_DATADIR     "share")
-    set(CMAKE_INSTALL_INCLUDEDIR  "include")
-    set(CMAKE_INSTALL_BINDIR      "bin")
-    set(CMAKE_INSTALL_DATAROOTDIR "share")
-    message(STATUS "Setting installation destination to: ${CMAKE_INSTALL_PREFIX}")
-  endif()
-endif()
+include(GNUInstallDirs)
 
 # LIEF Source definition
 # ======================
@@ -424,6 +412,12 @@ set_target_properties(LIB_LIEF PROPERTIES
                       EXPORT_NAME LIEF
                       CLEAN_DIRECT_OUTPUT 1)
 
+if (LIEF_SO_VERSION)
+  set_target_properties(LIB_LIEF PROPERTIES
+    VERSION "${LIEF_VERSION_MAJOR}.${LIEF_VERSION_MINOR}.${LIEF_VERSION_PATCH}"
+    SOVERSION "${LIEF_VERSION_MAJOR}"
+  )
+endif()
 
 # Set a default build type if none was specified
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
@@ -453,11 +447,6 @@ if(LIEF_TESTS)
   enable_testing()
   add_subdirectory(tests)
 endif()
-
-if(LIEF_DOC)
-  add_subdirectory(doc)
-endif()
-
 
 # Post-build operations
 # ======================

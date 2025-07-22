@@ -6,6 +6,26 @@
 0.17.0 - Not Released Yet
 -------------------------
 
+.. admonition:: BinaryNinja & Ghidra Plugins
+  :class: tip
+
+  LIEF-based plugins for Binary Ninja and Ghidra have been bootstrapped here:
+
+  - :ref:`Ghidra plugin <plugins-ghidra>`
+  - :ref:`BinaryNinja plugin <plugins-binaryninja>`
+
+.. admonition:: LIEF Tools
+  :class: tip
+
+  I initiated a ``Tools`` section which aims at providing utilities based on LIEF (mostly
+  CLI):
+
+  - :ref:`lief-patchelf <tools-lief-patchelf>`
+
+:Assembler:
+
+  * Add support for :ref:`Contextual Assembly Patching <extended-assembler-contextual-patching>`
+
 :DSC:
 
   * Add enum for the latest dyld shared cache version introducing
@@ -24,22 +44,111 @@
 :PE:
 
   * Please check :ref:`LIEF 0.17.0 - PE changelog <pe_0170_changelog>`
+  * :github_user:`luadebug` added support for pretty printing OID value and
+    non-roman characters in X509 certificates (see: :pr:`1226`, :issue:`1219`)
+
+:COFF:
+
+  * Initial support for the COFF format: see the :ref:`COFF section <format-coff>`
 
 :Mach-O:
 
   * Add support for |lief-macho-atom-info| command (``LC_ATOM_INFO``)
+  * Add support for modifying Mach-O commands that embed variable-length data
+    (:issue:`1204`, :issue:`1125`). See: :ref:`RPath and Library Path Modification <format-macho-rpath>`.
+
+    .. code-block:: python
+
+      # Change library name
+      for lib in macho.libraries:
+          lib.name += "/some/path/lib.dylib"
+
+      # Change rpath
+      for rpath in macho.rpaths:
+          rpath.path += '/a/very/long/path/that/needs/expansion'
+
+  * Add |lief-macho-binary-find_library|
+  * To void ``#define`` conflicts with Apple SDK, the following enums have been renamed:
+
+    .. tabs::
+
+       .. tab:: :fa:`brands fa-python` Python
+
+          .. code-block:: diff
+
+            - lief.MachO.FAT_MAGIC
+            + lief.MachO.MAGIC_FAT
+
+            - lief.MachO.FAT_CIGAM
+            + lief.MachO.CIGAM_FAT
+
+            - lief.MachO.Symbol.ORIGIN.LC_SYMTAB
+            + lief.MachO.Symbol.ORIGIN.SYMTAB
+
+            - lief.MachO.Section.TYPE.S_4BYTE_LITERALS
+            + lief.MachO.Section.TYPE.IS_4BYTE_LITERALS
+
+            - lief.MachO.Section.TYPE.S_8BYTE_LITERALS
+            + lief.MachO.Section.TYPE.IS_8BYTE_LITERALS
+
+            - lief.MachO.Section.TYPE.S_16BYTE_LITERALS
+            + lief.MachO.Section.TYPE.IS_16BYTE_LITERALS
+
+
+       .. tab:: :fa:`regular fa-file-code` C++
+
+          .. code-block:: diff
+
+            - MACHO_TYPES::MH_MAGIC
+            - MACHO_TYPES::MH_CIGAM
+            - MACHO_TYPES::MH_MAGIC_64
+            - MACHO_TYPES::MH_CIGAM_64
+            - MACHO_TYPES::FAT_MAGIC
+            - MACHO_TYPES::FAT_CIGAM
+
+            + MACHO_TYPES::MAGIC
+            + MACHO_TYPES::CIGAM
+            + MACHO_TYPES::MAGIC_64
+            + MACHO_TYPES::CIGAM_64
+            + MACHO_TYPES::MAGIC_FAT
+            + MACHO_TYPES::CIGAM_FAT
+
+            - Section::TYPE::S_16BYTE_LITERALS
+            + Section::TYPE::IS_16BYTE_LITERALS
+
+            - Section::TYPE::S_4BYTE_LITERALS
+            + Section::TYPE::IS_4BYTE_LITERALS
+
+            - Section::TYPE::S_8BYTE_LITERALS
+            + Section::TYPE::IS_8BYTE_LITERALS
+
+            - Symbol::ORIGIN::LC_SYMTAB
+            + Symbol::ORIGIN::SYMTAB
 
 :ELF:
 
-  * Fix issue when parsing the dynamic table with an invalid offset (bug found
-    by :github_user:`lebr0nli`)
+  * LIEF newly-inserted sections are now compatible with a ``strip`` after the
+    modification of the binary (see: :ref:`Adding a section/segment <format-elf-section-segment>`)
   * Enhance support for IA64 architecture.
   * Introduce :attr:`lief.ELF.Segment.raw_flags` to access the raw (integer)
     value of the flag
+  * If an ELF binary uses a custom page size, its value can be defined in the
+    parser configuration: |lief-elf-parser-config-page_size|.
+  * Add support for SH4
+  * Add suport for x32/ILP32 ELF binaries (:issue:`1225`)
+  * Add support for S390x
+  * Better endianess support when writing back a binary.
+  * Enhance support for removing segments (:issue:`1233`): |lief-elf-binary-remove-segment|
+  * Enhance support for removing or modifying symbol versions (related to the
+    :ref:`lief-patchelf <tools-lief-patchelf>` initiative)
+  * New doc section: :ref:`Symbol Versions <format-elf-symbols-version>`
+  * New doc section: :ref:`R[UN]PATH Modification <format-elf-rpath-modification>`
 
 :DWARF:
 
   * LIEF extended can now process DWARF debug info in PE binaries
+  * Add support for creating DWARF: :ref:`DWARF Editor <extended-dwarf-editor>`
+    (require extended version ``>= 0.17.0.2623``)
 
 :PDB:
 
@@ -78,15 +187,32 @@
             Source file      : library\std\src\lib.rs\@\std.ddad90bab7781587-cgu.0
             Command line     : "-cc1" "--crate-name" "std" "--edition=2021" [...]
 
+:OAT:
+
+  * Parsing Android OAT files requires to **explicitly** use :func:`lief.OAT.parse`
+
+  .. code-block:: python
+
+    import lief
+
+    # Before LIEF 0.17.0 this function returned a lief.OAT.Binary object
+    lief.parse("CallDeviceId.oat")
+
+    # Since LIEF 0.17.0 this function returns a lief.ELF.Binary object
+    lief.parse("CallDeviceId.oat")
+
+    # Return a lief.OAT.Binary object
+    lief.OAT.parse("CallDeviceId.oat")
+
+:Abstraction:
+
+  * Expose |lief-abstract-binary-page_size|
 
 :Extended:
 
   * Fix issue in the Python bindings while trying to access ``lief.__LIEF_MAIN_COMMIT__``
-  * Use LLVM 20.1.2
-
-:Rust:
-
-  * Add support for ARM64 on Windows (``aarch64-pc-windows-msvc``)
+  * Fix CMake issue with ``find_package(lief-extended)``
+  * Use LLVM 20.1.7
 
 :Build System:
 
@@ -95,11 +221,61 @@
 
 :Dependencies:
 
-  * Move to spdlog 1.15.1
+  * Move to spdlog ``1.15.1``
+  * Move to ``nlohmann/json`` ``3.12.0``
+  * Upgrade nanobind to version ``v2.6.x``
 
 :Utilities:
 
   * Add |lief-dump|
+
+0.16.6 - May 29th, 2025
+-----------------------
+
+:Compilation:
+
+  * Fix missing header (:issue:`1192`)
+  * Fix GCC 15 issue (:issue:`1203`)
+  * Fix :issue:`1210`
+
+:Mach-O:
+
+  * Fix use-after-move (:issue:`1212`)
+  * Fix :issue:`1206`
+
+:Python:
+
+  * Fix Python logger warning
+
+:Other:
+
+  * :issue:`1217`
+  * :pr:`1216`
+
+0.16.5 - April 19th, 2025
+-------------------------
+
+:ELF:
+
+  * Relax the condition over the ``DT_SYMENT`` entry (:issue:`1177`)
+
+:Mach-O:
+
+  * Modifications on |lief-macho-encryptioninfo| are now committed when doing a
+    ``write()``. See: :issue:`1173`
+
+:Compilation:
+
+  * Fix compilation issue when targeting Linux i386/i686 (:issue:`1189`)
+  * Better support for external ``fmt`` library
+  * Fix ``fmt`` unicode issue
+  * Fix missing ``cstdio`` (:issue:`1184`)
+
+:Packages:
+
+  * Add Python, Rust, SDK packages for Windows ARM64 (``aarch64-pc-windows-msvc``)
+  * Add Python, Rust, SDK packages for Linux Musl ARM64 (``aarch64-unknown-linux-musl``)
+  * Add Python, Rust, SDK packages for Linux Musl i686 (``i686-unknown-linux-musl``)
 
 0.16.4 - February 23rd, 2025
 ----------------------------

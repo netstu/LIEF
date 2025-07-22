@@ -7,18 +7,20 @@ use num_traits::{cast, Num};
 use lief_ffi as ffi;
 
 use super::builder::Config;
-use super::dynamic::{self, DynamicEntries, DynamicEntry, Library};
+use super::dynamic::{self, DynamicEntries, Library};
 use super::hash::{Gnu, Sysv};
 use super::header::Header;
 use super::note::ItNotes;
+use super::parser_config::Config as ParserConfig;
 use super::relocation::{
     DynamicRelocations, ObjectRelocations, PltGotRelocations, Relocation, Relocations,
 };
 use super::section::{Section, Sections};
-use super::segment::Segments;
+use super::segment::{self, Segments};
 use super::symbol::{DynamicSymbols, ExportedSymbols, ImportedSymbols, SymtabSymbols};
 use super::symbol_versioning::{SymbolVersion, SymbolVersionDefinition, SymbolVersionRequirement};
 use super::{Segment, Symbol};
+use crate::elf::dynamic::DynamicEntry;
 use crate::Error;
 
 use crate::common::{into_optional, FromFFI};
@@ -77,6 +79,16 @@ impl Binary {
         Some(Binary::from_ffi(bin))
     }
 
+    /// Parse from a string file path and with a provided configuration
+    pub fn parse_with_config(path: &str, config: &ParserConfig) -> Option<Self> {
+        let ffi_config = config.to_ffi();
+        let ffi = ffi::ELF_Binary::parse_with_config(path, &ffi_config);
+        if ffi.is_null() {
+            return None;
+        }
+        Some(Binary::from_ffi(ffi))
+    }
+
     /// Return the main ELF header
     pub fn header(&self) -> Header {
         Header::from_ffi(self.ptr.header())
@@ -120,12 +132,20 @@ impl Binary {
 
     /// Remove **all** dynamic entries with the given tag
     pub fn remove_dynamic_entries_by_tag(&mut self, tag: dynamic::Tag) {
-        self.ptr.as_mut().unwrap().remove_dynamic_entries_by_tag(tag.into())
+        self.ptr
+            .as_mut()
+            .unwrap()
+            .remove_dynamic_entries_by_tag(tag.into())
     }
 
     /// Add the given dynamic entry and return the new entry
-    pub fn add_dynamic_entry(&mut self, entry: &dynamic::Entries) -> dynamic::Entries {
-        dynamic::Entries::from_ffi(self.ptr.as_mut().unwrap().add_dynamic_entry(entry.as_base()))
+    pub fn add_dynamic_entry(&mut self, entry: &dyn dynamic::DynamicEntry) -> dynamic::Entries {
+        dynamic::Entries::from_ffi(
+            self.ptr
+                .as_mut()
+                .unwrap()
+                .add_dynamic_entry(entry.as_base()),
+        )
     }
 
     /// Return an iterator over the dynamic [`crate::elf::Symbol`] of the binary
@@ -279,7 +299,7 @@ impl Binary {
                 ffi::AbstractBinary::get_u8,
                 self.ptr.as_ref().unwrap().as_ref(),
                 |value| {
-                    T::from_u8(value).expect(format!("Can't cast value: {}", value).as_str())
+                    T::from_u8(value).unwrap_or_else(|| panic!("Can't cast value: {value}"))
                 },
                 addr
             );
@@ -290,7 +310,7 @@ impl Binary {
                 ffi::AbstractBinary::get_u16,
                 self.ptr.as_ref().unwrap().as_ref(),
                 |value| {
-                    T::from_u16(value).expect(format!("Can't cast value: {}", value).as_str())
+                    T::from_u16(value).unwrap_or_else(|| panic!("Can't cast value: {value}"))
                 },
                 addr
             );
@@ -301,7 +321,7 @@ impl Binary {
                 ffi::AbstractBinary::get_u32,
                 self.ptr.as_ref().unwrap().as_ref(),
                 |value| {
-                    T::from_u32(value).expect(format!("Can't cast value: {}", value).as_str())
+                    T::from_u32(value).unwrap_or_else(|| panic!("Can't cast value: {value}"))
                 },
                 addr
             );
@@ -312,7 +332,7 @@ impl Binary {
                 ffi::AbstractBinary::get_u64,
                 self.ptr.as_ref().unwrap().as_ref(),
                 |value| {
-                    T::from_u64(value).expect(format!("Can't cast value: {}", value).as_str())
+                    T::from_u64(value).unwrap_or_else(|| panic!("Can't cast value: {value}"))
                 },
                 addr
             );
@@ -340,8 +360,103 @@ impl Binary {
         Library::from_ffi(self.ptr.as_mut().unwrap().add_library(library))
     }
 
+    /// Iterator over the functions found in this binary
     pub fn functions(&self) -> generic::Functions {
         generic::Functions::new(self.ptr.functions())
+    }
+
+    /// Try to find the dynamic entry associated with the given tag
+    pub fn dynamic_entry_by_tag(&self, tag: dynamic::Tag) -> Option<dynamic::Entries> {
+        into_optional(self.ptr.dynamic_entry_by_tag(tag.into()))
+    }
+
+    /// Look for the segment with the given type. If there are multiple segment
+    /// with the same type, it returns the first one.
+    pub fn segment_by_type(&self, seg_type: segment::Type) -> Option<Segment> {
+        into_optional(self.ptr.segment_by_type(seg_type.into()))
+    }
+
+    /// Remove the given dynamic entry
+    pub fn remove_dynamic_entry(&mut self, entry: impl dynamic::DynamicEntry) {
+        self.ptr.pin_mut().remove_dynamic_entry(entry.as_base());
+    }
+
+    /// Remove the dynamic entries matching the given predicate.
+    ///
+    /// The function returns the number of entries that have been deleted.
+    pub fn remove_dynamic_entry_if<P>(&mut self, predicate: P) -> usize
+    where
+        P: Fn(&dynamic::Entries) -> bool,
+    {
+        let entries = self.dynamic_entries()
+            .filter(predicate)
+            .map(|e| e.as_base().raw_ptr() )
+            .collect::<Vec<_>>();
+
+        let cnt = entries.len();
+
+        for ffi_entry in entries {
+            unsafe {
+                self.ptr.pin_mut().remove_dynamic_entry_from_ptr(ffi_entry);
+            }
+        }
+        cnt
+    }
+
+    /// Remove the `DT_NEEDED` dependency with the given name
+    pub fn remove_library(&mut self, name: &str) {
+        self.ptr.pin_mut().remove_library(name.to_string());
+    }
+
+    /// Add the provided segment to the binary. This function returns the
+    /// newly added segment which could define additional attributes like the virtual address.
+    pub fn add_segment(&mut self, segment: &Segment) -> Option<Segment> {
+        into_optional(
+            self.ptr
+                .pin_mut()
+                .add_segment(segment.ptr.as_ref().unwrap()),
+        )
+    }
+
+    /// Change the path to the interpreter
+    pub fn set_interpreter(&mut self, interpreter: &str) {
+        self.ptr.pin_mut().set_interpreter(interpreter.to_string());
+    }
+
+    /// Try to find the SymbolVersionRequirement associated with the given library
+    /// name (e.g. `libc.so.6`)
+    pub fn find_version_requirement(&self, libname: &str) -> Option<SymbolVersionRequirement> {
+        into_optional(self.ptr.find_version_requirement(libname.to_string()))
+    }
+
+    /// Deletes all required symbol versions linked to the specified library name.
+    /// The function returns true if the operation succeed, false otherwise.
+    ///
+    /// <div class='warning'>
+    /// To maintain consistency, this function also removes versions
+    /// associated with dynamic symbols that are linked to the specified
+    /// library name.
+    /// </div>
+    pub fn remove_version_requirement(&mut self, libname: &str) -> bool {
+        self.ptr
+            .pin_mut()
+            .remove_version_requirement(libname.to_string())
+    }
+
+    /// Remove the given segment. If `clear` is set, the original content of the
+    /// segment will be filled with zeros before removal.
+    pub fn remove_segment(&mut self, segment: Segment, clear: bool) {
+        self.ptr
+            .pin_mut()
+            .remove_segment(segment.ptr.as_ref().unwrap(), clear)
+    }
+
+    /// Remove all segments associated with the given type.
+    ///
+    /// If `clear` is set, the original content of the segments will be filled
+    /// with zeros before removal.
+    pub fn remove_segments_by_type(&mut self, ty: segment::Type, clear: bool) {
+        self.ptr.pin_mut().remove_segments_by_type(ty.into(), clear)
     }
 }
 

@@ -108,8 +108,8 @@ class LIEF_API Header : public Object {
     POWERPC64 = 18 | ABI64,
   };
 
-  static constexpr uint32_t CPU_SUBTYPE_MASK = 0xff000000;
-  static constexpr uint32_t CPU_SUBTYPE_LIB64 = 0x80000000;
+  static constexpr uint32_t SUBTYPE_MASK = 0xff000000;
+  static constexpr uint32_t SUBTYPE_LIB64 = 0x80000000;
 
   static constexpr auto CPU_SUBTYPE_ARM64_ARM64E = 2;
 
@@ -195,14 +195,14 @@ class LIEF_API Header : public Object {
 
   /// True if the binary is 32-bit
   bool is_32bit() const {
-    return magic_ == MACHO_TYPES::MH_MAGIC ||
-           magic_ == MACHO_TYPES::MH_CIGAM;
+    return magic_ == MACHO_TYPES::MAGIC ||
+           magic_ == MACHO_TYPES::CIGAM;
   }
 
   /// True if the binary is 64-bit
   bool is_64bit() const {
-    return magic_ == MACHO_TYPES::MH_MAGIC_64 ||
-           magic_ == MACHO_TYPES::MH_CIGAM_64;
+    return magic_ == MACHO_TYPES::MAGIC_64 ||
+           magic_ == MACHO_TYPES::CIGAM_64;
   }
 
   void remove(FLAGS flag);
@@ -245,6 +245,6 @@ LIEF_API const char* to_string(Header::FLAGS e);
 }
 }
 
-ENABLE_BITMASK_OPERATORS(LIEF::MachO::Header::FLAGS)
+ENABLE_BITMASK_OPERATORS(LIEF::MachO::Header::FLAGS);
 
 #endif

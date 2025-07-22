@@ -22,9 +22,9 @@ use super::signature::Signatures;
 use super::tls::TLS;
 use super::{data_directory, signature};
 use super::debug::CodeViewPDB;
-use super::symbol::Symbol;
 use super::exception::RuntimeExceptionFunction;
-use super::coff;
+use crate::coff;
+use crate::coff::Symbol;
 
 use crate::common::{into_optional, FromFFI, AsFFI};
 use crate::declare_iterator;
@@ -69,7 +69,7 @@ impl Binary {
     }
 
     /// Parse from a string file path and with a provided configuration
-    pub fn parse_with_config(path: &str, config: ParserConfig) -> Option<Self> {
+    pub fn parse_with_config(path: &str, config: &ParserConfig) -> Option<Self> {
         let ffi_config = config.to_ffi();
         let ffi = ffi::PE_Binary::parse_with_config(path, &ffi_config);
         if ffi.is_null() {
@@ -343,7 +343,7 @@ impl Binary {
                 ffi::AbstractBinary::get_u8,
                 self.ptr.as_ref().unwrap().as_ref(),
                 |value| {
-                    T::from_u8(value).expect(format!("Can't cast value: {}", value).as_str())
+                    T::from_u8(value).unwrap_or_else(|| panic!("Can't cast value: {value}"))
                 },
                 addr
             );
@@ -354,7 +354,7 @@ impl Binary {
                 ffi::AbstractBinary::get_u16,
                 self.ptr.as_ref().unwrap().as_ref(),
                 |value| {
-                    T::from_u16(value).expect(format!("Can't cast value: {}", value).as_str())
+                    T::from_u16(value).unwrap_or_else(|| panic!("Can't cast value: {value}"))
                 },
                 addr
             );
@@ -365,7 +365,7 @@ impl Binary {
                 ffi::AbstractBinary::get_u32,
                 self.ptr.as_ref().unwrap().as_ref(),
                 |value| {
-                    T::from_u32(value).expect(format!("Can't cast value: {}", value).as_str())
+                    T::from_u32(value).unwrap_or_else(|| panic!("Can't cast value: {value}"))
                 },
                 addr
             );
@@ -376,7 +376,7 @@ impl Binary {
                 ffi::AbstractBinary::get_u64,
                 self.ptr.as_ref().unwrap().as_ref(),
                 |value| {
-                    T::from_u64(value).expect(format!("Can't cast value: {}", value).as_str())
+                    T::from_u64(value).unwrap_or_else(|| panic!("Can't cast value: {value}"))
                 },
                 addr
             );
@@ -421,12 +421,12 @@ impl Binary {
     }
 
     /// Remove a specific debug entry
-    pub fn remove_debug<'a>(&'a mut self, entry: &dyn DebugEntry) -> bool {
+    pub fn remove_debug(&mut self, entry: &dyn DebugEntry) -> bool {
         self.ptr.pin_mut().remove_debug(entry.get_base())
     }
 
     /// Remove all debug info
-    pub fn clear_debug<'a>(&'a mut self) -> bool {
+    pub fn clear_debug(&mut self) -> bool {
         self.ptr.pin_mut().clear_debug()
     }
 
@@ -445,7 +445,7 @@ impl Binary {
     pub fn write_with_config(&mut self, output: &Path, config: Config) {
         let ffi_config = config.to_ffi();
         self.ptr.as_mut().unwrap().write_with_config(output.to_str().unwrap(),
-            &ffi_config.as_ref().unwrap());
+            ffi_config.as_ref().unwrap());
     }
 
     /// Iterator over the strings located in the COFF string table

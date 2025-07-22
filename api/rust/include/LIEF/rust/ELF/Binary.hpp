@@ -57,7 +57,56 @@ class ELF_Binary_write_config_t {
   bool symtab;
   bool coredump_notes;
   bool force_relocate;
+  bool keep_empty_version_requirement;
+  bool skip_dynamic;
 };
+
+class ELF_ParserConfig {
+  public:
+  static auto create() {
+    return std::make_unique<ELF_ParserConfig>();
+  }
+
+  const LIEF::ELF::ParserConfig& conf() const {
+    return config_;
+  }
+
+  void set_parse_relocations(bool value) {
+    config_.parse_relocations = value;
+  }
+
+  void set_parse_dyn_symbols(bool value) {
+    config_.parse_dyn_symbols = value;
+  }
+
+  void set_parse_symtab_symbols(bool value) {
+    config_.parse_symtab_symbols = value;
+  }
+
+  void set_parse_symbol_versions(bool value) {
+    config_.parse_symbol_versions = value;
+  }
+
+  void set_parse_notes(bool value) {
+    config_.parse_notes = value;
+  }
+
+  void set_parse_overlay(bool value) {
+    config_.parse_overlay = value;
+  }
+
+  void set_count_mtd(uint32_t value) {
+    config_.count_mtd = (LIEF::ELF::ParserConfig::DYNSYM_COUNT)value;
+  }
+
+  void set_page_size(uint64_t value) {
+    config_.page_size = value;
+  }
+
+  private:
+  LIEF::ELF::ParserConfig config_;
+};
+
 
 class ELF_Binary : public AbstractBinary {
   public:
@@ -66,6 +115,10 @@ class ELF_Binary : public AbstractBinary {
 
   static auto parse(std::string path) { // NOLINT(performance-unnecessary-value-param)
     return details::try_unique<ELF_Binary>(LIEF::ELF::Parser::parse(path));
+  }
+
+  static auto parse_with_config(std::string path, const ELF_ParserConfig& config) { // NOLINT(performance-unnecessary-value-param)
+    return details::try_unique<ELF_Binary>(LIEF::ELF::Parser::parse(path, config.conf()));
   }
 
   class it_sections :
@@ -246,6 +299,14 @@ class ELF_Binary : public AbstractBinary {
     impl().remove(LIEF::ELF::DynamicEntry::TAG(tag));
   }
 
+  void remove_dynamic_entry(const ELF_DynamicEntry& entry) {
+    impl().remove(entry.get());
+  }
+
+  void remove_dynamic_entry_from_ptr(const void* ptr) {
+    impl().remove(*reinterpret_cast<const LIEF::ELF::DynamicEntry*>(ptr));
+  }
+
   auto add_dynamic_entry(const ELF_DynamicEntry& entry) {
      return std::make_unique<ELF_DynamicEntry>(impl().add(entry.get()));
   }
@@ -356,6 +417,10 @@ class ELF_Binary : public AbstractBinary {
     return impl().interpreter();
   }
 
+  void set_interpreter(std::string name) {
+    impl().interpreter(name);
+  }
+
   auto get_relocated_dynamic_array(uint64_t tag) const {
     return impl().get_relocated_dynamic_array(LIEF::ELF::DynamicEntry::TAG(tag));
   }
@@ -370,6 +435,40 @@ class ELF_Binary : public AbstractBinary {
 
   auto functions() const {
     return std::make_unique<AbstractBinary::it_functions>(impl().functions());
+  }
+
+  auto dynamic_entry_by_tag(uint64_t tag) const {
+    return details::try_unique<ELF_DynamicEntry>(impl().get((LIEF::ELF::DynamicEntry::TAG)tag));
+  }
+
+  auto segment_by_type(uint64_t ty) const {
+    return details::try_unique<ELF_Segment>(impl().get((LIEF::ELF::Segment::TYPE)ty));
+  }
+
+  void remove_library(std::string name) {
+    impl().remove_library(name);
+  }
+
+  auto add_segment(const ELF_Segment& segment) {
+    return details::try_unique<ELF_Segment>(
+        impl().add(segment.get())
+    );
+  }
+
+  auto find_version_requirement(std::string libname) const {
+    return details::try_unique<ELF_SymbolVersionRequirement>(impl().find_version_requirement(libname));
+  }
+
+  auto remove_version_requirement(std::string libname) {
+    return impl().remove_version_requirement(libname);
+  }
+
+  void remove_segment(const ELF_Segment& segment, bool clear) {
+    impl().remove(segment.get(), clear);
+  }
+
+  void remove_segments_by_type(uint64_t ty, bool clear) {
+    impl().remove(LIEF::ELF::Segment::TYPE(ty), clear);
   }
 
   void write(std::string output) { impl().write(output); }
@@ -395,6 +494,7 @@ class ELF_Binary : public AbstractBinary {
       config.symtab,
       config.coredump_notes,
       config.force_relocate,
+      config.keep_empty_version_requirement,
     });
   }
 

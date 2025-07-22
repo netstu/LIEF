@@ -43,6 +43,9 @@
 //!        Some(lief::Binary::MachO(macho)) => {
 //!            // Process Mach-O file (including FatMachO)
 //!        },
+//!        Some(lief::Binary::COFF(coff)) => {
+//!            // Process coff file
+//!        },
 //!        None => {
 //!            // Parsing error
 //!        }
@@ -69,6 +72,8 @@ pub mod generic;
 pub mod macho;
 
 pub mod pe;
+
+pub mod coff;
 
 pub mod pdb;
 
@@ -111,6 +116,19 @@ pub use range::Range;
 #[doc(inline)]
 pub use debug_location::DebugLocation;
 
+pub struct Version {
+    pub major: u64,
+    pub minor: u64,
+    pub patch: u64,
+    pub id: u64,
+}
+
+impl std::fmt::Display for Version {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "{}.{}.{}.{}", self.major, self.minor, self.patch, self.id)
+    }
+}
+
 /// Whether it is an extended version of LIEF
 pub fn is_extended() -> bool {
     lief_ffi::is_extended()
@@ -119,6 +137,24 @@ pub fn is_extended() -> bool {
 /// Return details about the extended version
 pub fn extended_version_info() -> String {
     lief_ffi::extended_version_info().to_string()
+}
+
+/// Return the extended version
+pub fn extended_version() -> Version {
+    let ffi_version = lief_ffi::extended_version();
+    Version {
+        major: ffi_version.major, minor: ffi_version.minor,
+        patch: ffi_version.patch, id: ffi_version.id
+    }
+}
+
+/// Return the current version
+pub fn version() -> Version {
+    let ffi_version = lief_ffi::version();
+    Version {
+        major: ffi_version.major, minor: ffi_version.minor,
+        patch: ffi_version.patch, id: ffi_version.id
+    }
 }
 
 /// Try to demangle the given input.

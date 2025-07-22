@@ -21,6 +21,7 @@
 
 #include "LIEF/utils.hpp"
 #include "LIEF/errors.hpp"
+#include "LIEF/version.h"
 
 #include "third-party/utfcpp.hpp"
 
@@ -155,6 +156,20 @@ bool is_extended() {
   return lief_extended;
 }
 
+std::string lief_version_t::to_string() const {
+  if (id == 0) {
+    return fmt::format("{}.{}.{}", major, minor, patch);
+  }
+  return fmt::format("{}.{}.{}.{}", major, minor, patch, id);
+}
+
+lief_version_t version() {
+  if (lief_extended) {
+    return extended_version();
+  }
+  return {LIEF_VERSION_MAJOR, LIEF_VERSION_MINOR, LIEF_VERSION_PATCH, 0};
+}
+
 #if !defined(LIEF_EXTENDED)
 result<std::string> demangle(const std::string&/*mangled*/) {
   logging::needs_lief_extended();
@@ -168,5 +183,10 @@ std::string extended_version_info() {
 }
 #endif
 
+#if !defined(LIEF_EXTENDED)
+lief_version_t extended_version() {
+  return {};
+}
+#endif
 
 } // namespace LIEF

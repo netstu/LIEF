@@ -104,7 +104,7 @@ class BuildConfig(BaseModel):
 
         return out
 
-class ThridParty(BaseModel):
+class ThirdParty(BaseModel):
     spdlog: Optional[EnvString] = None
     nanobind: Optional[EnvString] = None
 
@@ -142,6 +142,7 @@ class Formats(BaseModel):
     elf: bool = True
     pe: bool = True
     macho: bool = True
+    coff: bool = True
     dex: bool = True
     art: bool = True
     oat: bool = True
@@ -152,6 +153,7 @@ class Formats(BaseModel):
             f"-DLIEF_ELF={cmake_serialize(self.elf)}",
             f"-DLIEF_PE={cmake_serialize(self.pe)}",
             f"-DLIEF_MACHO={cmake_serialize(self.macho)}",
+            f"-DLIEF_COFF={cmake_serialize(self.coff)}",
             f"-DLIEF_DEX={cmake_serialize(self.dex)}",
             f"-DLIEF_OAT={cmake_serialize(self.oat)}",
             f"-DLIEF_ART={cmake_serialize(self.art)}",
@@ -182,7 +184,7 @@ class Features(BaseModel):
 class ConfigT(BaseModel):
     build: BuildConfig = BuildConfig()
     formats: Formats = Formats()
-    third_party: ThridParty = Field(ThridParty(), alias="third-party")
+    third_party: ThirdParty = Field(ThirdParty(), alias="third-party")
     features: Features = Features()
     logging: Logging = Logging()
     cross_compilation: CrossCompilation = Field(CrossCompilation(),

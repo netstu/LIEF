@@ -25,7 +25,6 @@
 #include "LIEF/PE/utils.hpp"
 #include "LIEF/PE/ImportEntry.hpp"
 #include "LIEF/PE/Import.hpp"
-#include "LIEF/PE/AuxiliarySymbol.hpp"
 #include "LIEF/PE/Debug.hpp"
 #include "LIEF/PE/debug/PDBChecksum.hpp"
 #include "LIEF/PE/debug/ExDllCharacteristics.hpp"
@@ -35,7 +34,6 @@
 #include "LIEF/PE/DataDirectory.hpp"
 #include "LIEF/PE/Relocation.hpp"
 #include "LIEF/PE/RelocationEntry.hpp"
-#include "LIEF/PE/Symbol.hpp"
 #include "LIEF/PE/Export.hpp"
 #include "LIEF/PE/ExportEntry.hpp"
 #include "LIEF/utils.hpp"
@@ -1090,7 +1088,7 @@ ok_error_t Builder::build_exports() {
   std::vector<ExportEntry*> entries;
   entries.reserve(exp->entries_.size());
   std::transform(exp->entries_.begin(), exp->entries_.end(),
-    std::back_inserter(entries), [] (ExportEntry& E) { return &E; });
+    std::back_inserter(entries), [] (std::unique_ptr<ExportEntry>& E) { return E.get(); });
 
   std::stable_sort(entries.begin(), entries.end(),
     [] (const ExportEntry* lhs, const ExportEntry* rhs) {

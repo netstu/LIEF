@@ -49,6 +49,7 @@
 #include "LIEF/asm/powerpc/registers.hpp"
 
 #include "LIEF/Abstract/Binary.hpp"
+#include "LIEF/COFF/Binary.hpp"
 
 #include "internal_utils.hpp"
 #include "messages.hpp"
@@ -80,13 +81,50 @@ Binary::instructions_it Binary::disassemble(const uint8_t*, size_t, uint64_t) co
   return make_empty_iterator<assembly::Instruction>();
 }
 
-std::vector<uint8_t> Binary::assemble(uint64_t/*address*/, const std::string&/*Asm*/) {
+std::vector<uint8_t> Binary::assemble(uint64_t/*address*/, const std::string&/*Asm*/,
+    assembly::AssemblerConfig& /*config*/)
+{
+  LIEF_ERR(ASSEMBLY_NOT_SUPPORTED);
+  return {};
+}
+
+std::vector<uint8_t> Binary::assemble(uint64_t/*address*/, const llvm::MCInst&/*inst*/) {
+  LIEF_ERR(ASSEMBLY_NOT_SUPPORTED);
+  return {};
+}
+
+
+std::vector<uint8_t> Binary::assemble(uint64_t/*address*/, const std::vector<llvm::MCInst>&/*inst*/) {
   LIEF_ERR(ASSEMBLY_NOT_SUPPORTED);
   return {};
 }
 
 assembly::Engine* Binary::get_engine(uint64_t) const {
   return nullptr;
+}
+
+
+namespace COFF {
+assembly::Engine* Binary::get_engine(uint64_t) const {
+  return nullptr;
+}
+
+Binary::instructions_it Binary::disassemble(const std::string& /*symbol*/) const {
+  LIEF_ERR(ASSEMBLY_NOT_SUPPORTED);
+  return make_empty_iterator<assembly::Instruction>();
+}
+
+Binary::instructions_it Binary::disassemble(const Symbol& /*symbol*/) const {
+  LIEF_ERR(ASSEMBLY_NOT_SUPPORTED);
+  return make_empty_iterator<assembly::Instruction>();
+}
+
+Binary::instructions_it Binary::disassemble(const uint8_t* /*buffer*/, size_t /*size*/,
+                                            uint64_t /*address*/) const
+{
+  LIEF_ERR(ASSEMBLY_NOT_SUPPORTED);
+  return make_empty_iterator<assembly::Instruction>();
+}
 }
 
 namespace assembly {
@@ -233,12 +271,14 @@ Engine::instructions_it Engine::disassemble(const uint8_t*, size_t, uint64_t) {
   return make_empty_iterator<assembly::Instruction>();
 }
 
-std::vector<uint8_t> Engine::assemble(uint64_t/*address*/, const std::string&/*Asm*/) {
+std::vector<uint8_t> Engine::assemble(uint64_t/*address*/, const std::string&/*Asm*/,
+                                      AssemblerConfig& /*config*/)
+{
   return {};
 }
 
 std::vector<uint8_t> Engine::assemble(uint64_t/*address*/, const std::string&/*Asm*/,
-                                      LIEF::Binary&/*bin*/)
+                                      LIEF::Binary&/*bin*/, AssemblerConfig& /*config*/)
 {
   return {};
 }
@@ -392,8 +432,10 @@ std::unique_ptr<x86::Operand> x86::Operand::Iterator::operator*() const {
   return nullptr;
 }
 
-bool x86::operator==(const x86::Operand::Iterator&, const x86::Operand::Iterator&) {
+namespace x86 {
+bool operator==(const x86::Operand::Iterator&, const x86::Operand::Iterator&) {
   return true;
+}
 }
 
 x86::Operand::Iterator::~Iterator() = default;
@@ -487,8 +529,10 @@ std::unique_ptr<aarch64::Operand> aarch64::Operand::Iterator::operator*() const 
   return nullptr;
 }
 
-bool aarch64::operator==(const aarch64::Operand::Iterator&, const aarch64::Operand::Iterator&) {
+namespace aarch64 {
+bool operator==(const aarch64::Operand::Iterator&, const aarch64::Operand::Iterator&) {
   return true;
+}
 }
 
 aarch64::Operand::Iterator::~Iterator() = default;

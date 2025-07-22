@@ -86,6 +86,10 @@ std::unique_ptr<FatBinary> Parser::parse(const std::vector<uint8_t>& data,
 
 std::unique_ptr<FatBinary> Parser::parse(std::unique_ptr<BinaryStream> stream,
                                          const ParserConfig& conf) {
+  if (stream == nullptr) {
+    return nullptr;
+  }
+
   {
     ScopedStream scoped(*stream, 0);
     if (!is_macho(*stream)) {
@@ -191,7 +195,7 @@ ok_error_t Parser::build() {
   auto type = static_cast<MACHO_TYPES>(*res_type);
 
   // Fat binary
-  if (type == MACHO_TYPES::FAT_MAGIC || type == MACHO_TYPES::FAT_CIGAM) {
+  if (type == MACHO_TYPES::MAGIC_FAT || type == MACHO_TYPES::CIGAM_FAT) {
     if (!build_fat()) {
       LIEF_WARN("Errors while parsing the Fat MachO");
     }

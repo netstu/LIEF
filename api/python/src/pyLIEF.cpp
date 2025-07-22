@@ -70,6 +70,10 @@
   #include "ART/init.hpp"
 #endif
 
+#if defined(LIEF_COFF_SUPPORT)
+  #include "COFF/init.hpp"
+#endif
+
 
 nb::module_* lief_mod = nullptr;
 
@@ -218,6 +222,24 @@ void init(nb::module_& m) {
   m.attr("__is_tagged__") = bool(LIEF_TAGGED);
   m.doc() = "LIEF Python API";
 
+  nb::class_<LIEF::lief_version_t>(m, "lief_version_t")
+    .def_rw("major", &LIEF::lief_version_t::major)
+    .def_rw("minor", &LIEF::lief_version_t::minor)
+    .def_rw("patch", &LIEF::lief_version_t::patch)
+    .def_rw("id",    &LIEF::lief_version_t::id)
+    .def("__repr__",
+      [] (const LIEF::lief_version_t& version) {
+        return fmt::format("<lief_version_t: {}>", version.to_string());
+      }
+    )
+    .def("__str__",
+      [] (const LIEF::lief_version_t& version) {
+         return version.to_string();
+      }
+    )
+  ;
+
+
   m.def("disable_leak_warning", [] {
     nb::set_leak_warnings(false);
   }, R"doc(
@@ -270,6 +292,12 @@ void init(nb::module_& m) {
     )doc"_doc
   );
 
+  m.def("extended_version_info", &LIEF::extended_version_info,
+        "Details about the extended version"_doc);
+
+  m.def("extended_version", &LIEF::extended_version,
+        "Return the extended version"_doc);
+
   LIEF::py::init_extension(m);
 
   LIEF::py::init_python_sink();
@@ -283,13 +311,14 @@ void init(nb::module_& m) {
   LIEF::py::init_hash(m);
   LIEF::py::init_json(m);
 
+  LIEF::assembly::py::init(m);
+
   LIEF::py::init_abstract(m);
 
   LIEF::dwarf::py::init(m);
   LIEF::pdb::py::init(m);
   LIEF::objc::py::init(m);
   LIEF::dsc::py::init(m);
-  LIEF::assembly::py::init(m);
 
 #if defined(LIEF_ELF_SUPPORT)
   LIEF::ELF::py::init(m);
@@ -317,6 +346,10 @@ void init(nb::module_& m) {
 
 #if defined(LIEF_ART_SUPPORT)
   LIEF::ART::py::init(m);
+#endif
+
+#if defined(LIEF_COFF_SUPPORT)
+  LIEF::COFF::py::init(m);
 #endif
 
 }

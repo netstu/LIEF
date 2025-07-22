@@ -295,7 +295,7 @@ void create<Binary>(nb::module_& m) {
           );
       }, "address"_a, nb::keep_alive<0, 1>(),
       R"doc(
-      Disassemble code starting a the given virtual address.
+      Disassemble code starting at the given virtual address.
 
       .. code-block:: python
 
@@ -367,9 +367,12 @@ void create<Binary>(nb::module_& m) {
       )doc"_doc
     )
 
-    .def("assemble", [] (Binary& self, uint64_t address, const std::string& Asm) {
-        return nb::to_bytes(self.assemble(address, Asm));
-      }, "address"_a, "assembly"_a,
+    .def("assemble",
+      [] (Binary& self, uint64_t address, const std::string& Asm,
+          assembly::AssemblerConfig& config)
+      {
+        return nb::to_bytes(self.assemble(address, Asm, config));
+      }, "address"_a, "assembly"_a, "config"_a = assembly::AssemblerConfig::default_config(),
       R"doc(
       Assemble **and patch** the provided assembly code at the specified address.
 
@@ -383,6 +386,16 @@ void create<Binary>(nb::module_& m) {
          xor rax, rbx;
          mov rcx, rax;
          """)
+
+      If you need to configure the assembly engine or to define addresses for
+      symbols, you can provide your own :class:`~.assembly.AssemblerConfig` instance.
+      )doc"_doc
+    )
+
+    .def_prop_ro("page_size", &Binary::page_size,
+      R"doc(
+      Get the default memory page size according to the architecture and the
+      format of the current binary
       )doc"_doc
     )
 

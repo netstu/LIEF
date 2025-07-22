@@ -335,6 +335,13 @@ class LIEF_API Binary : public LIEF::Binary  {
   /// @param os Output stream to write the reconstructed binary
   void write(std::ostream& os);
 
+  /// Reconstruct the binary object and write the result in the given `os` stream
+  /// for the given configuration
+  ///
+  /// @param os Output stream to write the reconstructed binary
+  /// @param config Builder configuration
+  void write(std::ostream& os, Builder::config_t config);
+
   /// Reconstruct the binary object and return its content as bytes
   std::vector<uint8_t> raw();
 
@@ -369,6 +376,16 @@ class LIEF_API Binary : public LIEF::Binary  {
 
   /// Add a new MachO::Section in the __TEXT segment
   Section* add_section(const Section& section);
+
+  /// Try to find the library with the given library name.
+  ///
+  /// This function tries to match the fullpath of the DylibCommand or the
+  /// library name suffix.
+  const DylibCommand* find_library(const std::string& name) const;
+
+  DylibCommand* find_library(const std::string& name) {
+    return const_cast<DylibCommand*>(static_cast<const Binary*>(this)->find_library(name));
+  }
 
   /// Add a section in the given MachO::SegmentCommand.
   ///
@@ -585,15 +602,15 @@ class LIEF_API Binary : public LIEF::Binary  {
 
   /// Check if the binary uses `NX` protection
   bool has_nx() const override {
-    return !has_nx_stack();
+    return has_nx_stack();
   }
 
-  /// Return True if the **heap** is flagged as non-executable. False otherwise
+  /// Return True if the **stack** is flagged as non-executable. False otherwise
   bool has_nx_stack() const {
     return !header().has(Header::FLAGS::ALLOW_STACK_EXECUTION);
   }
 
-  /// Return True if the **stack** is flagged as non-executable. False otherwise
+  /// Return True if the **heap** is flagged as non-executable. False otherwise
   bool has_nx_heap() const {
     return !header().has(Header::FLAGS::NO_HEAP_EXECUTION);
   }
@@ -952,14 +969,12 @@ class LIEF_API Binary : public LIEF::Binary  {
   /// Check if the binary is supporting ARM64 pointer authentication (arm64e)
   bool support_arm64_ptr_auth() const {
     return header().cpu_type() == Header::CPU_TYPE::ARM64 &&
-           (header().cpu_subtype() & ~Header::CPU_SUBTYPE_MASK) == Header::CPU_SUBTYPE_ARM64_ARM64E;
+           (header().cpu_subtype() & ~Header::SUBTYPE_MASK) == Header::CPU_SUBTYPE_ARM64_ARM64E;
   }
 
   /// Return an iterator over the binding info which can come from either
   /// DyldInfo or DyldChainedFixups commands.
   it_bindings bindings() const;
-
-  uint32_t page_size() const;
 
   static bool classof(const LIEF::Binary* bin) {
     return bin->format() == Binary::FORMATS::MACHO;
@@ -974,6 +989,11 @@ class LIEF_API Binary : public LIEF::Binary  {
 
   /// Check if the given segment can go in the offset_seg_ cache
   static LIEF_LOCAL bool can_cache_segment(const SegmentCommand& segment);
+
+  /// \private
+  LIEF_LOCAL size_t available_command_space() const {
+    return available_command_space_;
+  }
 
   private:
   /// Default constructor
@@ -1003,7 +1023,9 @@ class LIEF_API Binary : public LIEF::Binary  {
   /// Check that a gap between the load command table and
   /// the first section is at least \p size bytes.
   /// If there is not enough space, the gap is grown using \ref shift method.
-  ok_error_t ensure_command_space(size_t size);
+  ok_error_t ensure_command_space(size_t size) {
+    return available_command_space_ < size ? shift(size) : ok();
+  }
 
   relocations_t& relocations_list() {
     return this->relocations_;

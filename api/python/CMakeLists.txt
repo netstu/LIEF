@@ -1,4 +1,3 @@
- find_package(Python REQUIRED COMPONENTS Interpreter Development.Module)
 
 if (LIEF_PY_LIEF_EXT)
   if (LIEF_PY_LIEF_EXT_SHARED)
@@ -21,20 +20,23 @@ if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.24.0")
 endif()
 
 if (LIEF_EXTERNAL_NANOBIND)
+  find_package(Python REQUIRED COMPONENTS Interpreter Development.Module)
   find_package(nanobind REQUIRED)
 else()
-  set(NANOBIND_VERSION 2.5.0.r28.g0a9a8cd)
-  set(NANOBIND_SHA256 SHA256=d8e92599ea383a6f69201f40226bedb4c879d7802259910f28416a29d8b8f5e9)
+  set(NANOBIND_VERSION 2.6.1.r32.g4a0b83a)
+  set(NANOBIND_SHA256 SHA256=3d919afe7928724e1e1c4f73429104fcfcb2b7ffc2c4419f4fbf39c797955bc2)
   set(NANOBIND_URL "${THIRD_PARTY_DIRECTORY}/nanobind-${NANOBIND_VERSION}.zip"
       CACHE STRING "URL to the Nanobind")
   FetchContent_Declare(nanobind
     URL        ${NANOBIND_URL}
     URL_HASH   ${NANOBIND_SHA256}
   )
-  FetchContent_Populate(nanobind)
+  FetchContent_MakeAvailable(nanobind)
+  find_package(Python REQUIRED COMPONENTS Interpreter Development.Module)
   find_package(nanobind REQUIRED PATHS ${nanobind_SOURCE_DIR}/cmake
                NO_DEFAULT_PATH)
 endif()
+
 
 message(STATUS "Python version:     ${Python_VERSION}")
 message(STATUS "Python lib:         ${Python_LIBRARIES}")

@@ -5,7 +5,6 @@ set(__add_lief_options ON)
 include(CMakeDependentOption)
 
 option(LIEF_TESTS                      "Enable tests"                               OFF)
-option(LIEF_DOC                        "Enable documentation"                       OFF)
 option(LIEF_PYTHON_API                 "Enable Python Bindings"                     OFF)
 option(LIEF_C_API                      "C API"                                      ON)
 option(LIEF_EXAMPLES                   "Build LIEF C++ examples"                    ON)
@@ -20,11 +19,13 @@ option(LIEF_FORCE_API_EXPORTS          "Force exports of API symbols"           
 option(LIEF_PY_LIEF_EXT                "Use a pre-installed version of LIEF for the bindings" OFF)
 option(LIEF_RUST_API                   "Generate the C++ bridge for Rust's cxx" OFF)
 option(LIEF_DISABLE_EXCEPTIONS         "Disable C++ exceptions on the core library" ON)
+option(LIEF_SO_VERSION                 "Embed versioning for LIEF shared library target" OFF)
 
 option(LIEF_DISABLE_FROZEN "Disable Frozen even if it is supported"     OFF)
 
 option(LIEF_ELF            "Build LIEF with ELF module"                 ON)
-option(LIEF_PE             "Build LIEF with PE  module"                 ON)
+option(LIEF_PE             "Build LIEF with PE module"                  ON)
+option(LIEF_COFF           "Build LIEF with COFF module"                ON)
 option(LIEF_MACHO          "Build LIEF with MachO module"               ON)
 
 option(LIEF_DEX            "Build LIEF with DEX module"                 ON)
@@ -35,6 +36,14 @@ option(LIEF_DEBUG_INFO        "Build LIEF with DWARF/PDB support"              O
 option(LIEF_OBJC              "Build LIEF with ObjC metadata support"          OFF)
 option(LIEF_DYLD_SHARED_CACHE "Build LIEF with Dyld shared cache support"      OFF)
 option(LIEF_ASM               "Build LIEF with assembler/disassembler support" OFF)
+
+if (LIEF_COFF AND NOT LIEF_PE)
+  message(FATAL_ERROR "COFF module requires LIEF_PE enabled")
+endif()
+
+if (LIEF_PE AND NOT LIEF_COFF)
+  message(FATAL_ERROR "PE module requires LIEF_COFF enabled")
+endif()
 
 cmake_dependent_option(LIEF_PYTHON_EDITABLE "Make an editable build " OFF
                        "LIEF_PYTHON_API" OFF)
@@ -102,6 +111,8 @@ endif()
 cmake_dependent_option(LIEF_OPT_FROZEN_EXTERNAL "Use an external provided version of Frozen" OFF
                        "_LIEF_USE_FROZEN" OFF)
 
+option(LIEF_USE_MELKOR "Build Melkor for testing" ON)
+
 # This option enables the install target in the cmake
 option(LIEF_INSTALL "Generate the install target." ON)
 
@@ -109,6 +120,7 @@ set(LIEF_ELF_SUPPORT 0)
 set(LIEF_PE_SUPPORT 0)
 set(LIEF_MACHO_SUPPORT 0)
 
+set(LIEF_COFF_SUPPORT 0)
 set(LIEF_OAT_SUPPORT 0)
 set(LIEF_DEX_SUPPORT 0)
 set(LIEF_VDEX_SUPPORT 0)
@@ -142,6 +154,10 @@ endif()
 
 if(LIEF_MACHO)
   set(LIEF_MACHO_SUPPORT 1)
+endif()
+
+if(LIEF_COFF)
+  set(LIEF_COFF_SUPPORT 1)
 endif()
 
 if(LIEF_OAT)

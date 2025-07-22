@@ -112,7 +112,7 @@ class LIEF_LOCAL ExeLayout : public Layout {
     }
 
     // Start with dynamic entries: NEEDED / SONAME etc
-    vector_iostream raw_dynstr;
+    vector_iostream raw_dynstr(should_swap());
     raw_dynstr.write<uint8_t>(0);
 
     std::vector<std::string> opt_list;
@@ -223,7 +223,7 @@ class LIEF_LOCAL ExeLayout : public Layout {
       return raw_notes_.size();
     }
 
-    vector_iostream raw_notes/*(should_swap())*/;
+    vector_iostream raw_notes(should_swap());
     for (const Note& note : binary_->notes()) {
       size_t pos = raw_notes.tellp();
       // First we have to write the length of the Note's name
@@ -339,7 +339,7 @@ class LIEF_LOCAL ExeLayout : public Layout {
       });
     Binary::it_dynamic_symbols dynamic_symbols = binary_->dynamic_symbols();
 
-    vector_iostream raw_gnuhash;
+    vector_iostream raw_gnuhash(should_swap());
     raw_gnuhash.reserve(
         4 * sizeof(uint32_t) +          // header
         maskwords * sizeof(uint) +    // bloom filters
@@ -594,7 +594,7 @@ class LIEF_LOCAL ExeLayout : public Layout {
     uint64_t offset = 0;
     uint64_t addend = 0;
 
-    vector_iostream ios;
+    vector_iostream ios(should_swap());
     ios.write('A')
        .write('P')
        .write('S')
@@ -706,7 +706,7 @@ class LIEF_LOCAL ExeLayout : public Layout {
     const size_t wordsize = sizeof(Elf_Addr);
     const size_t nbits = wordsize * 8 - 1;
 
-    vector_iostream raw_relr;
+    vector_iostream raw_relr(should_swap());
 
     for (size_t i = 0, e = relr_relocs.size(); i != e;) {
       raw_relr.write<Elf_Addr>(offsets[i]);
@@ -876,7 +876,6 @@ class LIEF_LOCAL ExeLayout : public Layout {
      *    .rela.plt
      *    .relr.dyn
      * Perm: READ ONLY
-     * Align: 0x1000
      */
     uint64_t read_segment = interp_size_ +  sysv_size_ + dynsym_size_ +
                             sver_size_ + sverd_size_ + sverr_size_ +
@@ -905,7 +904,6 @@ class LIEF_LOCAL ExeLayout : public Layout {
 
     if (read_segment > 0) {
       Segment rsegment;
-      rsegment.alignment(0x1000);
       rsegment.type(Segment::TYPE::LOAD);
       rsegment.add(Segment::FLAGS::R);
       rsegment.content(std::vector<uint8_t>(read_segment));
@@ -928,14 +926,12 @@ class LIEF_LOCAL ExeLayout : public Layout {
      *  .got
      *  .got.plt
      * Perm: READ | WRITE
-     * Align: 0x1000
      */
     const uint64_t read_write_segment = init_size_ + preinit_size_ + fini_size_ + dynamic_size_ ;
 
     Segment* new_rwsegment = nullptr;
     Segment rwsegment;
     if (read_write_segment > 0) {
-      rwsegment.alignment(0x1000);
       rwsegment.type(Segment::TYPE::LOAD);
       rwsegment.add(Segment::FLAGS::R | Segment::FLAGS::W);
       rwsegment.content(std::vector<uint8_t>(read_write_segment));
@@ -962,7 +958,8 @@ class LIEF_LOCAL ExeLayout : public Layout {
       binary_->remove(*string_names_section, /* clear */ true);
       Section sec_str_section(sec_name, Section::TYPE::STRTAB);
       sec_str_section.content(std::vector<uint8_t>(raw_shstrtab_.size()));
-      binary_->add(sec_str_section, /* loaded */ false);
+      binary_->add(sec_str_section, /*loaded=*/false,
+                   /*pos=*/Binary::SEC_INSERT_POS::POST_SECTION);
 
       // Default behavior: push_back => index = binary_->sections_.size() - 1
       hdr.section_name_table_idx(binary_->sections_.size() - 1);
@@ -1567,7 +1564,8 @@ class LIEF_LOCAL ExeLayout : public Layout {
       Section strtab{".strtab", Section::TYPE::STRTAB};
       strtab.content(raw_strtab_);
       strtab.alignment(1);
-      Section* new_strtab = binary_->add(strtab, /* loaded */ false);
+      Section* new_strtab = binary_->add(
+        strtab, /*loaded=*/false, /*pos=*/Binary::SEC_INSERT_POS::POST_SECTION);
 
       strtab_idx = binary_->sections().size() - 1;
 
@@ -1624,7 +1622,8 @@ class LIEF_LOCAL ExeLayout : public Layout {
       symtab.entry_size(sizeof_sym);
       symtab.alignment(8);
       symtab.link(strtab_idx);
-      Section* new_symtab = binary_->add(symtab, /* loaded */ false);
+      Section* new_symtab = binary_->add(
+        symtab, /*loaded=*/false, /*pos=*/Binary::SEC_INSERT_POS::POST_SECTION);
       if (new_symtab == nullptr) {
         LIEF_ERR("Can't add a new .symbtab section");
         return make_error_code(lief_errors::build_error);
@@ -1664,7 +1663,8 @@ class LIEF_LOCAL ExeLayout : public Layout {
           Section section{sec_name, Section::TYPE::NOTE};
           section += Section::FLAGS::ALLOC;
 
-          Section* section_added = binary_->add(section, /*loaded */ false);
+          Section* section_added = binary_->add(
+            section, /*loaded=*/false, /*pos=*/Binary::SEC_INSERT_POS::POST_SECTION);
           if (section_added == nullptr) {
             LIEF_ERR("Can't add SHT_NOTE section");
             return make_error_code(lief_errors::build_error);

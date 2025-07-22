@@ -229,6 +229,12 @@ class LIEF_API DynamicEntry : public Object {
   DynamicEntry(const DynamicEntry&) = default;
   ~DynamicEntry() override = default;
 
+  static std::unique_ptr<DynamicEntry> create(TAG tag, uint64_t value);
+
+  static std::unique_ptr<DynamicEntry> create(TAG tag) {
+    return create(tag, /*value=*/0);
+  }
+
   virtual std::unique_ptr<DynamicEntry> clone() const {
     return std::unique_ptr<DynamicEntry>(new DynamicEntry(*this));
   }
@@ -258,6 +264,8 @@ class LIEF_API DynamicEntry : public Object {
   void accept(Visitor& visitor) const override;
 
   virtual std::ostream& print(std::ostream& os) const;
+
+  std::string to_string() const;
 
   LIEF_API friend
   std::ostream& operator<<(std::ostream& os, const DynamicEntry& entry) {

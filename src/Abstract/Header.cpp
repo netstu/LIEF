@@ -19,7 +19,6 @@
 #include "LIEF/ELF/Binary.hpp"
 #include "LIEF/MachO/Binary.hpp"
 #include "LIEF/PE/Binary.hpp"
-#include "LIEF/PE/AuxiliarySymbol.hpp"
 
 #include <spdlog/fmt/fmt.h>
 
@@ -82,6 +81,10 @@ Header Header::from(const ELF::Binary& elf) {
 
     case ELF::ARCH::PPC:
       hdr.architecture_ = ARCHITECTURES::PPC;
+      break;
+
+    case ELF::ARCH::PPC64:
+      hdr.architecture_ = ARCHITECTURES::PPC64;
       break;
 
     case ELF::ARCH::RISCV:
@@ -206,14 +209,14 @@ Header Header::from(const MachO::Binary& macho) {
   }
   const MachO::Header& macho_hdr = macho.header();
   const MachO::MACHO_TYPES magic = macho_hdr.magic();
-  if (magic == MachO::MACHO_TYPES::MH_MAGIC_64 ||
-      magic == MachO::MACHO_TYPES::MH_CIGAM_64)
+  if (magic == MachO::MACHO_TYPES::MAGIC_64 ||
+      magic == MachO::MACHO_TYPES::CIGAM_64)
   {
     hdr.modes_ |= MODES::BITS_64;
   }
 
-  if (magic == MachO::MACHO_TYPES::MH_MAGIC ||
-      magic == MachO::MACHO_TYPES::MH_CIGAM)
+  if (magic == MachO::MACHO_TYPES::MAGIC ||
+      magic == MachO::MACHO_TYPES::CIGAM)
   {
     hdr.modes_ |= MODES::BITS_32;
   }
@@ -248,8 +251,12 @@ Header Header::from(const MachO::Binary& macho) {
       hdr.architecture_ = ARCHITECTURES::MIPS;
       break;
 
-    case MachO::Header::CPU_TYPE::POWERPC:
     case MachO::Header::CPU_TYPE::POWERPC64:
+      hdr.architecture_ = ARCHITECTURES::PPC64;
+      hdr.endianness_ = ENDIANNESS::BIG;
+      break;
+
+    case MachO::Header::CPU_TYPE::POWERPC:
       hdr.architecture_ = ARCHITECTURES::PPC;
       hdr.endianness_ = ENDIANNESS::BIG;
       break;
@@ -319,6 +326,7 @@ const char* to_string(Header::ARCHITECTURES e) {
     ENTRY(XCORE),
     ENTRY(RISCV),
     ENTRY(LOONGARCH),
+    ENTRY(PPC64),
   };
   #undef ENTRY
   if (auto it = enums2str.find(e); it != enums2str.end()) {

@@ -15,6 +15,8 @@
  */
 #include <string>
 #include <sstream>
+
+#include "nanobind/utils.hpp"
 #include <nanobind/stl/vector.h>
 #include <nanobind/stl/string.h>
 #include <nanobind/stl/unique_ptr.h>
@@ -521,6 +523,18 @@ void create<Binary>(nb::module_& m) {
         "output"_a, "config"_a,
         nb::rv_policy::reference_internal)
 
+    .def("write_to_bytes", [] (Binary& bin, const Builder::config_t& config) -> nb::bytes {
+          std::ostringstream out;
+          bin.write(out, config);
+          return nb::to_bytes(out.str());
+        }, "config"_a)
+
+    .def("write_to_bytes", [] (Binary& bin) -> nb::bytes {
+          std::ostringstream out;
+          bin.write(out);
+          return nb::to_bytes(out.str());
+        })
+
     .def("add",
         nb::overload_cast<const DylibCommand&>(&Binary::add),
         "Add a new " RST_CLASS_REF(lief.MachO.DylibCommand) ""_doc,
@@ -630,6 +644,14 @@ void create<Binary>(nb::module_& m) {
         "section"_a,
         nb::rv_policy::reference_internal)
 
+    .def("find_library", nb::overload_cast<const std::string&>(&Binary::find_library),
+      R"doc(
+      Try to find the library with the given library name.
+
+      This function tries to match the fullpath of the :class:`~.DylibCommand` or the
+      library name suffix.
+      )doc"_doc, "name"_a, nb::rv_policy::reference_internal)
+
     .def("extend_section",
         nb::overload_cast<Section&, size_t>(&Binary::extend_section),
         "Extend the **content** of the given " RST_CLASS_REF(lief.MachO.Section) " by ``size``"_doc,
@@ -700,10 +722,6 @@ void create<Binary>(nb::module_& m) {
         "address"_a, "name"_a,
         nb::rv_policy::reference_internal)
 
-    .def_prop_ro("page_size",
-        &Binary::page_size,
-        "Return the binary's page size"_doc)
-
     .def_prop_ro("bindings",
         [] (const Binary& self) {
           auto bindings = self.bindings();
@@ -769,6 +787,8 @@ void create<Binary>(nb::module_& m) {
 
     .def_prop_ro("overlay",
         nb::overload_cast<>(&Binary::overlay, nb::const_))
+
+    .def_prop_ro("available_command_space", &Binary::available_command_space)
 
     LIEF_DEFAULT_STR(Binary);
 }

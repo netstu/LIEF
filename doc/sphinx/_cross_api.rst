@@ -17,6 +17,12 @@
     :py:meth:`lief.Binary.get_int_from_virtual_address`
     :cpp:func:`LIEF::Binary::get_int_from_virtual_address`
 
+.. |lief-parse| lief-api:: lief.parse()
+
+    :rust:method:`lief::Binary::parse [enum]`
+    :rust:method:`lief::Binary::from [enum]`
+    :py:func:`lief.parse`
+
 .. ObjC ==========================================================================
 
 .. |lief-objc-metadata| lief-api:: lief.ObjC.Metadata
@@ -105,6 +111,43 @@
     :rust:method:`lief::dwarf::Function::instructions [struct]`
     :cpp:func:`LIEF::dwarf::Function::instructions`
     :py:attr:`lief.dwarf.Function.instructions`
+
+.. |lief-dwarf-editor| lief-api:: lief.dwarf.Editor
+
+    :rust:struct:`lief::dwarf::Editor`
+    :py:class:`lief.dwarf.Editor`
+    :cpp:class:`LIEF::dwarf::Editor`
+
+.. |lief-dwarf-editor-from_binary| lief-api:: lief.dwarf.Editor.from_binary()
+
+    :rust:method:`lief::dwarf::Editor::from_binary [struct]`
+    :cpp:func:`LIEF::dwarf::Editor::from_binary`
+    :py:func:`lief.dwarf.Editor.from_binary`
+
+.. |lief-dwarf-editor-CompilationUnit| lief-api:: lief.dwarf.editor.CompilationUnit
+
+    :rust:struct:`lief::dwarf::editor::CompilationUnit`
+    :py:class:`lief.dwarf.editor.CompilationUnit`
+    :cpp:class:`LIEF::dwarf::editor::CompilationUnit`
+
+.. |lief-dwarf-editor-Function| lief-api:: lief.dwarf.editor.Function
+
+    :rust:struct:`lief::dwarf::editor::Function`
+    :py:class:`lief.dwarf.editor.Function`
+    :cpp:class:`LIEF::dwarf::editor::Function`
+
+.. |lief-dwarf-editor-Variable| lief-api:: lief.dwarf.editor.Variable
+
+    :rust:struct:`lief::dwarf::editor::Variable`
+    :py:class:`lief.dwarf.editor.Variable`
+    :cpp:class:`LIEF::dwarf::editor::Variable`
+
+.. |lief-dwarf-editor-Type| lief-api:: lief.dwarf.editor.Type
+
+    :rust:enum:`lief::dwarf::editor::Type`
+    :py:class:`lief.dwarf.editor.Type`
+    :cpp:class:`LIEF::dwarf::editor::Type`
+
 
 .. PDB =========================================================================
 
@@ -266,6 +309,12 @@
     :rust:method:`lief::pe::Binary::write [struct]`
     :py:meth:`lief.PE.Binary.write`
     :cpp:func:`LIEF::PE::Binary::write`
+
+.. |lief-pe-binary-write_to_bytes| lief-api:: lief.PE.Binary.write_to_bytes()
+
+    :py:meth:`lief.PE.Binary.write_to_bytes`
+    :cpp:func:`std::unique_ptr<Builder> LIEF::PE::Binary::write(std::ostream &)`
+    :cpp:func:`std::unique_ptr<Builder> LIEF::PE::Binary::write(std::ostream &, const Builder::config_t &)`
 
 .. |lief-pe-binary-signatures| lief-api:: lief.PE.Binary.signatures()
 
@@ -535,6 +584,11 @@
     :py:class:`lief.Header.ENDIANNESS`
     :cpp:enum:`LIEF::Header::ENDIANNESS`
 
+.. |lief-abstract-binary-page_size| lief-api:: lief.abstract.Binary.page_size()
+
+    :rust:method:`lief::generic::Binary::page_size [trait]`
+    :py:attr:`lief.Binary.page_size`
+    :cpp:func:`LIEF::Binary::page_size`
 
 .. ELF =========================================================================
 
@@ -579,6 +633,17 @@
     :py:meth:`lief.ELF.Binary.write`
     :cpp:func:`LIEF::ELF::Binary::write`
 
+.. |lief-elf-binary-write_to_bytes| lief-api:: lief.ELF.Binary.write_to_bytes()
+
+    :py:meth:`lief.ELF.Binary.write_to_bytes`
+    :cpp:func:`std::unique_ptr<Builder> LIEF::ELF::Binary::write(std::ostream &)`
+    :cpp:func:`std::unique_ptr<Builder> LIEF::ELF::Binary::write(std::ostream &, const Builder::config_t &)`
+
+.. |lief-elf-binary-add| lief-api:: lief.ELF.Binary.add()
+
+    :py:func:`lief.ELF.Binary.add`
+    :cpp:func:`LIEF::ELF::Binary::add`
+
 .. |lief-elf-aarch64pauth| lief-api:: lief.ELF.AArch64PAuth
 
     :py:class:`lief.ELF.AArch64PAuth`
@@ -591,6 +656,43 @@
     :py:func:`lief.ELF.Relocation.resolve`
     :cpp:func:`LIEF::ELF::Relocation::resolve`
 
+.. |lief-elf-segment| lief-api:: lief.ELF.Segment
+
+    :rust:struct:`lief::elf::Segment`
+    :py:class:`lief.ELF.Segment`
+    :cpp:class:`LIEF::ELF::Segment`
+
+.. |lief-elf-section| lief-api:: lief.ELF.Section
+
+    :rust:struct:`lief::elf::Section`
+    :py:class:`lief.ELF.Section`
+    :cpp:class:`LIEF::ELF::Section`
+
+.. |lief-elf-parser-config-page_size| lief-api:: lief.ELF.ParserConfig.page_size
+
+    :rust:member:`lief::elf::ParserConfig::page_size [struct]`
+    :py:attr:`lief.ELF.ParserConfig.page_size`
+    :cpp:member:`LIEF::ELF::ParserConfig::page_size`
+
+.. |lief-elf-binary-remove-segment| lief-api:: lief.ELF.Binary.remove_segment()
+
+    :rust:method:`lief::elf::Binary::remove_segment [struct]`
+    :rust:method:`lief::elf::Binary::remove_segments_by_type [struct]`
+    :py:meth:`lief.ELF.Binary.remove`
+    :cpp:func:`void LIEF::ELF::Binary::remove(const Segment &, bool)`
+    :cpp:func:`void LIEF::ELF::Binary::remove(Segment::TYPE, bool)`
+
+.. |lief-elf-DynamicEntryRpath| lief-api:: lief.ELF.DynamicEntryRpath
+
+    :rust:struct:`lief::elf::dynamic::Rpath`
+    :py:class:`lief.ELF.DynamicEntryRpath`
+    :cpp:class:`LIEF::ELF::DynamicEntryRpath`
+
+.. |lief-elf-DynamicEntryRunPath| lief-api:: lief.ELF.DynamicEntryRunPath
+
+    :rust:struct:`lief::elf::dynamic::RunPath`
+    :py:class:`lief.ELF.DynamicEntryRunPath`
+    :cpp:class:`LIEF::ELF::DynamicEntryRunPath`
 
 .. Mach-O ======================================================================
 
@@ -703,6 +805,13 @@
     :py:meth:`lief.MachO.Binary.write`
     :cpp:func:`LIEF::MachO::Binary::write`
 
+.. |lief-macho-binary-write_to_bytes| lief-api:: lief.MachO.Binary.write_to_bytes()
+
+    :py:meth:`lief.MachO.Binary.write_to_bytes`
+    :cpp:func:`std::unique_ptr<Builder> LIEF::MachO::Binary::write(std::ostream &)`
+    :cpp:func:`std::unique_ptr<Builder> LIEF::MachO::Binary::write(std::ostream &, const Builder::config_t &)`
+
+
 .. |lief-macho-fatbinary-write| lief-api:: lief.MachO.FatBinary.write()
 
     :py:meth:`lief.FatBinary.Binary.write`
@@ -724,6 +833,24 @@
     :rust:struct:`lief::macho::commands::AtomInfo`
     :py:class:`lief.MachO.AtomInfo`
     :cpp:class:`LIEF::MachO::AtomInfo`
+
+.. |lief-macho-encryptioninfo| lief-api:: lief.MachO.EncryptionInfo
+
+    :rust:struct:`lief::macho::commands::EncryptionInfo`
+    :py:class:`lief.MachO.EncryptionInfo`
+    :cpp:class:`LIEF::MachO::EncryptionInfo`
+
+.. |lief-macho-binary-find_library| lief-api:: lief.MachO.Binary.find_library()
+
+    :rust:method:`lief::macho::Binary::find_library [struct]`
+    :py:meth:`lief.MachO.Binary.find_library`
+    :cpp:func:`LIEF::MachO::Binary::find_library`
+
+.. |lief-macho-rpath| lief-api:: lief.MachO.RPathCommand
+
+    :rust:struct:`lief::macho::commands::RPath`
+    :py:class:`lief.MachO.RPathCommand`
+    :cpp:class:`LIEF::MachO::RPathCommand`
 
 .. dyld shared cache ===========================================================
 
@@ -860,3 +987,34 @@
     :rust:struct:`lief::assembly::ebpf::Instruction`
     :cpp:class:`LIEF::assembly::ebpf::Instruction`
     :py:class:`lief.assembly.ebpf.Instruction`
+
+
+.. |lief-asm-AssemblerConfig| lief-api:: lief.assembly.AssemblerConfig
+
+    :rust:struct:`lief::assembly::AssemblerConfig`
+    :cpp:class:`LIEF::assembly::AssemblerConfig`
+    :py:class:`lief.assembly.AssemblerConfig`
+
+.. COFF Format ================================================================
+
+.. |lief-coff-parse| lief-api:: lief.COFF.parse()
+
+    :rust:method:`lief::coff::Binary::parse [struct]`
+    :py:func:`lief.COFF.parse`
+    :cpp:func:`LIEF::COFF::Parser::parse`
+
+
+.. |lief-coff-Binary| lief-api:: lief.COFF.Binary
+
+    :rust:struct:`lief::coff::Binary`
+    :py:class:`lief.COFF.Binary`
+    :cpp:class:`LIEF::COFF::Binary`
+
+.. |lief-coff-binary-disassemble| lief-api:: lief.COFF.Binary.disassemble()
+
+    :rust:method:`lief::coff::Binary::disassemble_slice [struct]`
+    :rust:method:`lief::coff::Binary::disassemble_function [struct]`
+    :rust:method:`lief::coff::Binary::disassemble_symbol [struct]`
+    :py:meth:`lief.COFF.Binary.disassemble`
+    :py:meth:`lief.COFF.Binary.disassemble_from_bytes`
+    :cpp:func:`LIEF::COFF::Binary::disassemble`

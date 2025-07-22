@@ -223,6 +223,25 @@ class LIEF_API Binary : public LIEF::Binary {
     SEGMENT_GAP,
   };
 
+  /// This enum defines where the content of a newly added section should be
+  /// inserted.
+  enum class SEC_INSERT_POS {
+    /// Defer the choice to LIEF
+    AUTO = 0,
+
+    /// Insert the section after the last valid offset in the **segments**
+    /// table.
+    ///
+    /// With this choice, the section is inserted after the loaded content but
+    /// before any debug information.
+    POST_SEGMENT,
+
+    /// Insert the section after the last valid offset in the **section** table.
+    ///
+    /// With this choice, the section is inserted at the very end of the binary.
+    POST_SECTION,
+  };
+
   public:
   Binary& operator=(const Binary& ) = delete;
   Binary(const Binary& copy) = delete;
@@ -309,8 +328,15 @@ class LIEF_API Binary : public LIEF::Binary {
   /// Remove **all** notes with the given type
   void remove(Note::TYPE type);
 
-  /// Remove the given segment
-  void remove(const Segment& seg);
+  /// Remove the given segment. If \p clear is set, the original content of the
+  /// segment will be filled with zeros before removal.
+  void remove(const Segment& seg, bool clear = false);
+
+  /// Remove all segments associated with the given type.
+  ///
+  /// If \p clear is set, the original content of the segment will be filled
+  /// with zeros before removal.
+  void remove(Segment::TYPE type, bool clear = false);
 
   /// Return an iterator over the binary's dynamic symbols
   /// The dynamic symbols are those located in the ``.dynsym`` section
@@ -595,14 +621,16 @@ class LIEF_API Binary : public LIEF::Binary {
 
   /// Add a new section in the binary
   ///
-  /// @param[in] section    The section object to insert
-  /// @param[in] loaded     Boolean value to indicate that section's data must be loaded
-  ///                       by a PT_LOAD segment
+  /// @param[in] section  The section object to insert
+  /// @param[in] loaded   Boolean value to indicate that section's data must be loaded
+  ///                     by a PT_LOAD segment
+  /// @param[in] pos      Position where to insert the data in the sections table
   ///
   /// @return The section added. The `size` and the `virtual address` might change.
   ///
   /// This function requires a well-formed ELF binary
-  Section* add(const Section& section, bool loaded = true);
+  Section* add(const Section& section, bool loaded = true,
+               SEC_INSERT_POS pos = SEC_INSERT_POS::AUTO);
 
   Section* extend(const Section& section, uint64_t size);
 
@@ -700,7 +728,9 @@ class LIEF_API Binary : public LIEF::Binary {
   /// (i.e. the binary can run).
   ///
   /// @param filename Path for the written ELF binary
-  void write(const std::string& filename);
+  void write(const std::string& filename) {
+    return write(filename, Builder::config_t{});
+  }
 
   /// Reconstruct the binary object with the given config and write it in `filename`
   ///
@@ -717,7 +747,9 @@ class LIEF_API Binary : public LIEF::Binary {
   /// (i.e. the binary can run).
   ///
   /// @param os Output stream for the written ELF binary
-  void write(std::ostream& os);
+  void write(std::ostream& os) {
+    return write(os, Builder::config_t{});
+  }
 
   /// Reconstruct the binary object with the given config and write it in `os` stream
   ///
@@ -940,6 +972,37 @@ class LIEF_API Binary : public LIEF::Binary {
     return std::distance(sections_.begin(), it);
   }
 
+  /// Try to find the SymbolVersionRequirement associated with the given library
+  /// name (e.g. `libc.so.6`)
+  const SymbolVersionRequirement*
+    find_version_requirement(const std::string& libname) const;
+
+  SymbolVersionRequirement* find_version_requirement(const std::string& name) {
+      return const_cast<SymbolVersionRequirement*>(static_cast<const Binary*>(this)->find_version_requirement(name));
+  }
+
+  /// Deletes all required symbol versions linked to the specified library name.
+  /// The function returns true if the operation succeed, false otherwise.
+  ///
+  /// \warning To maintain consistency, this function also removes versions
+  ///          associated with dynamic symbols that are linked to the specified
+  ///          library name.
+  bool remove_version_requirement(const std::string& libname);
+
+  uint8_t ptr_size() const {
+    switch (type()) {
+      case Header::CLASS::ELF32:
+        return sizeof(uint32_t);
+      case Header::CLASS::ELF64:
+        return sizeof(uint64_t);
+      default:
+        return 0;
+    }
+    return 0;
+  }
+
+  uint64_t page_size() const override;
+
   static bool classof(const LIEF::Binary* bin) {
     return bin->format() == Binary::FORMATS::ELF ||
            bin->format() == Binary::FORMATS::OAT;
@@ -1022,6 +1085,10 @@ class LIEF_API Binary : public LIEF::Binary {
     return get(type);
   }
 
+  bool should_swap() const {
+    return should_swap_;
+  }
+
   protected:
   struct phdr_relocation_info_t {
     uint64_t new_offset = 0;
@@ -1077,12 +1144,13 @@ class LIEF_API Binary : public LIEF::Binary {
   LIEF_LOCAL Segment* extend_segment(const Segment& segment, uint64_t size);
 
   template<bool LOADED>
-  LIEF_LOCAL Section* add_section(const Section& section);
+  LIEF_LOCAL Section* add_section(const Section& section, SEC_INSERT_POS pos);
 
   std::vector<Symbol*> symtab_dyn_symbols() const;
 
   LIEF_LOCAL std::string shstrtab_name() const;
   LIEF_LOCAL Section* add_frame_section(const Section& sec);
+  LIEF_LOCAL Section* add_section(std::unique_ptr<Section> sec);
 
   LIEF_LOCAL LIEF::Binary::functions_t tor_functions(DynamicEntry::TAG tag) const;
 
@@ -1106,6 +1174,8 @@ class LIEF_API Binary : public LIEF::Binary {
   std::string interpreter_;
   std::vector<uint8_t> overlay_;
   std::unique_ptr<sizing_info_t> sizing_info_;
+  uint64_t pagesize_ = 0;
+  bool should_swap_ = false;
 };
 
 }

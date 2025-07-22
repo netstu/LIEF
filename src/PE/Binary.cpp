@@ -32,7 +32,6 @@
 #include "LIEF/PE/Builder.hpp"
 #include "LIEF/PE/DataDirectory.hpp"
 #include "LIEF/PE/Debug.hpp"
-#include "LIEF/PE/AuxiliarySymbol.hpp"
 #include "LIEF/PE/EnumToString.hpp"
 #include "LIEF/PE/Export.hpp"
 #include "LIEF/PE/ExportEntry.hpp"
@@ -46,13 +45,14 @@
 #include "LIEF/PE/RichHeader.hpp"
 #include "LIEF/PE/RichEntry.hpp"
 #include "LIEF/PE/Section.hpp"
-#include "LIEF/PE/Symbol.hpp"
 #include "LIEF/PE/ExceptionInfo.hpp"
 #include "LIEF/PE/LoadConfigurations/VolatileMetadata.hpp"
 #include "LIEF/PE/exceptions_info/RuntimeFunctionAArch64.hpp"
 #include "LIEF/PE/exceptions_info/RuntimeFunctionX64.hpp"
 #include "LIEF/PE/TLS.hpp"
 #include "LIEF/PE/utils.hpp"
+
+#include "LIEF/COFF/Symbol.hpp"
 
 #include "LIEF/PE/signature/SpcIndirectData.hpp"
 
@@ -275,7 +275,7 @@ Export& Binary::set_export(const Export& export_table) {
 
 LIEF::Binary::symbols_t Binary::get_abstract_symbols() {
   LIEF::Binary::symbols_t lief_symbols;
-  for (Symbol& s : symbols()) {
+  for (COFF::Symbol& s : symbols()) {
     lief_symbols.push_back(&s);
   }
 
@@ -285,14 +285,14 @@ LIEF::Binary::symbols_t Binary::get_abstract_symbols() {
     }
   }
 
-  for (Import& imp : imports_) {
-    for (ImportEntry& entry : imp.entries()) {
+  for (std::unique_ptr<Import>& imp : imports_) {
+    for (ImportEntry& entry : imp->entries()) {
       lief_symbols.push_back(&entry);
     }
   }
 
-  for (DelayImport& imp : delay_imports_) {
-    for (DelayImportEntry& entry : imp.entries()) {
+  for (std::unique_ptr<DelayImport>& imp : delay_imports_) {
+    for (DelayImportEntry& entry : imp->entries()) {
       lief_symbols.push_back(&entry);
     }
   }
@@ -533,7 +533,7 @@ LIEF::Binary::relocations_t Binary::get_abstract_relocations() {
 
 bool Binary::remove_import(const std::string& name) {
   auto it = std::find_if(imports_.begin(), imports_.end(),
-    [&name] (const Import& imp) { return imp.name() == name; }
+    [&name] (const std::unique_ptr<Import>& imp) { return imp->name() == name; }
   );
 
   if (it == imports_.end()) {
@@ -546,15 +546,15 @@ bool Binary::remove_import(const std::string& name) {
 
 const Import* Binary::get_import(const std::string& import_name) const {
   const auto it_import = std::find_if(std::begin(imports_), std::end(imports_),
-      [&import_name] (const Import& import) {
-        return import.name() == import_name;
+      [&import_name] (const std::unique_ptr<Import>& import) {
+        return import->name() == import_name;
       });
 
   if (it_import == std::end(imports_)) {
     return nullptr;
   }
 
-  return &*it_import;
+  return &**it_import;
 }
 
 ResourceNode* Binary::set_resources(const ResourceNode& resource) {
@@ -1244,15 +1244,15 @@ LIEF::Binary::functions_t Binary::exception_functions() const {
 
 const DelayImport* Binary::get_delay_import(const std::string& import_name) const {
   const auto it_import = std::find_if(std::begin(delay_imports_), std::end(delay_imports_),
-      [&import_name] (const DelayImport& import) {
-        return import.name() == import_name;
+      [&import_name] (const std::unique_ptr<DelayImport>& import) {
+        return import->name() == import_name;
       });
 
   if (it_import == std::end(delay_imports_)) {
     return nullptr;
   }
 
-  return &*it_import;
+  return &**it_import;
 }
 
 const CodeViewPDB* Binary::codeview_pdb() const {

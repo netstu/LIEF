@@ -101,6 +101,8 @@ def test_function():
     assert binary.get_function_address("foo") == lief.lief_errors.not_found
     assert binary.get_function_address("add") == 0x6a0
 
+    binary: lief.ELF.Binary = lief.parse(get_sample('ELF/libip4tc.so.2.0.0'))
+    assert binary.get_function_address("iptc_commit") == 0x3070
 
 def test_entropy():
     """
@@ -113,3 +115,18 @@ def test_entropy():
 
     assert weird_section_0 >= 0
     assert weird_section_1 >= 0
+
+def test_issue_1217():
+    elf = lief.ELF.parse(get_sample("ELF/bitcoin_ppc_be"))
+    assert elf.abstract.header.architecture == lief.Header.ARCHITECTURES.PPC64
+
+def test_pagesize():
+    assert lief.parse(get_sample('ELF/ELF64_x86-64_library_libadd.so')).page_size == 0x1000
+    assert lief.parse(get_sample('PE/win11_arm64x_api-ms-win-security-base-l1-1-0.dll')).page_size == 0x1000
+    assert lief.parse(get_sample('MachO/MachO64_AArch64_weak-sym-fc.bin')).page_size == 0x4000
+
+    config = lief.ELF.ParserConfig()
+    config.page_size = 0xdeadc0de
+
+    assert lief.ELF.parse(get_sample('ELF/bitcoin_ppc_be'), config).page_size == config.page_size
+

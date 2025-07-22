@@ -349,6 +349,10 @@ void Binary::write(std::ostream& os) {
   Builder::write(*this, os);
 }
 
+void Binary::write(std::ostream& os, Builder::config_t config) {
+  Builder::write(*this, os, config);
+}
+
 const Section* Binary::section_from_offset(uint64_t offset) const {
   const auto it_section = std::find_if(
       sections_.cbegin(), sections_.cend(),
@@ -563,10 +567,6 @@ ok_error_t Binary::shift_linkedit(size_t width) {
   }
   refresh_seg_offset();
   return ok();
-}
-
-uint32_t Binary::page_size() const {
-  return get_pagesize(*this);
 }
 
 void Binary::sort_segments() {
@@ -849,13 +849,6 @@ void Binary::shift_command(size_t width, uint64_t from_offset) {
     }
   });
 
-}
-
-ok_error_t Binary::ensure_command_space(size_t size) {
-  if (available_command_space_ < size) {
-    return shift(size);
-  }
-  return ok();
 }
 
 ok_error_t Binary::shift(size_t value) {
@@ -2392,7 +2385,7 @@ Symbol* Binary::add_local_symbol(uint64_t address, const std::string& name) {
 
   auto sym = std::make_unique<Symbol>();
   sym->category_          = Symbol::CATEGORY::LOCAL;
-  sym->origin_            = Symbol::ORIGIN::LC_SYMTAB;
+  sym->origin_            = Symbol::ORIGIN::SYMTAB;
   sym->numberof_sections_ = 0;
   sym->description_       = static_cast<uint16_t>(/* N_NO_DEAD_STRIP */0x20);
 
@@ -2428,6 +2421,17 @@ ExportInfo* Binary::add_exported_function(uint64_t address, const std::string& n
     }
   }
   return nullptr;
+}
+
+
+const DylibCommand* Binary::find_library(const std::string& name) const {
+  auto it = std::find_if(libraries_.begin(), libraries_.end(),
+    [&name] (const DylibCommand* cmd) {
+      const std::string& libpath = cmd->name();
+      return libpath == name || libname(libpath).value_or("") == name;
+    }
+  );
+  return it == libraries_.end() ? nullptr : *it;
 }
 
 

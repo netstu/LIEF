@@ -48,6 +48,7 @@
 #include "LIEF/MachO/Symbol.hpp"
 #include "LIEF/MachO/SymbolCommand.hpp"
 #include "LIEF/MachO/ThreadCommand.hpp"
+#include "LIEF/MachO/EncryptionInfo.hpp"
 #include "LIEF/MachO/TwoLevelHints.hpp"
 #include "LIEF/MachO/VersionMin.hpp"
 
@@ -60,6 +61,47 @@
 
 namespace LIEF {
 namespace MachO {
+
+
+template<class T>
+size_t Builder::get_cmd_size(const LoadCommand& cmd) {
+  if (const auto* dylib = cmd.cast<DylibCommand>()) {
+    return align(sizeof(details::dylib_command) + dylib->name().size() + 1,
+                 sizeof(typename T::uint));
+  }
+
+  if (const auto* linker = cmd.cast<DylinkerCommand>()) {
+    return align(sizeof(details::dylinker_command) + linker->name().size() + 1,
+                 sizeof(typename T::uint));
+  }
+
+  if (const auto* rpath = cmd.cast<RPathCommand>()) {
+    return align(sizeof(details::rpath_command) + rpath->path().size() + 1,
+                 sizeof(typename T::uint));
+  }
+
+  if (const auto* subframework = cmd.cast<SubFramework>()) {
+    return align(sizeof(details::sub_framework_command) + subframework->umbrella().size() + 1,
+                 sizeof(typename T::uint));
+  }
+
+  if (const auto* subclient = cmd.cast<SubClient>()) {
+    return align(sizeof(details::sub_client_command) + subclient->client().size() + 1,
+                 sizeof(typename T::uint));
+  }
+
+  if (const auto* dyldenv = cmd.cast<DyldEnvironment>()) {
+    return align(sizeof(details::dylinker_command) + dyldenv->value().size() + 1,
+                 sizeof(typename T::uint));
+  }
+
+  if (const auto* bversion = cmd.cast<BuildVersion>()) {
+    return align(sizeof(details::build_version_command) +
+                 bversion->tools().size() * sizeof(details::build_tool_version),
+                 sizeof(typename T::uint));
+  }
+  return cmd.size();
+}
 
 template<typename T>
 ok_error_t Builder::build_linkedit() {
@@ -645,7 +687,7 @@ ok_error_t Builder::build(SymbolCommand& symbol_command) {
 
   /* 1. Fille the n_list table */ {
     for (Symbol& s : binary_->symbols()) {
-      if (s.origin() != Symbol::ORIGIN::LC_SYMTAB) {
+      if (s.origin() != Symbol::ORIGIN::SYMTAB) {
         continue;
       }
       all_syms.push_back(&s);
@@ -1114,6 +1156,25 @@ ok_error_t Builder::build(ThreadCommand& tc) {
   return ok();
 }
 
+template<class T>
+ok_error_t Builder::build(EncryptionInfo& info) {
+  details::encryption_info_command raw_cmd;
+  std::memset(&raw_cmd, 0, sizeof(details::encryption_info_command));
+
+  raw_cmd.cmd       = static_cast<uint32_t>(info.command());
+  raw_cmd.cmdsize   = info.size();
+  raw_cmd.cryptoff  = info.crypt_offset();
+  raw_cmd.cryptsize = info.crypt_size();
+  raw_cmd.cryptid   = info.crypt_id();
+
+  std::fill(info.original_data_.begin(), info.original_data_.end(), 0);
+
+  std::copy(reinterpret_cast<uint8_t*>(&raw_cmd),
+            reinterpret_cast<uint8_t*>(&raw_cmd) + sizeof(raw_cmd),
+            reinterpret_cast<uint8_t*>(info.original_data_.data()));
+
+  return ok();
+}
 
 template <typename T>
 ok_error_t Builder::update_fixups(DyldChainedFixups& command) {

@@ -8,6 +8,8 @@ include_cpp! {
 
     generate!("is_extended")
     generate!("extended_version_info")
+    generate!("extended_version")
+    generate!("version")
     generate!("demangle")
     generate!("dump")
     generate!("dump_with_limit")
@@ -15,8 +17,14 @@ include_cpp! {
     generate_pod!("Span")
     block_constructors!("Span")
 
+    generate_pod!("LIEFVersion")
+    block_constructors!("LIEFVersion")
+
     generate_pod!("Range")
     block_constructors!("Range")
+
+    generate_pod!("DWARF_editor_Function_Range")
+    block_constructors!("DWARF_editor_Function_Range")
 
     generate!("RustStream")
     block_constructors!("RustStream")
@@ -64,6 +72,9 @@ include_cpp! {
 
     generate_pod!("ELF_Binary_write_config_t")
     block_constructors!("ELF_Binary_write_config_t")
+
+    generate!("ELF_ParserConfig")
+    block_constructors!("ELF_ParserConfig")
 
     block_constructors!("Span")
     generate!("ELF_Binary_it_segments")
@@ -176,35 +187,6 @@ include_cpp! {
     generate!("PE_Binary_it_exceptions")
     block_constructors!("PE_Binary_it_exceptions")
 
-    generate!("PE_Symbol")
-    block_constructors!("PE_Symbol")
-
-    generate!("PE_Symbol_it_auxiliary_symbols")
-    block_constructors!("PE_Symbol_it_auxiliary_symbols")
-
-    generate!("PE_AuxiliarySymbol")
-    block_constructors!("PE_AuxiliarySymbol")
-
-    generate!("PE_AuxiliarySectionDefinition")
-    block_constructors!("PE_AuxiliarySectionDefinition")
-
-    generate!("PE_AuxiliaryCLRToken")
-    block_constructors!("PE_AuxiliaryCLRToken")
-
-    generate!("PE_AuxiliaryFile")
-    block_constructors!("PE_AuxiliaryFile")
-
-    generate!("PE_AuxiliaryFunctionDefinition")
-    block_constructors!("PE_AuxiliaryFunctionDefinition")
-
-    generate!("PE_AuxiliaryWeakExternal")
-    block_constructors!("PE_AuxiliaryWeakExternal")
-
-    generate!("PE_AuxiliarybfAndefSymbol")
-    block_constructors!("PE_AuxiliarybfAndefSymbol")
-
-    generate!("PE_COFFString")
-    block_constructors!("PE_COFFString")
     generate!("PE_CodeIntegrity")
     block_constructors!("PE_CodeIntegrity")
     generate!("PE_ContentInfo")
@@ -742,6 +724,62 @@ include_cpp! {
     // -------------------------------------------------------------------------
     generate!("DWARF_DebugInfo")
     block_constructors!("DWARF_DebugInfo")
+    generate!("DWARF_Editor")
+    block_constructors!("DWARF_Editor")
+    generate!("DWARF_editor_CompilationUnit")
+    block_constructors!("DWARF_editor_CompilationUnit")
+
+    generate!("DWARF_editor_Function")
+    block_constructors!("DWARF_editor_Function")
+
+    generate!("DWARF_editor_Function_Parameter")
+    block_constructors!("DWARF_editor_Function_Parameter")
+
+    generate!("DWARF_editor_Function_LexicalBlock")
+    block_constructors!("DWARF_editor_Function_LexicalBlock")
+
+    generate!("DWARF_editor_Function_Label")
+    block_constructors!("DWARF_editor_Function_Label")
+
+    generate!("DWARF_editor_Variable")
+    block_constructors!("DWARF_editor_Variable")
+
+    generate!("DWARF_editor_Type")
+    block_constructors!("DWARF_editor_Type")
+
+    generate!("DWARF_editor_PointerType")
+    block_constructors!("DWARF_editor_PointerType")
+
+    generate!("DWARF_editor_EnumType_Value")
+    block_constructors!("DWARF_editor_EnumType_Value")
+
+    generate!("DWARF_editor_EnumType")
+    block_constructors!("DWARF_editor_EnumType")
+
+    generate!("DWARF_editor_BaseType")
+    block_constructors!("DWARF_editor_BaseType")
+
+    generate!("DWARF_editor_ArrayType")
+    block_constructors!("DWARF_editor_ArrayType")
+
+    generate!("DWARF_editor_FunctionType_Parameter")
+    block_constructors!("DWARF_editor_FunctionType_Parameter")
+
+    generate!("DWARF_editor_FunctionType")
+    block_constructors!("DWARF_editor_FunctionType")
+
+    generate!("DWARF_editor_TypeDef")
+    block_constructors!("DWARF_editor_TypeDef")
+
+    generate!("DWARF_editor_FunctionType")
+    block_constructors!("DWARF_editor_FunctionType")
+
+    generate!("DWARF_editor_StructType_Member")
+    block_constructors!("DWARF_editor_StructType_Member")
+
+    generate!("DWARF_editor_StructType")
+    block_constructors!("DWARF_editor_StructType")
+
     generate!("DWARF_DebugInfo_it_compilation_units")
     block_constructors!("DWARF_DebugInfo_it_compilation_units")
     generate!("DWARF_CompilationUnit")
@@ -1016,5 +1054,98 @@ include_cpp! {
         block_constructors!("asm_ebpf_Instruction")
     /* } eBPF */
 
+
+    // -------------------------------------------------------------------------
+    // COFF Support
+    // -------------------------------------------------------------------------
+
+    generate!("COFF_Symbol")
+    block_constructors!("COFF_Symbol")
+
+    generate!("COFF_Symbol_it_auxiliary_symbols")
+    block_constructors!("COFF_Symbol_it_auxiliary_symbols")
+
+    generate!("COFF_AuxiliarySymbol")
+    block_constructors!("COFF_AuxiliarySymbol")
+
+    generate!("COFF_AuxiliarySectionDefinition")
+    block_constructors!("COFF_AuxiliarySectionDefinition")
+
+    generate!("COFF_AuxiliaryCLRToken")
+    block_constructors!("COFF_AuxiliaryCLRToken")
+
+    generate!("COFF_AuxiliaryFile")
+    block_constructors!("COFF_AuxiliaryFile")
+
+    generate!("COFF_AuxiliaryFunctionDefinition")
+    block_constructors!("COFF_AuxiliaryFunctionDefinition")
+
+    generate!("COFF_AuxiliaryWeakExternal")
+    block_constructors!("COFF_AuxiliaryWeakExternal")
+
+    generate!("COFF_AuxiliarybfAndefSymbol")
+    block_constructors!("COFF_AuxiliarybfAndefSymbol")
+
+    generate!("COFF_String")
+    block_constructors!("COFF_String")
+
+    generate!("COFF_Section")
+    block_constructors!("COFF_Section")
+
+    generate!("COFF_Section_it_relocations")
+    block_constructors!("COFF_Section_it_relocations")
+
+    generate!("COFF_Section_it_symbols")
+    block_constructors!("COFF_Section_it_symbols")
+
+    generate!("COFF_Binary")
+    block_constructors!("COFF_Binary")
+
+    generate!("COFF_Binary_it_relocations")
+    block_constructors!("COFF_Binary_it_relocations")
+
+    generate!("COFF_Binary_it_symbols")
+    block_constructors!("COFF_Binary_it_symbols")
+
+    generate!("COFF_Binary_it_functions")
+    block_constructors!("COFF_Binary_it_functions")
+
+    generate!("COFF_Binary_it_sections")
+    block_constructors!("COFF_Binary_it_sections")
+
+    generate!("COFF_Binary_it_strings")
+    block_constructors!("COFF_Binary_it_strings")
+
+    generate!("COFF_Binary_it_instructions")
+    block_constructors!("COFF_Binary_it_instructions")
+
+    generate!("COFF_Relocation")
+    block_constructors!("COFF_Relocation")
+
+    generate!("COFF_Header")
+    block_constructors!("COFF_Header")
+
+    generate!("COFF_RegularHeader")
+    block_constructors!("COFF_RegularHeader")
+
+    generate!("COFF_BigObjHeader")
+    block_constructors!("COFF_BigObjHeader")
+
+    generate!("COFF_Utils")
+    block_constructors!("COFF_Utils")
+
+    generate!("COFF_Section_ComdataInfo")
+    block_constructors!("COFF_Section_ComdataInfo")
+
     safety!(unsafe)
+}
+
+#[autocxx::extern_rust::extern_rust_function]
+pub struct AssemblerConfig_r {}
+
+impl AssemblerConfig_r {
+    #[autocxx::extern_rust::extern_rust_function]
+    fn resolve_symbol(&self, name: &str) -> i64 {
+        unimplemented!();
+    }
 }

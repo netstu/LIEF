@@ -28,8 +28,8 @@ pub enum FileType {
 }
 
 
-impl FileType {
-    pub fn from_value(value: u32) -> Self {
+impl From<u32> for FileType {
+    fn from(value: u32) -> Self {
         match value {
             0x00000000 => FileType::NONE,
             0x00000001 => FileType::REL,
@@ -55,8 +55,8 @@ pub enum Version {
     UNKNOWN(u32),
 }
 
-impl Version {
-    pub fn from_value(value: u32) -> Self {
+impl From<u32> for Version {
+    fn from(value: u32) -> Self {
         match value {
             0x00000000 => Version::NONE,
             0x00000001 => Version::CURRENT,
@@ -82,8 +82,8 @@ pub enum Class {
     UNKNOWN(u32),
 }
 
-impl Class {
-    pub fn from_value(value: u32) -> Self {
+impl From<u32> for Class {
+    fn from(value: u32) -> Self {
         match value {
             0x00000000 => Class::NONE,
             0x00000001 => Class::ELF32,
@@ -149,8 +149,8 @@ pub enum OsAbi {
 }
 
 
-impl OsAbi {
-    pub fn from_value(value: u32) -> Self {
+impl From<u32> for OsAbi {
+    fn from(value: u32) -> Self {
         match value {
             0x00000000 => OsAbi::SYSTEMV,
             0x00000001 => OsAbi::HPUX,
@@ -180,6 +180,37 @@ impl OsAbi {
     }
 }
 
+impl From<OsAbi> for u32 {
+    fn from(value: OsAbi) -> u32 {
+        match value {
+            OsAbi::SYSTEMV => 0x00000000,
+            OsAbi::HPUX => 0x00000001,
+            OsAbi::NETBSD => 0x00000002,
+            OsAbi::GNU => 0x00000003,
+            OsAbi::LINUX => 0x00000003,
+            OsAbi::HURD => 0x00000004,
+            OsAbi::SOLARIS => 0x00000006,
+            OsAbi::AIX => 0x00000007,
+            OsAbi::IRIX => 0x00000008,
+            OsAbi::FREEBSD => 0x00000009,
+            OsAbi::TRU64 => 0x0000000a,
+            OsAbi::MODESTO => 0x0000000b,
+            OsAbi::OPENBSD => 0x0000000c,
+            OsAbi::OPENVMS => 0x0000000d,
+            OsAbi::NSK => 0x0000000e,
+            OsAbi::AROS => 0x0000000f,
+            OsAbi::FENIXOS => 0x00000010,
+            OsAbi::CLOUDABI => 0x00000011,
+            OsAbi::C6000_ELFABI => 0x00000040,
+            OsAbi::AMDGPU_HSA => 0x00000040,
+            OsAbi::C6000_LINUX => 0x00000041,
+            OsAbi::ARM => 0x00000061,
+            OsAbi::STANDALONE => 0x000000ff,
+            OsAbi::UNKNOWN(value) => value,
+        }
+    }
+}
+
 
 #[allow(non_camel_case_types)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -194,8 +225,8 @@ pub enum ElfData {
     UNKNOWN(u32),
 }
 
-impl ElfData {
-    pub fn from_value(value: u32) -> Self {
+impl From<u32> for ElfData {
+    fn from(value: u32) -> Self {
         match value {
             0x00000000 => ElfData::NONE,
             0x00000001 => ElfData::LSB,
@@ -230,32 +261,32 @@ impl Header<'_> {
 
     /// Define the object file type. (e.g. executable, library...)
     pub fn file_type(&self) -> FileType {
-        FileType::from_value(self.ptr.file_type())
+        FileType::from(self.ptr.file_type())
     }
 
     /// Version of the object file format
     pub fn object_file_version(&self) -> Version {
-        Version::from_value(self.ptr.object_file_version())
+        Version::from(self.ptr.object_file_version())
     }
 
     /// Return the object's class. `ELF64` or `ELF32`
     pub fn identity_class(&self) -> Class {
-        Class::from_value(self.ptr.identity_class())
+        Class::from(self.ptr.identity_class())
     }
 
     /// Specify the data encoding
     pub fn identity_data(&self) -> ElfData {
-        ElfData::from_value(self.ptr.identity_data())
+        ElfData::from(self.ptr.identity_data())
     }
 
     /// See: [`Header::object_file_version`]
     pub fn identity_version(&self) -> Version {
-        Version::from_value(self.ptr.identity_version())
+        Version::from(self.ptr.identity_version())
     }
 
     /// Identifies the version of the ABI for which the object is prepared
     pub fn identity_os_abi(&self) -> OsAbi {
-        OsAbi::from_value(self.ptr.identity_os_abi())
+        OsAbi::from(self.ptr.identity_os_abi())
     }
 
     /// Target architecture
@@ -314,6 +345,10 @@ impl Header<'_> {
     /// Return the section's index which contains sections' names
     pub fn section_name_table_idx(&self) -> u32 {
         self.ptr.section_name_table_idx()
+    }
+
+    pub fn set_osabi(&mut self, osabi: OsAbi) {
+        self.ptr.pin_mut().set_osabi(osabi.into());
     }
 }
 

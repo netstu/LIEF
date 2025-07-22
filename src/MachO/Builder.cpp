@@ -65,6 +65,42 @@ ok_error_t Builder::build() {
     return make_error_code(lief_errors::build_error);
   }
 
+  // Check if we need to extend some commands
+  {
+    int32_t original_size = 0;
+    int32_t required_size = 0;
+    for (std::unique_ptr<LoadCommand>& cmd : binary_->commands_) {
+      original_size += cmd->original_data_.size();
+      required_size += std::max(cmd->original_data_.size(), get_cmd_size<T>(*cmd));
+    }
+
+    int32_t delta = required_size - original_size;
+
+    LIEF_DEBUG("Original commands size:   0x{:08x}", original_size);
+    LIEF_DEBUG("Required commands size:   0x{:08x}", required_size);
+    LIEF_DEBUG("Delta:                    0x{:08x}", delta);
+    LIEF_DEBUG("available_command_space:  0x{:08x}", binary_->available_command_space_);
+    if (delta > 0) {
+      ok_error_t is_ok = binary_->ensure_command_space(delta);
+      if (!is_ok) {
+        return make_error_code(lief_errors::build_error);
+      }
+      uint64_t cmd_offset = sizeof(typename T::header);
+      for (std::unique_ptr<LoadCommand>& cmd : binary_->commands_) {
+        const size_t cmd_size = std::max(cmd->original_data_.size(), get_cmd_size<T>(*cmd));
+        cmd->command_offset_ = cmd_offset;
+        cmd_offset += cmd_size;
+        if (cmd->original_data_.size() < cmd_size) {
+          LIEF_DEBUG("Resizing: {} (+{} bytes)", to_string(cmd->command()),
+                     cmd_size - cmd->original_data_.size());
+          cmd->original_data_.resize(cmd_size);
+          cmd->size_ = cmd_size;
+        }
+      }
+      binary_->header().sizeof_cmds(required_size);
+      }
+  }
+
   build_uuid();
 
   if (config_.linkedit) {
@@ -131,6 +167,11 @@ ok_error_t Builder::build() {
       build<T>(*cmd->as<RPathCommand>());
       continue;
     }
+
+    if (EncryptionInfo::classof(cmd.get())) {
+      build<T>(*cmd->as<EncryptionInfo>());
+      continue;
+    }
   }
 
   build_segments<T>();
@@ -174,7 +215,7 @@ ok_error_t Builder::build_fat_header() {
 
   std::memset(&header, 0, sizeof(details::fat_header));
 
-  header.magic     = static_cast<uint32_t>(MACHO_TYPES::FAT_CIGAM);
+  header.magic     = static_cast<uint32_t>(MACHO_TYPES::CIGAM_FAT);
   header.nfat_arch = get_swapped_endian<uint32_t>(binaries_.size());
 
   raw_.seekp(0);
@@ -221,11 +262,10 @@ ok_error_t Builder::build_load_commands() {
   for (size_t i = 0; i < binary_->commands_.size(); ++i) {
     const std::unique_ptr<LoadCommand>& command = binary_->commands_[i];
     span<const uint8_t> data = command->data();
-    //uint64_t offset = command->command_offset();
-    uint64_t offset = start_offset;
 
     LIEF_DEBUG("Writing command #{:02d} {:30} offset=0x{:08x} size=0x{:08x}",
-               i, to_string(command->command()), offset, data.size());
+               i, to_string(command->command()), (uint64_t)raw_.tellp(),
+               data.size());
 
     raw_.write(data);
   }

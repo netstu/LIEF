@@ -29,8 +29,12 @@
 #include "LIEF/Abstract/Header.hpp"
 #include "LIEF/Abstract/Function.hpp"
 
-
 #include "LIEF/asm/Instruction.hpp"
+#include "LIEF/asm/AssemblerConfig.hpp"
+
+namespace llvm {
+class MCInst;
+}
 
 /// LIEF namespace
 namespace LIEF {
@@ -354,7 +358,28 @@ class LIEF_API Binary : public Object {
   ///   mov rcx, rax;
   /// )asm");
   /// ```
-  std::vector<uint8_t> assemble(uint64_t address, const std::string& Asm);
+  ///
+  /// If you need to configure the assembly engine or to define addresses for
+  /// symbols, you can provide your own assembly::AssemblerConfig.
+  std::vector<uint8_t> assemble(uint64_t address, const std::string& Asm,
+      assembly::AssemblerConfig& config = assembly::AssemblerConfig::default_config());
+
+  /// Assemble **and patch** the address with the given LLVM MCInst.
+  ///
+  /// \warning Because of ABI compatibility, this MCInst can **only be used**
+  ///          with the **same** version of LLVM used by LIEF (see documentation)
+  std::vector<uint8_t> assemble(uint64_t address, const llvm::MCInst& inst);
+
+  /// Assemble **and patch** the address with the given LLVM MCInst.
+  ///
+  /// \warning Because of ABI compatibility, this MCInst can **only be used**
+  ///          with the **same** version of LLVM used by LIEF (see documentation)
+  std::vector<uint8_t> assemble(uint64_t address,
+                                const std::vector<llvm::MCInst>& insts);
+
+  /// Get the default memory page size according to the architecture and
+  /// the format of the current binary
+  virtual uint64_t page_size() const;
 
   protected:
   FORMATS format_ = FORMATS::UNKNOWN;

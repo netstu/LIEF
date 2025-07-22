@@ -1,5 +1,6 @@
 use std::marker::PhantomData;
 
+use std::pin::Pin;
 use lief_ffi as ffi;
 use bitflags::bitflags;
 
@@ -514,10 +515,20 @@ pub enum Entries<'a> {
     Generic(Generic<'a>),
 }
 
+impl Entries<'_> {
+    /// Create a new dynamic entry with the given Tag
+    pub fn with_tag(tag: Tag) -> Entries<'static> {
+        Entries::from_ffi(lief_ffi::ELF_DynamicEntry::create(tag.into()))
+    }
+}
+
 /// Trait shared by all the [`Entries`]
 pub trait DynamicEntry {
     #[doc(hidden)]
     fn as_base(&self) -> &ffi::ELF_DynamicEntry;
+
+    #[doc(hidden)]
+    fn as_mut_base(&mut self) -> Pin<&mut ffi::ELF_DynamicEntry>;
 
     /// Dynamic TAG associated with the entry
     fn tag(&self) -> Tag {
@@ -527,6 +538,17 @@ pub trait DynamicEntry {
     /// Raw value which should be interpreted according to the [`DynamicEntry::tag`]
     fn value(&self) -> u64 {
         self.as_base().value()
+    }
+
+    fn set_value(&mut self, value: u64) {
+        self.as_mut_base().set_value(value);
+    }
+}
+
+
+impl std::fmt::Display for &dyn DynamicEntry {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "{}", self.as_base().to_string())
     }
 }
 
@@ -562,7 +584,42 @@ impl DynamicEntry for Entries<'_> {
             }
         }
     }
+
+    fn as_mut_base(&mut self) -> Pin<&mut ffi::ELF_DynamicEntry> {
+        match self {
+            Entries::Library(entry) => {
+                entry.as_mut_base()
+            }
+
+            Entries::Array(entry) => {
+                entry.as_mut_base()
+            }
+
+            Entries::Rpath(entry) => {
+                entry.as_mut_base()
+            }
+
+            Entries::RunPath(entry) => {
+                entry.as_mut_base()
+            }
+
+            Entries::SharedObject(entry) => {
+                entry.as_mut_base()
+            }
+
+            Entries::Flags(entry) => {
+                entry.as_mut_base()
+            }
+
+            Entries::Generic(entry) => {
+                entry.as_mut_base()
+            }
+        }
+    }
+
+
 }
+
 
 impl FromFFI<ffi::ELF_DynamicEntry> for Entries<'_> {
     fn from_ffi(ffi_entry: cxx::UniquePtr<ffi::ELF_DynamicEntry>) -> Self {
@@ -646,7 +703,19 @@ impl DynamicEntry for Generic<'_> {
     fn as_base(&self) -> &ffi::ELF_DynamicEntry {
         self.ptr.as_ref().unwrap()
     }
+
+    fn as_mut_base(&mut self) -> Pin<&mut ffi::ELF_DynamicEntry> {
+        unsafe {
+            Pin::new_unchecked({
+                (self.ptr.as_ref().unwrap() as *const ffi::ELF_DynamicEntry
+                    as *mut ffi::ELF_DynamicEntry)
+                    .as_mut()
+                    .unwrap()
+            })
+        }
+    }
 }
+
 
 impl std::fmt::Debug for Generic<'_> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -661,8 +730,14 @@ pub struct Library<'a> {
 }
 
 impl Library<'_> {
+    /// Name of the library (e.g. `libc.so.6`)
     pub fn name(&self) -> String {
         self.ptr.name().to_string()
+    }
+
+    /// Set a new library name
+    pub fn set_name(&mut self, new_name: &str) {
+        self.ptr.pin_mut().set_name(new_name.to_string());
     }
 }
 
@@ -679,6 +754,17 @@ impl FromFFI<ffi::ELF_DynamicEntryLibrary> for Library<'_> {
 impl DynamicEntry for Library<'_> {
     fn as_base(&self) -> &ffi::ELF_DynamicEntry {
         self.ptr.as_ref().unwrap().as_ref()
+    }
+
+    fn as_mut_base(&mut self) -> Pin<&mut ffi::ELF_DynamicEntry> {
+        unsafe {
+            Pin::new_unchecked({
+                (self.ptr.as_ref().unwrap().as_ref() as *const ffi::ELF_DynamicEntry
+                    as *mut ffi::ELF_DynamicEntry)
+                    .as_mut()
+                    .unwrap()
+            })
+        }
     }
 }
 
@@ -713,6 +799,17 @@ impl DynamicEntry for Array<'_> {
     fn as_base(&self) -> &ffi::ELF_DynamicEntry {
         self.ptr.as_ref().unwrap().as_ref()
     }
+
+    fn as_mut_base(&mut self) -> Pin<&mut ffi::ELF_DynamicEntry> {
+        unsafe {
+            Pin::new_unchecked({
+                (self.ptr.as_ref().unwrap().as_ref() as *const ffi::ELF_DynamicEntry
+                    as *mut ffi::ELF_DynamicEntry)
+                    .as_mut()
+                    .unwrap()
+            })
+        }
+    }
 }
 
 impl std::fmt::Debug for Array<'_> {
@@ -728,8 +825,65 @@ pub struct Rpath<'a> {
 }
 
 impl Rpath<'_> {
+    /// Create a new Rpath entry with the given path(s)
+    ///
+    /// For instance:
+    ///
+    /// ```
+    /// Rpath::new("$ORIGIN/../:/lib64")
+    /// ```
+    pub fn new(value: &str) -> Rpath<'static> {
+        Rpath::from_ffi(lief_ffi::ELF_DynamicEntryRpath::create(value.to_string()))
+    }
+
+    /// Create a new Rpath entry from a slice of paths
+    ///
+    /// For instance:
+    ///
+    /// ```
+    /// Rpath::with_paths(&vec!["$ORIGIN/../", "/lib64"])
+    /// ```
+    pub fn with_paths(values: &[&str]) -> Rpath<'static> {
+        Rpath::new(&values.join(":"))
+    }
+
+    /// The actual rpath as a string
     pub fn rpath(&self) -> String {
         self.ptr.rpath().to_string()
+    }
+
+    /// Change the rpath value
+    pub fn set_rpath(&mut self, value: &str) {
+        self.ptr.pin_mut().set_rpath(value.to_string());
+    }
+
+    /// Change the rpath value with the given slice
+    pub fn set_rpath_with_value(&mut self, values: &[&str]) {
+        self.ptr.pin_mut().set_rpath(values.join(":"));
+    }
+
+    /// The specified paths as a list of string
+    pub fn paths(&self) -> Vec<String> {
+        let mut result = Vec::new();
+        for entry in self.ptr.paths().into_iter() {
+            result.push(entry.to_string());
+        }
+        result
+    }
+
+    /// Insert a `path` at the given `position`
+    pub fn insert(&mut self, pos: u32, path: &str) {
+        self.ptr.pin_mut().insert(pos, path.to_string());
+    }
+
+    /// Append the given path
+    pub fn append(&mut self, path: &str) {
+        self.ptr.pin_mut().append(path.to_string());
+    }
+
+    /// The given path
+    pub fn remove(&mut self, path: &str) {
+        self.ptr.pin_mut().remove(path.to_string());
     }
 }
 
@@ -747,6 +901,17 @@ impl DynamicEntry for Rpath<'_> {
     fn as_base(&self) -> &ffi::ELF_DynamicEntry {
         self.ptr.as_ref().unwrap().as_ref()
     }
+
+    fn as_mut_base(&mut self) -> Pin<&mut ffi::ELF_DynamicEntry> {
+        unsafe {
+            Pin::new_unchecked({
+                (self.ptr.as_ref().unwrap().as_ref() as *const ffi::ELF_DynamicEntry
+                    as *mut ffi::ELF_DynamicEntry)
+                    .as_mut()
+                    .unwrap()
+            })
+        }
+    }
 }
 
 impl std::fmt::Debug for Rpath<'_> {
@@ -762,8 +927,64 @@ pub struct RunPath<'a> {
 }
 
 impl RunPath<'_> {
+    /// Create a new RunPath entry with the given path(s)
+    ///
+    /// For instance:
+    ///
+    /// ```
+    /// RunPath::new("$ORIGIN/../:/lib64")
+    /// ```
+    pub fn new(value: &str) -> RunPath<'static> {
+        RunPath::from_ffi(lief_ffi::ELF_DynamicEntryRunPath::create(value.to_string()))
+    }
+
+    /// Create a new RunPath entry from a slice of paths
+    ///
+    /// For instance:
+    ///
+    /// ```
+    /// RunPath::with_paths(&vec!["$ORIGIN/../", "/lib64"])
+    /// ```
+    pub fn with_paths(values: &[&str]) -> RunPath<'static> {
+        RunPath::new(&values.join(":"))
+    }
+
     pub fn runpath(&self) -> String {
         self.ptr.runpath().to_string()
+    }
+
+    /// The specified paths as a list of string
+    pub fn paths(&self) -> Vec<String> {
+        let mut result = Vec::new();
+        for entry in self.ptr.paths().into_iter() {
+            result.push(entry.to_string());
+        }
+        result
+    }
+
+    /// Change the runpath value
+    pub fn set_runpath(&mut self, value: &str) {
+        self.ptr.pin_mut().set_runpath(value.to_string());
+    }
+
+    /// Change the runpath value with the given slice
+    pub fn set_runpath_with_value(&mut self, values: &[&str]) {
+        self.ptr.pin_mut().set_runpath(values.join(":"));
+    }
+
+    /// Insert a `path` at the given `position`
+    pub fn insert(&mut self, pos: u32, path: &str) {
+        self.ptr.pin_mut().insert(pos, path.to_string());
+    }
+
+    /// Append the given path
+    pub fn append(&mut self, path: &str) {
+        self.ptr.pin_mut().append(path.to_string());
+    }
+
+    /// The given path
+    pub fn remove(&mut self, path: &str) {
+        self.ptr.pin_mut().remove(path.to_string());
     }
 }
 
@@ -781,6 +1002,17 @@ impl DynamicEntry for RunPath<'_> {
     fn as_base(&self) -> &ffi::ELF_DynamicEntry {
         self.ptr.as_ref().unwrap().as_ref()
     }
+
+    fn as_mut_base(&mut self) -> Pin<&mut ffi::ELF_DynamicEntry> {
+        unsafe {
+            Pin::new_unchecked({
+                (self.ptr.as_ref().unwrap().as_ref() as *const ffi::ELF_DynamicEntry
+                    as *mut ffi::ELF_DynamicEntry)
+                    .as_mut()
+                    .unwrap()
+            })
+        }
+    }
 }
 
 impl std::fmt::Debug for RunPath<'_> {
@@ -796,8 +1028,16 @@ pub struct SharedObject<'a> {
 }
 
 impl SharedObject<'_> {
+    pub fn new(name: &str) -> SharedObject<'static> {
+        SharedObject::from_ffi(lief_ffi::ELF_DynamicSharedObject::create(name.to_string()))
+    }
+
     pub fn name(&self) -> String {
         self.ptr.name().to_string()
+    }
+
+    pub fn set_name(&mut self, name: &str) {
+        self.ptr.pin_mut().set_name(name.to_string());
     }
 }
 
@@ -813,6 +1053,17 @@ impl FromFFI<ffi::ELF_DynamicSharedObject> for SharedObject<'_> {
 impl DynamicEntry for SharedObject<'_> {
     fn as_base(&self) -> &ffi::ELF_DynamicEntry {
         self.ptr.as_ref().unwrap().as_ref()
+    }
+
+    fn as_mut_base(&mut self) -> Pin<&mut ffi::ELF_DynamicEntry> {
+        unsafe {
+            Pin::new_unchecked({
+                (self.ptr.as_ref().unwrap().as_ref() as *const ffi::ELF_DynamicEntry
+                    as *mut ffi::ELF_DynamicEntry)
+                    .as_mut()
+                    .unwrap()
+            })
+        }
     }
 }
 
@@ -831,6 +1082,14 @@ pub struct Flags<'a> {
 impl Flags<'_> {
     pub fn flags(&self) -> DtFlags {
         DtFlags::from(self.ptr.flags())
+    }
+
+    pub fn add_flag(&mut self, flag: DtFlags) {
+        self.ptr.pin_mut().add_flag(flag.into())
+    }
+
+    pub fn remove_flag(&mut self, flag: DtFlags) {
+        self.ptr.pin_mut().remove_flag(flag.into())
     }
 
     pub fn create_dt_flag(value: u64) -> Self {
@@ -854,6 +1113,17 @@ impl FromFFI<ffi::ELF_DynamicEntryFlags> for Flags<'_> {
 impl DynamicEntry for Flags<'_> {
     fn as_base(&self) -> &ffi::ELF_DynamicEntry {
         self.ptr.as_ref().unwrap().as_ref()
+    }
+
+    fn as_mut_base(&mut self) -> Pin<&mut ffi::ELF_DynamicEntry> {
+        unsafe {
+            Pin::new_unchecked({
+                (self.ptr.as_ref().unwrap().as_ref() as *const ffi::ELF_DynamicEntry
+                    as *mut ffi::ELF_DynamicEntry)
+                    .as_mut()
+                    .unwrap()
+            })
+        }
     }
 }
 

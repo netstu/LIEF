@@ -274,6 +274,14 @@ impl Binary {
         self.ptr.is_macos()
     }
 
+    /// Try to find the library with the given library name.
+    ///
+    /// This function tries to match the fullpath of the DylibCommand or the
+    /// library name suffix.
+    pub fn find_library(&self, name: &str) -> Option<Dylib> {
+        into_optional(self.ptr.find_library(name.to_string()))
+    }
+
 
     /// Get the integer value at the given virtual address
     pub fn get_int_from_virtual_address<T>(&self, addr: u64) -> Result<T, Error>
@@ -286,28 +294,28 @@ impl Binary {
         if size_of::<T>() == size_of::<u8>() {
             to_conv_result!(ffi::AbstractBinary::get_u8,
                 self.ptr.as_ref().unwrap().as_ref(),
-                |value| { T::from_u8(value).expect(format!("Can't cast value: {}", value).as_str()) },
+                |value| { T::from_u8(value).unwrap_or_else(|| panic!("Can't cast value: {value}")) },
                 addr);
         }
 
         if size_of::<T>() == size_of::<u16>() {
             to_conv_result!(ffi::AbstractBinary::get_u16,
                 self.ptr.as_ref().unwrap().as_ref(),
-                |value| { T::from_u16(value).expect(format!("Can't cast value: {}", value).as_str()) },
+                |value| { T::from_u16(value).unwrap_or_else(|| panic!("Can't cast value: {value}")) },
                 addr);
         }
 
         if size_of::<T>() == size_of::<u32>() {
             to_conv_result!(ffi::AbstractBinary::get_u32,
                 self.ptr.as_ref().unwrap().as_ref(),
-                |value| { T::from_u32(value).expect(format!("Can't cast value: {}", value).as_str()) },
+                |value| { T::from_u32(value).unwrap_or_else(|| panic!("Can't cast value: {value}")) },
                 addr);
         }
 
         if size_of::<T>() == size_of::<u64>() {
             to_conv_result!(ffi::AbstractBinary::get_u64,
                 self.ptr.as_ref().unwrap().as_ref(),
-                |value| { T::from_u64(value).expect(format!("Can't cast value: {}", value).as_str()) },
+                |value| { T::from_u64(value).unwrap_or_else(|| panic!("Can't cast value: {value}")) },
                 addr);
         }
 

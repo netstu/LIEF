@@ -151,29 +151,25 @@ Note& Binary::add(const Note& note) {
   return *notes_.back();
 }
 
-
 void Binary::remove(const DynamicEntry& entry) {
   const auto it_entry = std::find_if(std::begin(dynamic_entries_), std::end(dynamic_entries_),
       [&entry] (const std::unique_ptr<DynamicEntry>& e) {
-        return *e == entry;
+        return e.get() == &entry;
       });
 
   if (it_entry == std::end(dynamic_entries_)) {
-    LIEF_WARN("Can't find {} in the dynamic table. This entry can't be removed", to_string(entry));
+    LIEF_WARN("Can't find {} in the dynamic table. This entry can't be removed",
+              to_string(entry));
     return;
   }
   dynamic_entries_.erase(it_entry);
 }
 
-
 void Binary::remove(DynamicEntry::TAG tag) {
-  for (auto it = std::begin(dynamic_entries_); it != std::end(dynamic_entries_);) {
-    if ((*it)->tag() == tag) {
-      it = dynamic_entries_.erase(it);
-    } else {
-      ++it;
-    }
-  }
+  dynamic_entries_.erase(
+      std::remove_if(dynamic_entries_.begin(), dynamic_entries_.end(),
+        [tag] (const std::unique_ptr<DynamicEntry>& E) { return E->tag() == tag; }
+      ), dynamic_entries_.end());
 }
 
 void Binary::remove(const Section& section, bool clear) {
@@ -926,17 +922,16 @@ uint64_t Binary::virtual_size() const {
       virtual_size = std::max(virtual_size, segment->virtual_address() + segment->virtual_size());
     }
   }
-  virtual_size = align(virtual_size, static_cast<uint64_t>(get_pagesize(*this)));
+  virtual_size = align(virtual_size, page_size());
   return virtual_size - imagebase();
 }
 
 
 std::vector<uint8_t> Binary::raw() {
-  Builder builder{*this};
+  Builder builder{*this, Builder::config_t{}};
   builder.build();
   return builder.get_build();
 }
-
 
 result<uint64_t> Binary::get_function_address(const std::string& func_name) const {
   if (auto res = get_function_address(func_name, /* demangle */true)) {
@@ -951,8 +946,10 @@ result<uint64_t> Binary::get_function_address(const std::string& func_name) cons
 }
 
 result<uint64_t> Binary::get_function_address(const std::string& func_name, bool demangled) const {
-  const auto it_symbol = std::find_if(std::begin(symtab_symbols_), std::end(symtab_symbols_),
-      [&func_name, demangled] (const std::unique_ptr<Symbol>& symbol) {
+
+  const auto it_dynsym = std::find_if(
+    dynamic_symbols_.begin(), dynamic_symbols_.end(),
+    [&func_name, demangled] (const std::unique_ptr<Symbol>& symbol) {
         std::string sname;
         if (demangled) {
           sname = symbol->demangled_name();
@@ -961,25 +958,46 @@ result<uint64_t> Binary::get_function_address(const std::string& func_name, bool
         if (sname.empty()) {
           sname = symbol->name();
         }
+
         return sname == func_name &&
                symbol->type() == Symbol::TYPE::FUNC;
       });
 
-  if (it_symbol == std::end(symtab_symbols_)) {
-    return make_error_code(lief_errors::not_found);
+  if (it_dynsym != dynamic_symbols_.end()) {
+    return (*it_dynsym)->value();
   }
 
-  return (*it_symbol)->value();
+  const auto it_symtab = std::find_if(
+    symtab_symbols_.begin(), symtab_symbols_.end(),
+    [&func_name, demangled] (const std::unique_ptr<Symbol>& symbol) {
+        std::string sname;
+        if (demangled) {
+          sname = symbol->demangled_name();
+        }
+
+        if (sname.empty()) {
+          sname = symbol->name();
+        }
+
+        return sname == func_name &&
+               symbol->type() == Symbol::TYPE::FUNC;
+      });
+
+  if (it_symtab != symtab_symbols_.end()) {
+    return (*it_symtab)->value();
+  }
+  return make_error_code(lief_errors::not_found);
+
 }
 
-Section* Binary::add(const Section& section, bool loaded) {
+Section* Binary::add(const Section& section, bool loaded, SEC_INSERT_POS pos) {
   if (section.is_frame()) {
     return add_frame_section(section);
   }
   if (loaded) {
-    return add_section<true>(section);
+    return add_section<true>(section, pos);
   }
-  return add_section<false>(section);
+  return add_section<false>(section, pos);
 }
 
 
@@ -1097,7 +1115,7 @@ Segment* Binary::replace(const Segment& new_segment, const Segment& original_seg
   const uint64_t last_offset_segments = last_offset_segment();
   const uint64_t last_offset          = std::max<uint64_t>(last_offset_sections, last_offset_segments);
 
-  const auto psize = static_cast<uint64_t>(get_pagesize(*this));
+  const auto psize = page_size();
   const uint64_t last_offset_aligned = align(last_offset, psize);
   new_segment_ptr->file_offset(last_offset_aligned);
 
@@ -1153,11 +1171,11 @@ Segment* Binary::replace(const Segment& new_segment, const Segment& original_seg
 }
 
 
-void Binary::remove(const Segment& segment) {
+void Binary::remove(const Segment& segment, bool clear) {
   const auto it_segment = std::find_if(
       std::begin(segments_), std::end(segments_),
       [&segment] (const std::unique_ptr<Segment>& s) {
-         return *s == segment;
+         return s.get() == &segment;
       });
 
   if (it_segment == std::end(segments_)) {
@@ -1166,6 +1184,11 @@ void Binary::remove(const Segment& segment) {
   }
 
   std::unique_ptr<Segment> local_segment = std::move(*it_segment);
+
+  if (clear) {
+    local_segment->clear();
+  }
+
   datahandler_->remove(local_segment->file_offset(), local_segment->physical_size(),
                        DataHandler::Node::SEGMENT);
   if (phdr_reloc_info_.new_offset > 0) {
@@ -1174,6 +1197,23 @@ void Binary::remove(const Segment& segment) {
   header().numberof_segments(header().numberof_segments() - 1);
 
   segments_.erase(it_segment);
+}
+
+void Binary::remove(Segment::TYPE type, bool clear) {
+  std::vector<Segment*> to_remove;
+  for (std::unique_ptr<Segment>& S : segments_) {
+    if (S->type() == type) {
+      to_remove.push_back(S.get());
+    }
+  }
+
+  if (to_remove.empty()) {
+    return;
+  }
+
+  for (Segment* S : to_remove) {
+    remove(*S, clear);
+  }
 }
 
 
@@ -1604,29 +1644,14 @@ bool Binary::has_interpreter() const {
   return it_segment_interp != std::end(segments_) && !interpreter_.empty();
 }
 
-void Binary::write(const std::string& filename) {
-  Builder builder{*this};
-  builder.build();
-  builder.write(filename);
-}
-
-
 void Binary::write(const std::string& filename, Builder::config_t config) {
-  Builder builder{*this};
-  builder.set_config(config);
+  Builder builder{*this, config};
   builder.build();
   builder.write(filename);
-}
-
-void Binary::write(std::ostream& os) {
-  Builder builder{*this};
-  builder.build();
-  builder.write(os);
 }
 
 void Binary::write(std::ostream& os, Builder::config_t config) {
-  Builder builder{*this};
-  builder.set_config(config);
+  Builder builder{*this, config};
   builder.build();
   builder.write(os);
 }
@@ -1903,12 +1928,21 @@ void Binary::shift_relocations(uint64_t from, uint64_t shift) {
     case ARCH::PPC:
       patch_relocations<ARCH::PPC>(from, shift); return;
 
+    case ARCH::PPC64:
+      patch_relocations<ARCH::PPC64>(from, shift); return;
+
     case ARCH::RISCV:
       patch_relocations<ARCH::RISCV>(from, shift); return;
 
+    case ARCH::SH:
+      patch_relocations<ARCH::SH>(from, shift); return;
+
+    case ARCH::S390:
+      patch_relocations<ARCH::S390>(from, shift); return;
+
     default:
       {
-        LIEF_DEBUG("Relocations for architecture {} is not handled", to_string(arch));
+        LIEF_DEBUG("Relocations for architecture {} are not supported", to_string(arch));
       }
   }
 }
@@ -2517,21 +2551,31 @@ uint64_t Binary::relocate_phdr_table_auto() {
     return phdr_reloc_info_.new_offset;
   }
 
+  const bool has_phdr_s = has(Segment::TYPE::PHDR);
+  const bool has_interp_s = has(Segment::TYPE::INTERP);
+  const bool is_dyn = header_.file_type() == Header::FILE_TYPE::DYN;
+  const bool is_exec = header_.file_type() == Header::FILE_TYPE::EXEC;
+  const bool has_ep = entrypoint() > 0;
+
   uint64_t offset = 0;
-  if (header_.file_type() == Header::FILE_TYPE::DYN) {
-    offset = relocate_phdr_table_pie();
-    if (offset == 0) {
-      LIEF_ERR("Can't relocated phdr table for this PIE binary");
-    } else {
+  if (is_dyn && (has_phdr_s || has_interp_s)) {
+    if (offset = relocate_phdr_table_pie(); offset > 0) {
+      return offset;
+    }
+    LIEF_ERR("Can't relocated phdr table for this PIE binary");
+  }
+
+  if (is_dyn && !(has_phdr_s || has_interp_s) && !has_ep) {
+    // See libm-ubuntu24.so
+    if (offset = relocate_phdr_table_pie(); offset > 0) {
       return offset;
     }
   }
 
   /* This is typically static binaries */
   const bool is_valid_for_v3 =
-    header_.file_type() == Header::FILE_TYPE::EXEC &&
-                           get(Segment::TYPE::PHDR)   == nullptr &&
-                           get(Segment::TYPE::INTERP) == nullptr;
+    (is_dyn || is_exec) && !has_phdr_s && !has_interp_s;
+
   if (is_valid_for_v3) {
     LIEF_DEBUG("Try v3 relocator");
     offset = relocate_phdr_table_v3();
@@ -2651,12 +2695,10 @@ uint64_t Binary::relocate_phdr_table_v3() {
   uint64_t last_off = 0;
   for (const std::unique_ptr<Segment>& segment : segments_) {
     if (segment != nullptr && segment->is_load()) {
-      last_off = std::max(last_off, segment->file_offset());
-      // Possible because segment are not overlapping
-      last_off += segment->physical_size();
+      last_off = std::max(last_off, segment->physical_size() + segment->file_offset());
     }
   }
-  last_off = align(last_off, static_cast<uint64_t>(get_pagesize(*this)));
+  uint64_t last_off_aligned = align(last_off, page_size());
 
   if (phdr_reloc_info_.new_offset > 0) {
     return phdr_reloc_info_.new_offset;
@@ -2669,19 +2711,17 @@ uint64_t Binary::relocate_phdr_table_v3() {
   const uint64_t phdr_size =
     type() == Header::CLASS::ELF32 ? sizeof(details::ELF32::Elf_Phdr) :
                                      sizeof(details::ELF64::Elf_Phdr);
-
-  const uint64_t last_offset = last_off;
-
   LIEF_DEBUG("Moving segment table at the end of the binary (0x{:010x})",
-             last_offset);
+             last_off_aligned);
 
-  phdr_reloc_info_.new_offset = last_offset;
-  header.program_headers_offset(last_offset);
+  phdr_reloc_info_.new_offset = last_off_aligned;
+  header.program_headers_offset(last_off_aligned);
 
   const size_t new_segtbl_sz = (header.numberof_segments() + USER_SEGMENTS) * phdr_size;
+  const uint64_t delta = last_off_aligned - last_off + new_segtbl_sz;
+  shift_sections(last_off, delta);
 
-  uint64_t sections_tbl_off = header.section_headers_offset() + new_segtbl_sz;
-
+  uint64_t sections_tbl_off = header.section_headers_offset() + delta;
   header.section_headers_offset(sections_tbl_off);
 
   auto alloc = datahandler_->make_hole(phdr_reloc_info_.new_offset,
@@ -2708,7 +2748,6 @@ uint64_t Binary::relocate_phdr_table_v3() {
                              DataHandler::Node::SEGMENT};
   datahandler_->add(std::move(new_node));
 
-
   const auto it_new_place = std::find_if(
       segments_.rbegin(), segments_.rend(),
       [] (const auto& s) { return s->is_load(); });
@@ -2721,6 +2760,7 @@ uint64_t Binary::relocate_phdr_table_v3() {
                      std::move(phdr_load_segment));
   }
 
+  header.numberof_segments(header.numberof_segments() + 1);
   phdr_reloc_info_.nb_segments = USER_SEGMENTS - /* For the PHDR LOAD */ 1;
   return phdr_reloc_info_.new_offset;
 }
@@ -3130,6 +3170,98 @@ bool Binary::is_targeting_android() const {
   }
 
   return false;
+}
+
+
+Section* Binary::add_section(std::unique_ptr<Section> sec) {
+  Section* sec_ptr = sec.get();
+
+  const auto it_new_sec_place = std::find_if(
+    sections_.begin(), sections_.end(), [sec_ptr] (const std::unique_ptr<Section>& S) {
+      return S->file_offset() > sec_ptr->file_offset();
+    });
+
+  if (it_new_sec_place == sections_.end()) {
+    sections_.push_back(std::move(sec));
+  } else {
+    size_t idx = std::distance(sections_.begin(), it_new_sec_place);
+    for (size_t i = 0; i < sections_.size(); ++i) {
+      const uint32_t link = sections_[i]->link();
+      if (link >= idx) {
+        sections_[i]->link(link + 1);
+      }
+    }
+    if (header_.section_name_table_idx() >= idx) {
+      header_.section_name_table_idx(header_.section_name_table_idx() + 1);
+    }
+    sections_.insert(it_new_sec_place, std::move(sec));
+  }
+
+  return sec_ptr;
+}
+
+uint64_t Binary::page_size() const {
+  if (pagesize_ > 0) {
+    return pagesize_;
+  }
+  return LIEF::Binary::page_size();
+}
+
+const SymbolVersionRequirement* Binary::find_version_requirement(const std::string& libname) const {
+  auto it = std::find_if(
+      symbol_version_requirements_.begin(), symbol_version_requirements_.end(),
+      [&libname] (const std::unique_ptr<SymbolVersionRequirement>& symver) {
+        return symver->name() == libname;
+      }
+  );
+
+  if (it == symbol_version_requirements_.end()) {
+    return nullptr;
+  }
+
+  return (*it).get();
+}
+
+bool Binary::remove_version_requirement(const std::string& libname) {
+  auto it = std::find_if(
+      symbol_version_requirements_.begin(), symbol_version_requirements_.end(),
+      [&libname] (const std::unique_ptr<SymbolVersionRequirement>& symver) {
+        return symver->name() == libname;
+      }
+  );
+
+  if (it == symbol_version_requirements_.end()) {
+    return false;
+  }
+  std::set<std::string> versions;
+
+  SymbolVersionRequirement* sym_ver_req = it->get();
+  auto aux = sym_ver_req->auxiliary_symbols();
+  std::transform(aux.begin(), aux.end(), std::inserter(versions, versions.begin()),
+    [] (const SymbolVersionAuxRequirement& req) {
+      return req.name();
+    }
+  );
+
+  for (Symbol& sym : dynamic_symbols()) {
+    SymbolVersion* symver = sym.symbol_version();
+    if (symver == nullptr) {
+      continue;
+    }
+
+    if (const SymbolVersionAux* vers = symver->symbol_version_auxiliary();
+        vers != nullptr && versions.count(vers->name()))
+    {
+      symver->as_global();
+    }
+  }
+
+  symbol_version_requirements_.erase(it);
+  if (DynamicEntry* dt = get(DynamicEntry::TAG::VERNEEDNUM)) {
+    dt->value(symbol_version_requirements_.size());
+  }
+
+  return true;
 }
 
 std::ostream& Binary::print(std::ostream& os) const {
