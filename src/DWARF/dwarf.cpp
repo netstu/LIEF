@@ -15,6 +15,7 @@
 #include "LIEF/DWARF/DebugInfo.hpp"
 #include "LIEF/DWARF/CompilationUnit.hpp"
 #include "LIEF/DWARF/Function.hpp"
+#include "LIEF/DWARF/LexicalBlock.hpp"
 #include "LIEF/DWARF/Variable.hpp"
 #include "LIEF/DWARF/Type.hpp"
 #include "LIEF/DWARF/Scope.hpp"
@@ -83,10 +84,14 @@ class TypeIt {};
 
 class Scope {};
 class Editor {};
+
+class LexicalBlock {};
+class LexicalBlockIt {};
 }
 
 namespace types::details {
 class Member {};
+class EnumEntry {};
 }
 
 namespace editor::details {
@@ -133,12 +138,20 @@ bool Variable::is_constexpr() const {
   return true;
 }
 
+bool Variable::is_stack_based() const {
+  return true;
+}
+
 std::unique_ptr<Type> Variable::type() const {
   return nullptr;
 }
 
 debug_location_t Variable::debug_location() const {
   return {};
+}
+
+std::string Variable::description() const {
+  return "";
 }
 
 Variable::~Variable() = default;
@@ -197,6 +210,10 @@ std::string Parameter::name() const {
 }
 
 std::unique_ptr<Type> Parameter::type() const {
+  return nullptr;
+}
+
+std::unique_ptr<Parameter::Location> Parameter::location() const {
   return nullptr;
 }
 
@@ -264,6 +281,13 @@ Function::parameters_t Function::parameters() const {
   return {};
 }
 
+Function::lexical_blocks_it Function::lexical_blocks() const {
+  return make_empty_iterator<LexicalBlock>();
+}
+
+std::string Function::description() const {
+  return "";
+}
 
 Function::thrown_types_t Function::thrown_types() const {
   return {};
@@ -327,6 +351,10 @@ std::unique_ptr<Variable> DebugInfo::find_variable(const std::string&/*name*/) c
 
 std::unique_ptr<Type> DebugInfo::find_type(const std::string&/*name*/) const {
   return nullptr;
+}
+
+optional<uint64_t> DebugInfo::find_function_address(const std::string& /*name*/) const {
+  return nullopt();
 }
 
 DebugInfo::compilation_units_it DebugInfo::compilation_units() const {
@@ -533,6 +561,80 @@ std::string Scope::chained(const std::string&/* sep */) const {
   return "";
 }
 
+
+// ----------------------------------------------------------------------------
+// DWARF/LexicalBlock.hpp
+// ----------------------------------------------------------------------------
+LexicalBlock::LexicalBlock(std::unique_ptr<details::LexicalBlock>) :
+  impl_(nullptr)
+{}
+
+LexicalBlock::~LexicalBlock() = default;
+
+std::string LexicalBlock::name() const {
+  return "";
+}
+
+std::string LexicalBlock::description() const {
+  return "";
+}
+
+LexicalBlock::sub_blocks_it LexicalBlock::sub_blocks() const {
+  return make_empty_iterator<LexicalBlock>();
+}
+
+optional<uint64_t> LexicalBlock::addr() const {
+  return nullopt();
+}
+
+uint64_t LexicalBlock::size() const {
+  return 0;
+}
+
+optional<uint64_t> LexicalBlock::low_pc() const {
+  return nullopt();
+}
+
+optional<uint64_t> LexicalBlock::high_pc() const {
+  return nullopt();
+}
+
+std::vector<range_t> LexicalBlock::ranges() const {
+  return {};
+}
+
+LexicalBlock::Iterator::Iterator(std::unique_ptr<details::LexicalBlockIt>) :
+  impl_(nullptr)
+{}
+
+LexicalBlock::Iterator::Iterator(const Iterator&) :
+  impl_(nullptr)
+{}
+
+LexicalBlock::Iterator::Iterator(Iterator&&) noexcept :
+  impl_(nullptr)
+{}
+
+LexicalBlock::Iterator::~Iterator() = default;
+
+bool operator==(const LexicalBlock::Iterator&,
+                const LexicalBlock::Iterator&)
+{
+  return true;
+}
+
+LexicalBlock::Iterator& LexicalBlock::Iterator::operator++() {
+  return *this;
+}
+
+LexicalBlock::Iterator& LexicalBlock::Iterator::operator--() {
+  return *this;
+}
+
+std::unique_ptr<LexicalBlock> LexicalBlock::Iterator::operator*() const {
+  return nullptr;
+}
+
 namespace types {
 // ----------------------------------------------------------------------------
 // DWARF/types/ClassLike.hpp
@@ -663,6 +765,35 @@ Dynamic::~Dynamic()= default;
 // ----------------------------------------------------------------------------
 // DWARF/types/Enum.hpp
 // ----------------------------------------------------------------------------
+Enum::Entry::Entry(Entry&& other) noexcept = default;
+Enum::Entry& Enum::Entry::operator=(Entry&& other) noexcept = default;
+
+Enum::Entry::~Entry() = default;
+
+Enum::Entry::Entry(std::unique_ptr<details::EnumEntry> impl) :
+  impl_(std::move(impl))
+{}
+
+std::string Enum::Entry::name() const {
+  return "";
+}
+
+optional<int64_t> Enum::Entry::value() const {
+  return nullopt();
+}
+
+std::vector<Enum::Entry> Enum::entries() const {
+  return {};
+}
+
+optional<Enum::Entry> Enum::find_entry(int64_t /*value*/) const {
+  return nullopt();
+}
+
+const Type* Enum::underlying_type() const {
+  return nullptr;
+}
+
 Enum::~Enum()= default;
 
 // ----------------------------------------------------------------------------
@@ -751,6 +882,10 @@ StringTy::~StringTy()= default;
 // DWARF/types/Subroutine.hpp
 // ----------------------------------------------------------------------------
 Subroutine::~Subroutine()= default;
+
+std::unique_ptr<Type> Subroutine::return_type() const {
+  return {};
+}
 
 Subroutine::parameters_t Subroutine::parameters() const {
   return {};
@@ -901,6 +1036,10 @@ Variable& Variable::set_type(const Type&) {
   return *this;
 }
 
+Variable& Variable::add_description(const std::string& /*description*/) {
+  return *this;
+}
+
 Variable::~Variable() = default;
 
 // ----------------------------------------------------------------------------
@@ -926,6 +1065,9 @@ Function& Function::set_external() {
   return *this;
 }
 
+Function& Function::add_description(const std::string& /*description*/) {
+  return *this;
+}
 
 Function& Function::set_return_type(const Type&) {
   return *this;
@@ -953,6 +1095,14 @@ Function::Parameter::Parameter(std::unique_ptr<details::FunctionParameter> impl)
   impl_(std::move(impl))
 {}
 
+Function::Parameter& Function::Parameter::assign_register(const std::string& /*name*/) {
+  return *this;
+}
+
+Function::Parameter& Function::Parameter::assign_register(uint64_t /*reg*/) {
+  return *this;
+}
+
 Function::Parameter::~Parameter() = default;
 
 
@@ -961,6 +1111,22 @@ Function::LexicalBlock::LexicalBlock(std::unique_ptr<details::FunctionLexicalBlo
 {}
 
 Function::LexicalBlock::~LexicalBlock() = default;
+
+std::unique_ptr<Function::LexicalBlock> Function::LexicalBlock::add_block(uint64_t /*start*/, uint64_t /*end*/) {
+  return nullptr;
+}
+
+std::unique_ptr<Function::LexicalBlock> Function::LexicalBlock::add_block(const std::vector<range_t>& /*ranges*/) {
+  return nullptr;
+}
+
+Function::LexicalBlock& Function::LexicalBlock::add_description(const std::string& /*name*/) {
+  return *this;
+}
+
+Function::LexicalBlock& Function::LexicalBlock::add_name(const std::string& /*name*/) {
+  return *this;
+}
 
 Function::Label::Label(std::unique_ptr<details::FunctionLabel> impl) :
   impl_(std::move(impl))
@@ -1001,6 +1167,10 @@ bool PointerType::classof(const Type */*type*/) {
 // ----------------------------------------------------------------------------
 bool EnumType::classof(const Type */*type*/) {
   return false;
+}
+
+EnumType& EnumType::set_underlying_type(const Type& /*type*/) {
+  return *this;
 }
 
 EnumType& EnumType::set_size(uint64_t /*size*/) {

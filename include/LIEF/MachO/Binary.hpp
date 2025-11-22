@@ -61,6 +61,8 @@ class DynamicSymbolCommand;
 class EncryptionInfo;
 class ExportInfo;
 class FunctionStarts;
+class FunctionVariants;
+class FunctionVariantFixups;
 class Header;
 class IndirectBindingInfo;
 class LinkerOptHint;
@@ -83,7 +85,7 @@ class UUIDCommand;
 class VersionMin;
 
 /// Class which represents a MachO binary
-class LIEF_API Binary : public LIEF::Binary  {
+class LIEF_API Binary : public LIEF::Binary {
 
   friend class Parser;
   friend class BinaryParser;
@@ -202,6 +204,12 @@ class LIEF_API Binary : public LIEF::Binary  {
 
   /// Iterator type for Symbol's stub
   using stub_iterator = iterator_range<Stub::Iterator>;
+
+  /// Iterator which outputs NoteCommand&
+  using it_notes = filter_iterator<commands_t&, NoteCommand*>;
+
+  /// Iterator which outputs const NoteCommand&
+  using it_const_notes = const_filter_iterator<const commands_t&, const NoteCommand*>;
 
   public:
   Binary(const Binary&) = delete;
@@ -440,7 +448,7 @@ class LIEF_API Binary : public LIEF::Binary  {
   uint64_t imagebase() const override;
 
   /// Size of the binary in memory when mapped by the loader (`dyld`)
-  uint64_t virtual_size() const {
+  uint64_t virtual_size() const override {
     return align(va_ranges().size(), (uint64_t)page_size());
   }
 
@@ -905,6 +913,40 @@ class LIEF_API Binary : public LIEF::Binary  {
   }
   const AtomInfo* atom_info() const;
 
+  /// Iterator over the different `LC_NOTE` commands
+  it_notes notes();
+
+  it_const_notes notes() const;
+
+  /// True if the binary contains `LC_NOTE` command(s)
+  bool has_notes() const {
+    return get(LoadCommand::TYPE::NOTE) != nullptr;
+  }
+
+  /// `true` if the binary has the command `LC_FUNCTION_VARIANTS`.
+  bool has_function_variants() const {
+    return function_variants() != nullptr;
+  }
+
+  /// Return the FunctionVariants if present, a nullptr otherwise.
+  FunctionVariants* function_variants() {
+    return const_cast<FunctionVariants*>(static_cast<const Binary*>(this)->function_variants());
+  }
+
+  const FunctionVariants* function_variants() const;
+
+  /// `true` if the binary has the command `LC_FUNCTION_VARIANT_FIXUPS`.
+  bool has_function_variant_fixups() const {
+    return function_variant_fixups() != nullptr;
+  }
+
+  /// Return the FunctionVariantFixups if present, a nullptr otherwise.
+  FunctionVariantFixups* function_variant_fixups() {
+    return const_cast<FunctionVariantFixups*>(static_cast<const Binary*>(this)->function_variant_fixups());
+  }
+
+  const FunctionVariantFixups* function_variant_fixups() const;
+
   template<class T>
   LIEF_LOCAL bool has_command() const;
 
@@ -975,6 +1017,9 @@ class LIEF_API Binary : public LIEF::Binary  {
   /// Return an iterator over the binding info which can come from either
   /// DyldInfo or DyldChainedFixups commands.
   it_bindings bindings() const;
+
+  /// Try to get the address for the function's name given in parameter
+  result<uint64_t> get_function_address(const std::string& name) const override;
 
   static bool classof(const LIEF::Binary* bin) {
     return bin->format() == Binary::FORMATS::MACHO;

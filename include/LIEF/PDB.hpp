@@ -22,4 +22,5 @@
 #include <LIEF/PDB/BuildMetadata.hpp>
 #include <LIEF/PDB/Type.hpp>
 #include <LIEF/PDB/types.hpp>
+#include <LIEF/PDB/utils.hpp>
 #endif

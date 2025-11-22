@@ -79,13 +79,29 @@ class LIEF_API LoadConfiguration : public Object {
     /// Module contains longjmp target information.
     CF_LONGJUMP_TABLE_PRESENT = 0x10000,
 
+    /// Module contains return flow instrumentation and metadata
+    RF_INSTRUMENTED = 0x00020000,
+
+    /// Module requests that the OS enable return flow protection
+    RF_ENABLE = 0x00040000,
+
+    /// Module requests that the OS enable return flow protection in strict mode
+    RF_STRICT = 0x00080000,
+
+    /// Module was built with retpoline support
+    RETPOLINE_PRESENT = 0x00100000,
+
     /// Module contains EH continuation target information.
     EH_CONTINUATION_TABLE_PRESENT = 0x400000,
 
-    RF_INSTRUMENTED = 0x00020000,
-    RF_ENABLE = 0x00040000,
-    RF_STRICT = 0x00080000,
-    RETPOLINE_PRESENT = 0x00100000,
+    /// Module was built with xfg (deprecated)
+    XFG_ENABLED = 0x00800000,
+
+    /// Module has CastGuard instrumentation present
+    CASTGUARD_PRESENT = 0x01000000,
+
+    /// Module has Guarded Memcpy instrumentation present
+    MEMCPY_PRESENT = 0x02000000,
   };
 
   struct guard_function_t {
@@ -216,7 +232,7 @@ class LIEF_API LoadConfiguration : public Object {
   }
 
   /// Reserved for use by the system.
-  uint32_t editlist() const {
+  uint64_t editlist() const {
     return editlist_;
   }
 
@@ -470,6 +486,10 @@ class LIEF_API LoadConfiguration : public Object {
     return guard_memcpy_function_pointer_;
   }
 
+  optional<uint64_t> uma_function_pointers() const {
+    return uma_function_pointers_;
+  }
+
   LoadConfiguration& characteristics(uint32_t characteristics) {
     characteristics_ = characteristics;
     return *this;
@@ -559,7 +579,7 @@ class LIEF_API LoadConfiguration : public Object {
     return *this;
   }
 
-  LoadConfiguration& editlist(uint32_t editlist) {
+  LoadConfiguration& editlist(uint64_t editlist) {
     editlist_ = editlist;
     return *this;
   }
@@ -729,6 +749,11 @@ class LIEF_API LoadConfiguration : public Object {
     return *this;
   }
 
+  LoadConfiguration& uma_function_pointers(uint64_t value) {
+    uma_function_pointers_ = value;
+    return *this;
+  }
+
   ~LoadConfiguration() override;
 
   void accept(Visitor& visitor) const override;
@@ -838,6 +863,8 @@ class LIEF_API LoadConfiguration : public Object {
   optional<uint64_t> cast_guard_os_determined_failure_mode_;
 
   optional<uint64_t> guard_memcpy_function_pointer_;
+
+  optional<uint64_t> uma_function_pointers_;
 
   std::unique_ptr<CHPEMetadata> chpe_;
   std::vector<uint32_t> seh_rva_;

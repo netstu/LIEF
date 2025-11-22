@@ -365,11 +365,17 @@ include_cpp! {
     generate!("PE_CHPEMetadataARM64_it_const_redirection_entries")
     block_constructors!("PE_CHPEMetadataARM64_it_const_redirection_entries")
 
+    generate!("PE_CHPEMetadataARM64_it_const_code_range_entry_point")
+    block_constructors!("PE_CHPEMetadataARM64_it_const_code_range_entry_point")
+
     generate!("PE_CHPEMetadataARM64_range_entry_t")
     block_constructors!("PE_CHPEMetadataARM64_range_entry_t")
 
     generate!("PE_CHPEMetadataARM64_redirection_entry_t")
     block_constructors!("PE_CHPEMetadataARM64_redirection_entry_t")
+
+    generate!("PE_CHPEMetadataARM64_code_range_entry_point_t")
+    block_constructors!("PE_CHPEMetadataARM64_code_range_entry_point_t")
 
     generate!("PE_ExceptionInfo")
     block_constructors!("PE_ExceptionInfo")
@@ -541,6 +547,8 @@ include_cpp! {
     block_constructors!("MachO_Binary_it_libraries")
     generate!("MachO_Binary_it_sub_clients")
     block_constructors!("MachO_Binary_it_sub_clients")
+    generate!("MachO_Binary_it_notes")
+    block_constructors!("MachO_Binary_it_notes")
     generate!("MachO_Binary_it_bindings_info")
     block_constructors!("MachO_Binary_it_bindings_info")
     generate!("MachO_BindingInfo")
@@ -607,12 +615,31 @@ include_cpp! {
     block_constructors!("MachO_AtomInfo")
     generate!("MachO_FunctionStarts")
     block_constructors!("MachO_FunctionStarts")
+    generate!("MachO_FunctionVariants")
+    block_constructors!("MachO_FunctionVariants")
+
+    generate!("MachO_FunctionVariants_it_runtime_table")
+    block_constructors!("MachO_FunctionVariants_it_runtime_table")
+
+    generate!("MachO_FunctionVariants_RuntimeTable")
+    block_constructors!("MachO_FunctionVariants_RuntimeTable")
+
+    generate!("MachO_FunctionVariants_RuntimeTable_it_entries")
+    block_constructors!("MachO_FunctionVariants_RuntimeTable_it_entries")
+
+    generate!("MachO_FunctionVariants_RuntimeTableEntry")
+    block_constructors!("MachO_FunctionVariants_RuntimeTableEntry")
+
+    generate!("MachO_FunctionVariantFixups")
+    block_constructors!("MachO_FunctionVariantFixups")
     generate!("MachO_Header")
     block_constructors!("MachO_Header")
     generate!("MachO_LinkerOptHint")
     block_constructors!("MachO_LinkerOptHint")
     generate!("MachO_Main")
     block_constructors!("MachO_Main")
+    generate!("MachO_NoteCommand")
+    block_constructors!("MachO_NoteCommand")
     generate!("MachO_Routine")
     block_constructors!("MachO_Routine")
     generate!("MachO_RPathCommand")
@@ -663,6 +690,8 @@ include_cpp! {
     // -------------------------------------------------------------------------
     // PDB
     // -------------------------------------------------------------------------
+    generate!("PDB_Utils")
+    block_constructors!("PDB_Utils")
     generate!("PDB_DebugInfo")
     block_constructors!("PDB_DebugInfo")
     generate!("PDB_DebugInfo_it_compilation_units")
@@ -790,6 +819,10 @@ include_cpp! {
     block_constructors!("DWARF_Function")
     generate!("DWARF_Parameter")
     block_constructors!("DWARF_Parameter")
+    generate!("DWARF_Parameter_Location")
+    block_constructors!("DWARF_Parameter_Location")
+    generate!("DWARF_Parameter_RegisterLocation")
+    block_constructors!("DWARF_Parameter_RegisterLocation")
     generate!("DWARF_parameters_Formal")
     block_constructors!("DWARF_parameters_Formal")
     generate!("DWARF_parameters_TemplateValue")
@@ -798,6 +831,8 @@ include_cpp! {
     block_constructors!("DWARF_parameters_TemplateType")
     generate!("DWARF_Function_it_variables")
     block_constructors!("DWARF_Function_it_variables")
+    generate!("DWARF_Function_it_lexical_blocks")
+    block_constructors!("DWARF_Function_it_lexical_blocks")
     generate!("DWARF_Function_it_parameters")
     block_constructors!("DWARF_Function_it_parameters")
     generate!("DWARF_Function_it_thrown_types")
@@ -812,6 +847,10 @@ include_cpp! {
     block_constructors!("DWARF_CompilationUnit_it_variables")
     generate!("DWARF_Variable")
     block_constructors!("DWARF_Variable")
+    generate!("DWARF_LexicalBlock")
+    block_constructors!("DWARF_LexicalBlock")
+    generate!("DWARF_LexicalBlock_it_sub_blocks")
+    block_constructors!("DWARF_LexicalBlock_it_sub_blocks")
     generate!("DWARF_Type")
     block_constructors!("DWARF_Type")
     generate!("DWARF_types_ClassLike")
@@ -882,6 +921,10 @@ include_cpp! {
     block_constructors!("DWARF_types_Volatile")
     generate!("DWARF_types_Enum")
     block_constructors!("DWARF_types_Enum")
+    generate!("DWARF_types_Enum_it_entries")
+    block_constructors!("DWARF_types_Enum_it_entries")
+    generate!("DWARF_types_Enum_Entry")
+    block_constructors!("DWARF_types_Enum_Entry")
     generate!("DWARF_Scope")
     block_constructors!("DWARF_Scope")
 
@@ -932,6 +975,9 @@ include_cpp! {
     // -------------------------------------------------------------------------
     generate!("dsc_enable_cache")
     generate!("dsc_enable_cache_from_dir")
+
+    generate!("dsc_Utils")
+    block_constructors!("dsc_Utils")
 
     generate!("dsc_DyldSharedCache")
     block_constructors!("dsc_DyldSharedCache")

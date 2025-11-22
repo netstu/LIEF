@@ -16,7 +16,6 @@
 #ifndef LIEF_MACHO_ATOM_INFO_COMMAND_H
 #define LIEF_MACHO_ATOM_INFO_COMMAND_H
 #include <ostream>
-#include <vector>
 
 #include "LIEF/visibility.h"
 
@@ -48,7 +47,7 @@ class LIEF_API AtomInfo : public LoadCommand {
     return std::unique_ptr<AtomInfo>(new AtomInfo(*this));
   }
 
-  /// Offset in the `__LINKEDIT` SegmentCommand where the payload start
+  /// Offset in the `__LINKEDIT` SegmentCommand where the payload starts
   uint32_t data_offset() const {
     return data_offset_;
   }
@@ -87,7 +86,6 @@ class LIEF_API AtomInfo : public LoadCommand {
   uint32_t data_offset_ = 0;
   uint32_t data_size_ = 0;
   span<uint8_t> content_;
-  std::vector<uint8_t> tmp_buffer_;
 };
 
 }

@@ -122,6 +122,9 @@ class LIEF_API Variable {
   /// Whether it's a `constexpr` variable
   bool is_constexpr() const;
 
+  /// Whether this variable is allocated on the stack
+  bool is_stack_based() const;
+
   /// The original source location where the variable is defined.
   debug_location_t debug_location() const;
 
@@ -130,6 +133,9 @@ class LIEF_API Variable {
 
   /// Return the scope in which this variable is defined
   std::unique_ptr<Scope> scope() const;
+
+  /// Description (`DW_AT_description`) of the variable or an empty string
+  std::string description() const;
 
   ~Variable();
   private:

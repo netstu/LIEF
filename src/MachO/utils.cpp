@@ -48,17 +48,49 @@ inline result<MACHO_TYPES> magic_from_stream(BinaryStream& stream,
 }
 
 bool is_macho(BinaryStream& stream) {
-  if (auto magic_res = magic_from_stream(stream)) {
-    const MACHO_TYPES magic = *magic_res;
-    return (magic == MACHO_TYPES::MAGIC ||
-            magic == MACHO_TYPES::CIGAM ||
-            magic == MACHO_TYPES::MAGIC_64 ||
-            magic == MACHO_TYPES::CIGAM_64 ||
-            magic == MACHO_TYPES::MAGIC_FAT ||
-            magic == MACHO_TYPES::CIGAM_FAT ||
-            magic == MACHO_TYPES::NEURAL_MODEL);
+  ScopedStream scoped(stream, 0);
+
+  std::array<uint8_t, 8> header = {0};
+  if (!scoped->peek_array(header)) {
+    return false;
   }
-  return false;
+
+  // Check for Java class file: CA FE BA BE + valid minor/major version
+  if (header[0] == 0xCA &&
+      header[1] == 0xFE &&
+      header[2] == 0xBA &&
+      header[3] == 0xBE)
+  {
+    static constexpr auto MIN_JAVA_VERSION = 45;
+    static constexpr auto MAX_JAVA_VERSION = 69;
+
+    // combine bytes 4 & 5 to get the minor version
+    uint16_t minor = (header[4] << 8) | header[5];
+    // combine bytes 6 & 7 to get the major version
+    uint16_t major = (header[6] << 8) | header[7];
+
+    // ranges of current java minor and major versions
+    if (minor <= std::numeric_limits<uint16_t>::max() &&
+        MIN_JAVA_VERSION <= major && major <= MAX_JAVA_VERSION)
+    {
+      // This is a Java file
+      return false;
+    }
+  }
+
+  auto magic_res = MachO::magic_from_stream(*scoped);
+  if (!magic_res) {
+    return false;
+  }
+  const MachO::MACHO_TYPES magic = *magic_res;
+
+  return (magic == MachO::MACHO_TYPES::MAGIC ||
+          magic == MachO::MACHO_TYPES::CIGAM ||
+          magic == MachO::MACHO_TYPES::MAGIC_64 ||
+          magic == MachO::MACHO_TYPES::CIGAM_64 ||
+          magic == MachO::MACHO_TYPES::MAGIC_FAT ||
+          magic == MachO::MACHO_TYPES::CIGAM_FAT ||
+          magic == MachO::MACHO_TYPES::NEURAL_MODEL);
 }
 
 bool is_macho(const std::string& file) {

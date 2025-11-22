@@ -20,7 +20,10 @@ use super::commands::encryption_info::EncryptionInfo;
 use super::commands::functionstarts::FunctionStarts;
 use super::commands::linker_opt_hint::LinkerOptHint;
 use super::commands::atom_info::AtomInfo;
+use super::commands::function_variants::FunctionVariants;
+use super::commands::function_variant_fixups::FunctionVariantFixups;
 use super::commands::main_cmd::Main;
+use super::commands::note::Note;
 use super::commands::rpath::RPath;
 use super::commands::routine::Routine;
 use super::commands::segment::Segments;
@@ -229,6 +232,16 @@ impl Binary {
         into_optional(self.ptr.atom_info())
     }
 
+    /// Return the `LC_FUNCTION_VARIANTS` command if present
+    pub fn function_variants(&self) -> Option<FunctionVariants> {
+        into_optional(self.ptr.function_variants())
+    }
+
+    /// Return the `LC_FUNCTION_VARIANT_FIXUPS` command if present
+    pub fn function_variant_fixups(&self) -> Option<FunctionVariantFixups> {
+        into_optional(self.ptr.function_variant_fixups())
+    }
+
     /// Return the `LC_VERSION_MIN_MACOSX/VERSION_MIN_IPHONEOS` command if present
     pub fn version_min(&self) -> Option<VersionMin> {
         into_optional(self.ptr.version_min())
@@ -323,14 +336,14 @@ impl Binary {
     }
 
     /// Write back the current MachO binary into the file specified in parameter
-    pub fn write(&mut self, output: &Path) {
-        self.ptr.as_mut().unwrap().write(output.to_str().unwrap());
+    pub fn write<P: AsRef<Path>>(&mut self, output: P) {
+        self.ptr.as_mut().unwrap().write(output.as_ref().to_str().unwrap());
     }
 
     /// Write back the current MachO binary into the file specified in parameter with the
     /// configuration provided in the second parameter.
-    pub fn write_with_config(&mut self, output: &Path, config: Config) {
-        self.ptr.as_mut().unwrap().write_with_config(output.to_str().unwrap(), config.to_ffi());
+    pub fn write_with_config<P: AsRef<Path>>(&mut self, output: P, config: Config) {
+        self.ptr.as_mut().unwrap().write_with_config(output.as_ref().to_str().unwrap(), config.to_ffi());
     }
 
     /// Insert a new shared library through a `LC_LOAD_DYLIB` command
@@ -340,6 +353,11 @@ impl Binary {
 
     pub fn functions(&self) -> generic::Functions {
         generic::Functions::new(self.ptr.functions())
+    }
+
+    /// Return an iterator over the `LC_NOTE` commands
+    pub fn notes(&self) -> Notes {
+        Notes::new(self.ptr.notes())
     }
 }
 
@@ -359,7 +377,6 @@ impl generic::Binary for Binary {
     }
 }
 
-
 declare_fwd_iterator!(
     BindingsInfo,
     BindingInfo<'a>,
@@ -374,4 +391,12 @@ declare_iterator!(
     ffi::MachO_Stub,
     ffi::MachO_Binary,
     ffi::MachO_Binary_it_stubs
+);
+
+declare_iterator!(
+    Notes,
+    Note<'a>,
+    ffi::MachO_NoteCommand,
+    ffi::MachO_Binary,
+    ffi::MachO_Binary_it_notes
 );

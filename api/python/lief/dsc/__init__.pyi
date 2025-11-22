@@ -12,7 +12,7 @@ import lief.assembly
 def enable_cache() -> bool: ...
 
 @overload
-def enable_cache(target_cache_dir: str) -> bool: ...
+def enable_cache(target_cache_dir: Union[str | os.PathLike]) -> bool: ...
 
 class DyldSharedCache:
     class VERSION(enum.Enum):
@@ -36,7 +36,9 @@ class DyldSharedCache:
 
         DYLD_1231_3 = 9
 
-        UNRELEASED = 10
+        DYLD_1284_13 = 10
+
+        UNRELEASED = 11
 
     class PLATFORM(enum.Enum):
         UNKNOWN = 0
@@ -156,7 +158,7 @@ class DyldSharedCache:
 def load(files: Sequence[str]) -> Optional[DyldSharedCache]: ...
 
 @overload
-def load(path: os.PathLike, arch: str = '') -> Optional[DyldSharedCache]: ...
+def load(path: Union[str | os.PathLike], arch: str = '') -> Optional[DyldSharedCache]: ...
 
 class Dylib:
     class extract_opt_t:

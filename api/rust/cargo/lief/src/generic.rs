@@ -1,6 +1,6 @@
 use lief_ffi as ffi;
 use bitflags::bitflags;
-use crate::{to_slice, declare_fwd_iterator};
+use crate::{to_slice, declare_fwd_iterator, to_opt_trait};
 use crate::common::{into_optional, FromFFI};
 use crate::assembly::{Instructions, AssemblerConfig};
 
@@ -117,6 +117,12 @@ impl std::fmt::Debug for &dyn Relocation {
     }
 }
 
+/// Generic interface representing a binary executable.
+///
+/// This trait provides a unified interface across multiple binary formats
+/// such as ELF, PE, Mach-O, and others. It enables users to access binary
+/// components like headers, sections, symbols, relocations,
+/// and functions in a format-agnostic way.
 pub trait Binary {
     #[doc(hidden)]
     fn as_generic(&self) -> &ffi::AbstractBinary;
@@ -132,6 +138,11 @@ pub trait Binary {
     /// Default base address where the binary should be mapped
     fn imagebase(&self) -> u64 {
         self.as_generic().imagebase()
+    }
+
+    /// Size of the binary when mapped in memory
+    fn virtual_size(&self) -> u64 {
+        self.as_generic().virtual_size()
     }
 
     /// Whether the current binary is **an executable** and **position independent**
@@ -167,7 +178,7 @@ pub trait Binary {
         into_optional(self.as_generic().debug_info())
     }
 
-    /// Disassemble code starting a the given virtual address and with the given
+    /// Disassemble code starting at the given virtual address and with the given
     /// size.
     ///
     /// ```
@@ -249,13 +260,48 @@ pub trait Binary {
     fn page_size(&self) -> u64 {
         self.as_generic().page_size()
     }
+
+    /// Load and associate an external debug file (e.g., DWARF or PDB) with this binary.
+    ///
+    /// This method attempts to load the debug information from the file located at the given path,
+    /// and binds it to the current binary instance. If successful, it returns the
+    /// loaded [`crate::DebugInfo`] object.
+    ///
+    /// <div class="warning">
+    /// It is the caller's responsibility to ensure that the debug file is
+    /// compatible with the binary. Incorrect associations may lead to
+    /// inconsistent or invalid results.
+    /// </div>
+    ///
+    /// <div class="note">
+    /// This function does not verify that the debug file matches the binary's unique
+    /// identifier (e.g., build ID, GUID).
+    /// </div>
+    fn load_debug_info(&mut self, path: &std::path::Path) -> Option<crate::DebugInfo> {
+        into_optional(self.as_pin_mut_generic().load_debug_info(path.to_str().unwrap()))
+    }
 }
 
+/// This class provides a generic interface for accessing debug information
+/// from different formats such as DWARF and PDB.
+///
+/// Users can use this interface to access high-level debug features like
+/// resolving function addresses.
+///
+/// See: [`crate::pdb::DebugInfo`], [`crate::dwarf::DebugInfo`]
 pub trait DebugInfo {
     #[doc(hidden)]
     fn as_generic(&self) -> &ffi::AbstracDebugInfo;
-}
 
+    /// Attempt to resolve the address of the function specified by `name`.
+    fn find_function_address(&self, name: &str) -> Option<u64> {
+        to_opt_trait!(
+            &lief_ffi::AbstracDebugInfo::find_function_address,
+            self.as_generic(),
+            name
+        );
+    }
+}
 
 bitflags! {
     /// Flags used to characterize the semantics of the function

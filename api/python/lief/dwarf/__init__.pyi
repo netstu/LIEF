@@ -1,4 +1,5 @@
 import enum
+import os
 from typing import Iterator, Optional, Union, overload
 
 from . import (
@@ -10,7 +11,7 @@ import lief
 import lief.assembly
 
 
-def load(path: str) -> Optional[DebugInfo]: ...
+def load(path: Union[str | os.PathLike]) -> Optional[DebugInfo]: ...
 
 class Scope:
     class TYPE(enum.Enum):
@@ -134,6 +135,9 @@ class Variable:
     def is_constexpr(self) -> bool: ...
 
     @property
+    def is_stack_based(self) -> bool: ...
+
+    @property
     def debug_location(self) -> lief.debug_location_t: ...
 
     @property
@@ -141,6 +145,9 @@ class Variable:
 
     @property
     def scope(self) -> Optional[Scope]: ...
+
+    @property
+    def description(self) -> str: ...
 
 class Function:
     @property
@@ -185,12 +192,34 @@ class Function:
     @property
     def instructions(self) -> Iterator[Optional[lief.assembly.Instruction]]: ...
 
+    @property
+    def lexical_blocks(self) -> Iterator[Optional[LexicalBlock]]: ...
+
+    @property
+    def description(self) -> str: ...
+
 class Parameter:
+    class Location:
+        class Type(enum.Enum):
+            UNKNOWN = 0
+
+            REGISTER = 1
+
+        @property
+        def type(self) -> Parameter.Location.Type: ...
+
+    class RegisterLoc(Parameter.Location):
+        @property
+        def id(self) -> int: ...
+
     @property
     def name(self) -> str: ...
 
     @property
     def type(self) -> Optional[Type]: ...
+
+    @property
+    def location(self) -> Optional[Parameter.Location]: ...
 
 class CompilationUnit:
     class Language:
@@ -302,4 +331,29 @@ class Editor:
 
     def create_compilation_unit(self) -> Optional[editor.CompilationUnit]: ...
 
-    def write(self, output: str) -> None: ...
+    def write(self, output: Union[str | os.PathLike]) -> None: ...
+
+class LexicalBlock:
+    @property
+    def name(self) -> str: ...
+
+    @property
+    def description(self) -> str: ...
+
+    @property
+    def sub_blocks(self) -> Iterator[Optional[LexicalBlock]]: ...
+
+    @property
+    def addr(self) -> int | None: ...
+
+    @property
+    def size(self) -> int: ...
+
+    @property
+    def low_pc(self) -> int | None: ...
+
+    @property
+    def high_pc(self) -> int | None: ...
+
+    @property
+    def ranges(self) -> list[lief.range_t]: ...

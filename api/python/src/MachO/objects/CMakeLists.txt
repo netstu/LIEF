@@ -23,11 +23,14 @@ target_sources(pyLIEF PRIVATE
   pyFatBinary.cpp
   pyFilesetCommand.cpp
   pyFunctionStarts.cpp
+  pyFunctionVariants.cpp
+  pyFunctionVariantFixups.cpp
   pyHeader.cpp
   pyIndirectBindingInfo.cpp
   pyLinkerOptHint.cpp
   pyLoadCommand.cpp
   pyMainCommand.cpp
+  pyNoteCommand.cpp
   pyParser.cpp
   pyParserConfig.cpp
   pyRPathCommand.cpp

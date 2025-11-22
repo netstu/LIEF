@@ -43,11 +43,14 @@
 #include "LIEF/MachO/EncryptionInfo.hpp"
 #include "LIEF/MachO/ExportInfo.hpp"
 #include "LIEF/MachO/FunctionStarts.hpp"
+#include "LIEF/MachO/FunctionVariants.hpp"
+#include "LIEF/MachO/FunctionVariantFixups.hpp"
 #include "LIEF/MachO/AtomInfo.hpp"
 #include "LIEF/MachO/IndirectBindingInfo.hpp"
 #include "LIEF/MachO/LinkEdit.hpp"
 #include "LIEF/MachO/LinkerOptHint.hpp"
 #include "LIEF/MachO/MainCommand.hpp"
+#include "LIEF/MachO/NoteCommand.hpp"
 #include "LIEF/MachO/RPathCommand.hpp"
 #include "LIEF/MachO/Relocation.hpp"
 #include "LIEF/MachO/RelocationFixup.hpp"
@@ -557,6 +560,18 @@ ok_error_t Binary::shift_linkedit(size_t width) {
     two->offset(two->offset() + width);
   }
 
+  if (AtomInfo* info = atom_info()) {
+    info->data_offset(info->data_offset() + width);
+  }
+
+  if (FunctionVariants* func_variants = function_variants()) {
+    func_variants->data_offset(func_variants->data_offset() + width);
+  }
+
+  if (FunctionVariantFixups* func_variant_fixups = function_variant_fixups()) {
+    func_variant_fixups->data_offset(func_variant_fixups->data_offset() + width);
+  }
+
   linkedit->file_offset(linkedit->file_offset() + width);
   linkedit->virtual_address(linkedit->virtual_address() + width);
   for (const std::unique_ptr<Section>& section : linkedit->sections_) {
@@ -843,9 +858,33 @@ void Binary::shift_command(size_t width, uint64_t from_offset) {
     }
   }
 
+  if (AtomInfo* info = atom_info()) {
+    if (info->data_offset() > from_offset) {
+      info->data_offset(info->data_offset() + width);
+    }
+  }
+
+  if (FunctionVariants* func_variants = function_variants()) {
+    if (func_variants->data_offset() > from_offset) {
+      func_variants->data_offset(func_variants->data_offset() + width);
+    }
+  }
+
+  if (FunctionVariantFixups* func_variant_fixups = function_variant_fixups()) {
+    if (func_variant_fixups->data_offset() > from_offset) {
+      func_variant_fixups->data_offset(func_variant_fixups->data_offset() + width);
+    }
+  }
+
   for_commands<EncryptionInfo>([from_offset, width] (EncryptionInfo& enc) {
     if (enc.crypt_offset() > from_offset) {
       enc.crypt_offset(enc.crypt_offset() + width);
+    }
+  });
+
+  for_commands<NoteCommand>([from_offset, width] (NoteCommand& note) {
+    if (note.note_offset() > from_offset) {
+      note.note_offset(note.note_offset() + width);
     }
   });
 
@@ -2351,6 +2390,37 @@ const AtomInfo* Binary::atom_info() const {
   return nullptr;
 }
 
+// Notes
+// ++++++++++++++++++++++++++++++++
+Binary::it_notes Binary::notes() {
+  return {commands_, [] (const std::unique_ptr<LoadCommand>& cmd) {
+    return NoteCommand::classof(cmd.get());
+  }};
+}
+
+Binary::it_const_notes Binary::notes() const {
+  return {commands_, [] (const std::unique_ptr<LoadCommand>& cmd) {
+    return NoteCommand::classof(cmd.get());
+  }};
+}
+
+// FunctionVariants
+// ++++++++++++++++++++++++++++++++
+const FunctionVariants* Binary::function_variants() const {
+  if (const auto* cmd = get(LoadCommand::TYPE::FUNCTION_VARIANTS)) {
+    return cmd->as<const FunctionVariants>();
+  }
+  return nullptr;
+}
+
+// FunctionVariantFixups
+// ++++++++++++++++++++++++++++++++
+const FunctionVariantFixups* Binary::function_variant_fixups() const {
+  if (const auto* cmd = get(LoadCommand::TYPE::FUNCTION_VARIANT_FIXUPS)) {
+    return cmd->as<const FunctionVariantFixups>();
+  }
+  return nullptr;
+}
 
 Binary::it_bindings Binary::bindings() const {
   if (const DyldInfo* dyld = dyld_info()) {
@@ -2369,6 +2439,19 @@ Binary::it_bindings Binary::bindings() const {
   auto end = BindingInfoIterator(*this, indirect_bindings_.size());
 
   return make_range(std::move(begin), std::move(end));
+}
+
+result<uint64_t> Binary::get_function_address(const std::string& name) const {
+  const std::string alt_name = '_' + name;
+  for (const Symbol& sym : symbols()) {
+    if (sym.value() == 0) {
+      continue;
+    }
+    if (sym.name() == name || sym.name() == alt_name) {
+      return sym.value();
+    }
+  }
+  return LIEF::Binary::get_function_address(name);
 }
 
 void Binary::accept(LIEF::Visitor& visitor) const {

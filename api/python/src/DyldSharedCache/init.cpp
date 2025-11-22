@@ -4,6 +4,7 @@
 
 #include <nanobind/stl/string.h>
 #include <nanobind/stl/unique_ptr.h>
+#include "nanobind/extra/stl/pathlike.h"
 
 namespace LIEF::dsc {
 class DyldSharedCache;
@@ -15,6 +16,7 @@ class MappingInfo;
 namespace LIEF::dsc::py {
 void init(nb::module_& m) {
   nb::module_ mod = m.def_submodule("dsc");
+  init_utils(m);
 
   mod.def("enable_cache", nb::overload_cast<>(&enable_cache),
     R"doc(
@@ -46,7 +48,7 @@ void init(nb::module_& m) {
     )doc"_doc
   );
 
-  mod.def("enable_cache", nb::overload_cast<const std::string&>(&enable_cache),
+  mod.def("enable_cache", [] (nb::PathLike path) { return enable_cache(path); },
     R"doc(
     Same behavior as the other :meth:`~.enable_cache` function but using a
     user-provided cache directory instead of an inferred one.

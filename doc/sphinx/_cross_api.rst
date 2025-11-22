@@ -67,6 +67,14 @@
     :py:class:`lief.objc.DeclOpt`
     :cpp:struct:`LIEF::objc::DeclOpt`
 
+.. DebugInfo ===================================================================
+
+.. |lief-debug-info-find_function_address| lief-api:: lief.DebugInfo.find_function_address()
+
+    :rust:method:`lief::generic::DebugInfo::find_function_address [trait]`
+    :py:meth:`lief.DebugInfo.find_function_address`
+    :cpp:func:`LIEF::DebugInfo::find_function_address`
+
 .. DWARF =======================================================================
 
 .. |lief-dwarf-binary-debug-info| lief-api:: lief.Binary.debug_info()
@@ -148,6 +156,48 @@
     :py:class:`lief.dwarf.editor.Type`
     :cpp:class:`LIEF::dwarf::editor::Type`
 
+.. |lief-dwarf-variable| lief-api:: lief.dwarf.Variable
+
+    :rust:struct:`lief::dwarf::Variable`
+    :py:class:`lief.dwarf.Variable`
+    :cpp:class:`LIEF::dwarf::Variable`
+
+
+.. |lief-dwarf-lexical-block| lief-api:: lief.dwarf.LexicalBlock
+
+    :rust:struct:`lief::dwarf::LexicalBlock`
+    :py:class:`lief.dwarf.LexicalBlock`
+    :cpp:class:`LIEF::dwarf::LexicalBlock`
+
+.. |lief-dwarf-function-description| lief-api:: lief.dwarf.Function.description()
+
+    :rust:method:`lief::dwarf::Function::description [struct]`
+    :cpp:func:`LIEF::dwarf::Function::description`
+    :py:attr:`lief.dwarf.Function.description`
+
+.. |lief-dwarf-variable-description| lief-api:: lief.dwarf.Variable.description()
+
+    :rust:method:`lief::dwarf::Variable::description [struct]`
+    :cpp:func:`LIEF::dwarf::Variable::description`
+    :py:attr:`lief.dwarf.Variable.description`
+
+.. |lief-dwarf-lexical-block-description| lief-api:: lief.dwarf.LexicalBlock.description()
+
+    :rust:method:`lief::dwarf::LexicalBlock::description [struct]`
+    :cpp:func:`LIEF::dwarf::LexicalBlock::description`
+    :py:attr:`lief.dwarf.LexicalBlock.description`
+
+.. |lief-dwarf-editor-Function-lexical-block| lief-api:: lief.dwarf.editor.Function.LexicalBlock
+
+    :rust:struct:`lief::dwarf::editor::function::LexicalBlock`
+    :py:class:`lief.dwarf.editor.Function.LexicalBlock`
+    :cpp:class:`LIEF::dwarf::editor::Function::LexicalBlock`
+
+.. |lief-dwarf-types-Enum-entries| lief-api:: lief.dwarf.types.Enum.entries()
+
+    :rust:method:`lief::dwarf::types::Enum::entries [struct]`
+    :cpp:func:`LIEF::dwarf::types::Enum::entries`
+    :py:attr:`lief.dwarf.types.Enum.entries`
 
 .. PDB =========================================================================
 
@@ -181,6 +231,11 @@
     :py:attr:`lief.pdb.CompilationUnit.build_metadata`
     :cpp:func:`LIEF::pdb::CompilationUnit::build_metadata`
 
+.. |lief-pdb-is_pdb| lief-api:: lief.pdb.is_pdb
+
+    :rust:func:`lief::pdb::is_pdb`
+    :py:meth:`lief.is_pdb`
+    :cpp:func:`bool LIEF::pdb::is_pdb(const std::std::string &)`
 
 .. PE ==========================================================================
 
@@ -242,6 +297,12 @@
     :rust:enum:`lief::pe::CHPEMetadata`
     :py:class:`lief.PE.CHPEMetadata`
     :cpp:class:`LIEF::PE::CHPEMetadata`
+
+.. |lief-pe-chpe_metadata-arm64| lief-api:: lief.PE.CHPEMetadataARM64
+
+    :rust:struct:`lief::pe::chpe_metadata_arm64::CHPEMetadata`
+    :py:class:`lief.PE.CHPEMetadataARM64`
+    :cpp:class:`LIEF::PE::CHPEMetadataARM64`
 
 .. |lief-pe-dynamic-relocation| lief-api:: lief.PE.DynamicRelocation
 
@@ -590,6 +651,12 @@
     :py:attr:`lief.Binary.page_size`
     :cpp:func:`LIEF::Binary::page_size`
 
+.. |lief-abstract-binary-load_debug_info| lief-api:: lief.abstract.Binary.load_debug_info()
+
+    :rust:method:`lief::generic::Binary::load_debug_info [trait]`
+    :py:meth:`lief.Binary.load_debug_info`
+    :cpp:func:`LIEF::Binary::load_debug_info`
+
 .. ELF =========================================================================
 
 .. |lief-elf-symbol-demangled_name| lief-api:: lief.ELF.Symbol.demangled_name()
@@ -852,6 +919,24 @@
     :py:class:`lief.MachO.RPathCommand`
     :cpp:class:`LIEF::MachO::RPathCommand`
 
+.. |lief-macho-note-command| lief-api:: lief.MachO.Note
+
+    :rust:struct:`lief::macho::commands::Note`
+    :py:class:`lief.MachO.NoteCommand`
+    :cpp:class:`LIEF::MachO::NoteCommand`
+
+.. |lief-macho-function-variants-command| lief-api:: lief.MachO.FunctionVariants
+
+    :rust:struct:`lief::macho::commands::FunctionVariants`
+    :py:class:`lief.MachO.FunctionVariants`
+    :cpp:class:`LIEF::MachO::FunctionVariants`
+
+.. |lief-macho-function-variant-fixups-command| lief-api:: lief.MachO.FunctionVariantFixups
+
+    :rust:struct:`lief::macho::commands::FunctionVariantFixups`
+    :py:class:`lief.MachO.FunctionVariantFixups`
+    :cpp:class:`LIEF::MachO::FunctionVariantFixups`
+
 .. dyld shared cache ===========================================================
 
 .. |lief-dsc-load| lief-api:: lief.dsc.load()
@@ -1003,6 +1088,11 @@
     :py:func:`lief.COFF.parse`
     :cpp:func:`LIEF::COFF::Parser::parse`
 
+.. |lief-coff-section-coff_string| lief-api:: lief.COFF.Section.coff_string
+
+    :rust:method:`lief::coff::Section::coff_string [struct]`
+    :py:attr:`lief.COFF.Section.coff_string`
+    :cpp:func:`LIEF::COFF::Section::coff_string`
 
 .. |lief-coff-Binary| lief-api:: lief.COFF.Binary
 

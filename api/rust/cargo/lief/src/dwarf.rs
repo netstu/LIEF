@@ -24,6 +24,7 @@
 //! ```
 
 use lief_ffi as ffi;
+use std::path::Path;
 
 pub mod debug_info;
 pub mod compilation_unit;
@@ -33,6 +34,7 @@ pub mod types;
 pub mod scope;
 pub mod parameters;
 pub mod editor;
+pub mod lexical_block;
 
 use crate::common::into_optional;
 
@@ -60,7 +62,10 @@ pub use editor::Editor;
 #[doc(inline)]
 pub use parameters::{Parameter, Parameters};
 
+#[doc(inline)]
+pub use lexical_block::LexicalBlock;
+
 /// Load a DWARF from its file path
-pub fn load(path: &str) -> Option<DebugInfo> {
-    into_optional(ffi::DWARF_DebugInfo::from_file(path))
+pub fn load<P: AsRef<Path>>(path: P) -> Option<DebugInfo<'static>> {
+    into_optional(ffi::DWARF_DebugInfo::from_file(path.as_ref().to_str().unwrap()))
 }

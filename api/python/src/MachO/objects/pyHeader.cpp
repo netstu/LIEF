@@ -50,6 +50,10 @@ void create<Header>(nb::module_& m) {
     .value(PY_ENUM(Header::CPU_TYPE::ALPHA))
     .value(PY_ENUM(Header::CPU_TYPE::POWERPC))
     .value(PY_ENUM(Header::CPU_TYPE::POWERPC64))
+    .value(PY_ENUM(Header::CPU_TYPE::APPLE_GPU))
+    .value(PY_ENUM(Header::CPU_TYPE::AMD_GPU))
+    .value(PY_ENUM(Header::CPU_TYPE::INTEL_GPU))
+    .value(PY_ENUM(Header::CPU_TYPE::AIR64))
   #undef PY_ENUM
   ;
 
@@ -67,6 +71,9 @@ void create<Header>(nb::module_& m) {
     .value(PY_ENUM(Header::FILE_TYPE::DYLIB_STUB))
     .value(PY_ENUM(Header::FILE_TYPE::DSYM))
     .value(PY_ENUM(Header::FILE_TYPE::KEXT_BUNDLE))
+    .value(PY_ENUM(Header::FILE_TYPE::FILESET))
+    .value(PY_ENUM(Header::FILE_TYPE::GPU_EXECUTE))
+    .value(PY_ENUM(Header::FILE_TYPE::GPU_DYLIB))
   #undef PY_ENUM
   ;
 
@@ -98,6 +105,10 @@ void create<Header>(nb::module_& m) {
     .value(PY_ENUM(Header::FLAGS::HAS_TLV_DESCRIPTORS))
     .value(PY_ENUM(Header::FLAGS::NO_HEAP_EXECUTION))
     .value(PY_ENUM(Header::FLAGS::APP_EXTENSION_SAFE))
+    .value(PY_ENUM(Header::FLAGS::NLIST_OUTOFSYNC_WITH_DYLDINFO))
+    .value(PY_ENUM(Header::FLAGS::SIM_SUPPORT))
+    .value(PY_ENUM(Header::FLAGS::IMPLICIT_PAGEZERO))
+    .value(PY_ENUM(Header::FLAGS::DYLIB_IN_CACHE))
   #undef PY_ENUM
   ;
 

@@ -18,6 +18,7 @@
 #include "LIEF/PDB/Function.hpp"
 #include "LIEF/PDB/BuildMetadata.hpp"
 #include "LIEF/PDB/Type.hpp"
+#include "LIEF/PDB/utils.hpp"
 
 #include "LIEF/PDB/types/Simple.hpp"
 #include "LIEF/PDB/types/Array.hpp"
@@ -102,6 +103,18 @@ DebugInfo::find_public_symbol(const std::string&) const {
 std::unique_ptr<DebugInfo> DebugInfo::from_file(const std::string&) {
   LIEF_ERR(DEBUG_FMT_NOT_SUPPORTED);
   return nullptr;
+}
+
+optional<uint64_t> DebugInfo::find_function_address(const std::string& /*name*/) const {
+  return nullopt();
+}
+
+// ----------------------------------------------------------------------------
+// PDB/Utils.hpp
+// ----------------------------------------------------------------------------
+bool is_pdb(const std::string& /*path*/) {
+  LIEF_ERR(DEBUG_FMT_NOT_SUPPORTED);
+  return false;
 }
 
 // ----------------------------------------------------------------------------

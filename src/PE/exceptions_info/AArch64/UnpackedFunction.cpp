@@ -19,7 +19,7 @@
 #include "LIEF/BinaryStream/BinaryStream.hpp"
 #include "LIEF/PE/exceptions_info/AArch64/UnpackedFunction.hpp"
 
-#include "PE/exceptions_info/internal_arm64.hpp"
+#include "LIEF/PE/exceptions_info/internal_arm64.hpp"
 #include "PE/exceptions_info/UnwindAArch64Decoder.hpp"
 
 #include "logging.hpp"
@@ -36,6 +36,8 @@ std::unique_ptr<UnpackedFunction> UnpackedFunction::parse(
   details::arm64_unpacked_t unpacked;
 
   LIEF_DEBUG("Parsing unpacked function 0x{:08x}", rva);
+
+  const uint64_t strm_offset = strm.pos();
 
   auto word1 = strm.read<uint32_t>();
   if (!word1) {
@@ -63,8 +65,10 @@ std::unique_ptr<UnpackedFunction> UnpackedFunction::parse(
     .E(unpacked.E())
     .epilog_cnt_offset(unpacked.epilog_count())
     .code_words(unpacked.code_words())
+    .is_extended(unpacked.is_extended())
   ;
 
+  LIEF_DEBUG("  {:{}}: {}", "Extended", WIDTH, unpacked.is_extended());
   LIEF_DEBUG("  {:{}}: 0x{:04x}", "Function RVA", WIDTH, rva);
   LIEF_DEBUG("  {:{}}: 0x{:04x}", "Function Length", WIDTH, unpacked.function_length());
   LIEF_DEBUG("  {:{}}: 0x{:04x}", "Version", WIDTH, unpacked.version());
@@ -83,6 +87,7 @@ std::unique_ptr<UnpackedFunction> UnpackedFunction::parse(
   /// is required.
   std::vector<uint32_t> scopes;
   if (unpacked.E() == 0) {
+    func->epilog_scopes_offset_ = strm.pos() - strm_offset;
     if (!strm.read_objects(scopes, ecount)) {
       LIEF_DEBUG("Can't read #{} epilog scopes", ecount);
       return func;
@@ -95,15 +100,18 @@ std::unique_ptr<UnpackedFunction> UnpackedFunction::parse(
     );
   }
 
-  std::vector<uint8_t> unwind_bytecode;
-  if (!strm.read_data(unwind_bytecode, unpacked.code_words() * sizeof(uint32_t))) {
-    LIEF_DEBUG("Can't read unwind bytecode");
-    return func;
+  {
+    func->unwind_code_offset_ = strm.pos() - strm_offset;
+    std::vector<uint8_t> unwind_bytecode;
+    if (!strm.read_data(unwind_bytecode, unpacked.code_words() * sizeof(uint32_t))) {
+      LIEF_DEBUG("Can't read unwind bytecode");
+      return func;
+    }
+    func->unwind_code(std::move(unwind_bytecode));
   }
 
-  func->unwind_code(std::move(unwind_bytecode));
-
   if (unpacked.X()) {
+    func->exception_handler_offset_ = strm.pos() - strm_offset;
     auto ehandler_rva = strm.read<uint32_t>();
     if (!ehandler_rva) {
       LIEF_DEBUG("Can't read Exception Handler RVA");

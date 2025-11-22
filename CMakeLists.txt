@@ -35,8 +35,8 @@ elseif(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/.git"
        AND IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/.git" AND Git_FOUND)
   include(LIEFGit)
 else()
-  set(LIEF_VERSION_MAJOR 0)
-  set(LIEF_VERSION_MINOR 17)
+  set(LIEF_VERSION_MAJOR 1)
+  set(LIEF_VERSION_MINOR 0)
   set(LIEF_VERSION_PATCH 0)
 endif()
 
@@ -147,6 +147,9 @@ target_compile_definitions(LIB_LIEF PRIVATE
 
 if(WIN32 AND BUILD_SHARED_LIBS)
   target_link_libraries(LIB_LIEF PRIVATE ws2_32)
+  if (LIEF_IMPORT_SUFFIX)
+    set_target_properties(LIB_LIEF PROPERTIES IMPORT_SUFFIX "${LIEF_IMPORT_SUFFIX}")
+  endif()
 endif()
 
 if(MSVC)

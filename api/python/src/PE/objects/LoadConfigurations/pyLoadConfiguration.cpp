@@ -76,6 +76,9 @@ void create<LoadConfiguration>(nb::module_& m) {
       ENTRY(RF_STRICT)
       ENTRY(RETPOLINE_PRESENT)
       ENTRY(EH_CONTINUATION_TABLE_PRESENT)
+      ENTRY(XFG_ENABLED)
+      ENTRY(CASTGUARD_PRESENT)
+      ENTRY(MEMCPY_PRESENT)
     #undef ENTRY
   ;
 
@@ -225,7 +228,7 @@ void create<LoadConfiguration>(nb::module_& m) {
 
     .def_prop_rw("editlist",
       nb::overload_cast<>(&LoadConfiguration::editlist, nb::const_),
-      nb::overload_cast<uint32_t>(&LoadConfiguration::editlist),
+      nb::overload_cast<uint64_t>(&LoadConfiguration::editlist),
       "Reserved for use by the system."_doc, nb::rv_policy::reference_internal
     )
 
@@ -503,6 +506,10 @@ void create<LoadConfiguration>(nb::module_& m) {
     .def_prop_rw("guard_memcpy_function_pointer",
       nb::overload_cast<>(&LoadConfiguration::guard_memcpy_function_pointer, nb::const_),
       nb::overload_cast<uint64_t>(&LoadConfiguration::guard_memcpy_function_pointer))
+
+    .def_prop_rw("uma_function_pointers",
+      nb::overload_cast<>(&LoadConfiguration::uma_function_pointers, nb::const_),
+      nb::overload_cast<uint64_t>(&LoadConfiguration::uma_function_pointers))
 
   LIEF_COPYABLE(LoadConfiguration)
   LIEF_DEFAULT_STR(LoadConfiguration);

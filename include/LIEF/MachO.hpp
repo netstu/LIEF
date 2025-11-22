@@ -20,8 +20,8 @@
 
 #if defined(LIEF_MACHO_SUPPORT)
 
-#include "LIEF/MachO/Binary.hpp"
 #include "LIEF/MachO/AtomInfo.hpp"
+#include "LIEF/MachO/Binary.hpp"
 #include "LIEF/MachO/BinaryParser.hpp"
 #include "LIEF/MachO/BindingInfo.hpp"
 #include "LIEF/MachO/BindingInfoIterator.hpp"
@@ -48,12 +48,15 @@
 #include "LIEF/MachO/FatBinary.hpp"
 #include "LIEF/MachO/FilesetCommand.hpp"
 #include "LIEF/MachO/FunctionStarts.hpp"
+#include "LIEF/MachO/FunctionVariants.hpp"
+#include "LIEF/MachO/FunctionVariantFixups.hpp"
 #include "LIEF/MachO/Header.hpp"
 #include "LIEF/MachO/IndirectBindingInfo.hpp"
 #include "LIEF/MachO/LinkEdit.hpp"
 #include "LIEF/MachO/LinkerOptHint.hpp"
 #include "LIEF/MachO/LoadCommand.hpp"
 #include "LIEF/MachO/MainCommand.hpp"
+#include "LIEF/MachO/NoteCommand.hpp"
 #include "LIEF/MachO/Parser.hpp"
 #include "LIEF/MachO/ParserConfig.hpp"
 #include "LIEF/MachO/RPathCommand.hpp"

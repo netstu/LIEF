@@ -44,10 +44,13 @@
 #include "LIEF/MachO/EncryptionInfo.hpp"
 #include "LIEF/MachO/FilesetCommand.hpp"
 #include "LIEF/MachO/FunctionStarts.hpp"
+#include "LIEF/MachO/FunctionVariants.hpp"
+#include "LIEF/MachO/FunctionVariantFixups.hpp"
 #include "LIEF/MachO/IndirectBindingInfo.hpp"
 #include "LIEF/MachO/LinkEdit.hpp"
 #include "LIEF/MachO/LinkerOptHint.hpp"
 #include "LIEF/MachO/MainCommand.hpp"
+#include "LIEF/MachO/NoteCommand.hpp"
 #include "LIEF/MachO/RPathCommand.hpp"
 #include "LIEF/MachO/Relocation.hpp"
 #include "LIEF/MachO/RelocationDyld.hpp"
@@ -184,6 +187,12 @@ ok_error_t BinaryParser::parse() {
   }
   if (AtomInfo* info = binary_->atom_info()) {
     post_process<MACHO_T>(*info);
+  }
+  if (FunctionVariants* variants = binary_->function_variants()) {
+    post_process<MACHO_T>(*variants);
+  }
+  if (FunctionVariantFixups* fixups = binary_->function_variant_fixups()) {
+    post_process<MACHO_T>(*fixups);
   }
 
   if (binary_->dyld_info() == nullptr &&
@@ -819,7 +828,6 @@ ok_error_t BinaryParser::parse_load_commands() {
           /*
            * DO NOT FORGET TO UPDATE SegmentSplitInfo::classof
            */
-          //static constexpr uint8_t DYLD_CACHE_ADJ_V2_FORMAT = 0x7F;
           LIEF_DEBUG("[+] Parsing LC_SEGMENT_SPLIT_INFO");
           const auto cmd = stream_->peek<details::linkedit_data_command>(loadcommands_offset);
           if (!cmd) {
@@ -827,29 +835,6 @@ ok_error_t BinaryParser::parse_load_commands() {
             break;
           }
           load_command = std::make_unique<SegmentSplitInfo>(*cmd);
-          //const uint32_t start = cmd->dataoff;
-          //const uint32_t size  = cmd->datasize;
-
-          //load_command = std::unique_ptr<LoadCommand>{new LoadCommand{&command}};
-
-          //const size_t saved_pos = stream_->pos();
-          //stream_->setpos(start);
-
-          //// 1. Type
-          //uint8_t kind = stream_->peek<uint8_t>();
-          //if (kind == DYLD_CACHE_ADJ_V2_FORMAT) {
-          //  std::cout  << "V2 Format" << '\n';
-          //} else {
-          //  std::cout  << "V1 Format" << '\n';
-          //  while (stream_->pos() < (start + size)) {
-          //    uint8_t kind = stream_->read<uint8_t>();
-          //    uint64_t cache_offset = 0;
-          //    while (uint64_t delta = stream_->read_uleb128()) {
-          //      cache_offset += delta;
-          //    }
-          //  }
-          //}
-          //stream_->setpos(saved_pos);
           break;
 
         }
@@ -1104,6 +1089,46 @@ ok_error_t BinaryParser::parse_load_commands() {
           } else {
             LIEF_ERR("Can't parse linkedit_data_command for LC_LINKER_OPTIMIZATION_HINT");
           }
+          break;
+        }
+
+      case LoadCommand::TYPE::NOTE:
+        {
+          if (const auto cmd = stream_->peek<details::note_command>(loadcommands_offset)) {
+            load_command = std::make_unique<NoteCommand>(*cmd);
+          } else {
+            LIEF_ERR("Can't parse note_command for LC_NOTE");
+          }
+          break;
+        }
+
+      case LoadCommand::TYPE::FUNCTION_VARIANTS:
+        {
+          /*
+           * DO NOT FORGET TO UPDATE FunctionVariants::classof
+           */
+          LIEF_DEBUG("[+] Parsing LC_FUNCTION_VARIANTS");
+          const auto cmd = stream_->peek<details::linkedit_data_command>(loadcommands_offset);
+          if (!cmd) {
+            LIEF_ERR("Can't parse linkedit_data_command for LC_FUNCTION_VARIANTS");
+            break;
+          }
+          load_command = std::make_unique<FunctionVariants>(*cmd);
+          break;
+        }
+
+      case LoadCommand::TYPE::FUNCTION_VARIANT_FIXUPS:
+        {
+          /*
+           * DO NOT FORGET TO UPDATE FunctionVariantFixups::classof
+           */
+          LIEF_DEBUG("[+] Parsing LC_FUNCTION_VARIANT_FIXUPS");
+          const auto cmd = stream_->peek<details::linkedit_data_command>(loadcommands_offset);
+          if (!cmd) {
+            LIEF_ERR("Can't parse linkedit_data_command for LC_FUNCTION_VARIANT_FIXUPS");
+            break;
+          }
+          load_command = std::make_unique<FunctionVariantFixups>(*cmd);
           break;
         }
 
@@ -2945,6 +2970,27 @@ result<uint64_t> BinaryParser::next_chain(uint64_t& chain_address, uint64_t chai
         chain_address += delta;
         return chain.next * stride;
       }
+
+    case DYLD_CHAINED_PTR_FORMAT::PTR_ARM64E_SEGMENTED:
+      {
+        details::dyld_chained_ptr_arm64e_segmented_rebase chain;
+
+        if (auto res = stream_->peek<decltype(chain)>(chain_offset)) {
+          chain = *res;
+        } else {
+          LIEF_ERR("Can't read the dyld chain at 0x{:x}", chain_offset);
+          return make_error_code(res.error());
+        }
+
+        if (chain.next == 0) {
+          return CHAIN_END;
+        }
+
+        int32_t delta = chain.next * stride - chain_offset;
+        chain_address += delta;
+        return chain.next * stride;
+      }
+
     default:
       {
         LIEF_ERR("Unknown pointer format: 0x{:04x}", seg_info.pointer_format);
@@ -3025,6 +3071,24 @@ ok_error_t BinaryParser::process_fixup(SegmentCommand& segment,
                   "the attached binary", to_string(ptr_fmt));
         return make_error_code(lief_errors::not_implemented);
       }
+    case LIEF::MachO::DYLD_CHAINED_PTR_FORMAT::PTR_ARM64E_SEGMENTED:
+      {
+        details::dyld_chained_ptr_arm64e_segmented fixup;
+        if (auto res = stream_->peek<decltype(fixup)>(chain_offset)) {
+          fixup = *res;
+        } else {
+          LIEF_ERR("Can't read the dyld chain at 0x{:x}", chain_offset);
+          return make_error_code(res.error());
+        }
+
+        auto is_ok = do_chained_fixup(segment, chain_address, chain_offset, seg_info, fixup);
+        if (!is_ok) {
+          LIEF_WARN("Can't process the fixup {} - 0x{:x}", segment.name(), chain_offset);
+          return make_error_code(is_ok.error());
+        }
+        return ok();
+      }
+
     default:
       {
         LIEF_ERR("Unknown pointer format: 0x{:04x}", seg_info.pointer_format);
@@ -3353,6 +3417,15 @@ ok_error_t BinaryParser::do_chained_fixup(SegmentCommand& segment,
 
   segment.relocations_.push_back(std::move(reloc));
   return ok();
+}
+
+ok_error_t BinaryParser::do_chained_fixup(
+    SegmentCommand& /*segment*/, uint64_t /*chain_address*/, uint32_t /*chain_offset*/,
+    const details::dyld_chained_starts_in_segment& /*seg_info*/,
+    const details::dyld_chained_ptr_arm64e_segmented& /*fixup*/)
+{
+  LIEF_ERR("Segmented chained rebase is not supported");
+  return make_error_code(lief_errors::not_supported);
 }
 
 
@@ -3879,6 +3952,77 @@ ok_error_t BinaryParser::parse_data_in_code(DataInCode& cmd, BinaryStream& strea
     }
     cmd.add(*entry);
   }
+  return ok();
+}
+
+template<class MACHO_T>
+ok_error_t BinaryParser::post_process(FunctionVariants& cmd) {
+  LIEF_DEBUG("[^] Post processing LC_FUNCTION_VARIANTS");
+
+  SegmentCommand* linkedit = config_.from_dyld_shared_cache ?
+                             binary_->get_segment("__LINKEDIT") :
+                             binary_->segment_from_offset(cmd.data_offset());
+
+  if (linkedit == nullptr) {
+    LIEF_WARN("Can't find the segment that contains the LC_FUNCTION_VARIANTS (offset=0x{:016x})", cmd.data_offset());
+    return make_error_code(lief_errors::not_found);
+  }
+
+  span<uint8_t> content = linkedit->writable_content();
+
+  const uint64_t rel_offset = cmd.data_offset() - linkedit->file_offset();
+  if (rel_offset > content.size() || (rel_offset + cmd.data_size()) > content.size()) {
+    LIEF_ERR("The LC_FUNCTION_VARIANTS is out of bounds of the segment '{}'", linkedit->name());
+    return make_error_code(lief_errors::read_out_of_bound);
+  }
+
+  cmd.content_ = content.subspan(rel_offset, cmd.data_size());
+
+  if (LinkEdit::segmentof(*linkedit)) {
+    static_cast<LinkEdit*>(linkedit)->func_variants_ = &cmd;
+  } else {
+    LIEF_WARN("Weird: LC_FUNCTION_VARIANTS is not in the __LINKEDIT segment ({})", linkedit->name());
+  }
+
+  SpanStream stream(cmd.content_);
+  stream.set_endian_swap(stream_->should_swap());
+  cmd.runtime_table_ = FunctionVariants::parse_payload(stream);
+  return ok();
+}
+
+template<class MACHO_T>
+ok_error_t BinaryParser::post_process(FunctionVariantFixups& cmd) {
+  LIEF_DEBUG("[^] Post processing LC_FUNCTION_VARIANT_FIXUPS");
+
+  SegmentCommand* linkedit = config_.from_dyld_shared_cache ?
+                             binary_->get_segment("__LINKEDIT") :
+                             binary_->segment_from_offset(cmd.data_offset());
+
+  if (linkedit == nullptr) {
+    LIEF_WARN("Can't find the segment that contains the LC_FUNCTION_VARIANT_FIXUPS (offset=0x{:016x})", cmd.data_offset());
+    return make_error_code(lief_errors::not_found);
+  }
+
+  span<uint8_t> content = linkedit->writable_content();
+
+  const uint64_t rel_offset = cmd.data_offset() - linkedit->file_offset();
+  if (rel_offset > content.size() || (rel_offset + cmd.data_size()) > content.size()) {
+    LIEF_ERR("The LC_FUNCTION_VARIANT_FIXUPS is out of bounds of the segment '{}'", linkedit->name());
+    return make_error_code(lief_errors::read_out_of_bound);
+  }
+
+  cmd.content_ = content.subspan(rel_offset, cmd.data_size());
+
+  if (LinkEdit::segmentof(*linkedit)) {
+    static_cast<LinkEdit*>(linkedit)->func_variant_fixups_ = &cmd;
+  } else {
+    LIEF_WARN("Weird: LC_FUNCTION_VARIANT_FIXUPS is not in the __LINKEDIT segment ({})", linkedit->name());
+  }
+
+  SpanStream stream(cmd.content_);
+  stream.set_endian_swap(stream_->should_swap());
+  // TODO
+
   return ok();
 }
 

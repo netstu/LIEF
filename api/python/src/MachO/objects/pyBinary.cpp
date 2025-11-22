@@ -21,6 +21,7 @@
 #include <nanobind/stl/string.h>
 #include <nanobind/stl/unique_ptr.h>
 #include "nanobind/extra/stl/lief_span.h"
+#include "nanobind/extra/stl/pathlike.h"
 #include "nanobind/extra/random_access_iterator.hpp"
 
 #include "LIEF/MachO/Binary.hpp"
@@ -41,10 +42,13 @@
 #include "LIEF/MachO/EncryptionInfo.hpp"
 #include "LIEF/MachO/ExportInfo.hpp"
 #include "LIEF/MachO/FunctionStarts.hpp"
+#include "LIEF/MachO/FunctionVariants.hpp"
+#include "LIEF/MachO/FunctionVariantFixups.hpp"
 #include "LIEF/MachO/LinkEdit.hpp"
 #include "LIEF/MachO/LinkerOptHint.hpp"
 #include "LIEF/MachO/AtomInfo.hpp"
 #include "LIEF/MachO/MainCommand.hpp"
+#include "LIEF/MachO/NoteCommand.hpp"
 #include "LIEF/MachO/Routine.hpp"
 #include "LIEF/MachO/RPathCommand.hpp"
 #include "LIEF/MachO/Relocation.hpp"
@@ -88,6 +92,7 @@ void create<Binary>(nb::module_& m) {
   init_ref_iterator<Binary::it_relocations>(bin, "it_relocations");
   init_ref_iterator<Binary::it_rpaths>(bin, "it_rpaths");
   init_ref_iterator<Binary::it_sub_clients>(bin, "it_sub_clients");
+  init_ref_iterator<Binary::it_notes>(bin, "it_notes");
 
   nb::class_<Binary::range_t>(bin, "range_t")
     .def_rw("start", &Binary::range_t::start)
@@ -462,6 +467,24 @@ void create<Binary>(nb::module_& m) {
         "Return the binary's " RST_CLASS_REF(lief.MachO.AtomInfo) " if any, or None"_doc,
         nb::rv_policy::reference_internal)
 
+    .def_prop_ro("has_function_variants",
+        &Binary::has_function_variants,
+        "``True`` if the binary has a ``LC_FUNCTION_VARIANTS`` command"_doc)
+
+    .def_prop_ro("function_variants",
+        nb::overload_cast<>(&Binary::function_variants),
+        "Return ``LC_FUNCTION_VARIANTS`` command"_doc,
+        nb::rv_policy::reference_internal)
+
+    .def_prop_ro("has_function_variant_fixups",
+        &Binary::has_function_variants,
+        "``True`` if the binary has a ``LC_FUNCTION_VARIANT_FIXUPS`` command"_doc)
+
+    .def_prop_ro("function_variant_fixups",
+        nb::overload_cast<>(&Binary::function_variants),
+        "Return ``LC_FUNCTION_VARIANT_FIXUPS`` command"_doc,
+        nb::rv_policy::reference_internal)
+
     .def("virtual_address_to_offset",
         [] (const Binary& self, uint64_t va) {
           return error_or(&Binary::virtual_address_to_offset, self, va);
@@ -509,13 +532,15 @@ void create<Binary>(nb::module_& m) {
         "address"_a)
 
     .def("write",
-        nb::overload_cast<const std::string&>(&Binary::write),
+        [] (Binary& self, nb::PathLike path) { return self.write(path); },
         "Rebuild the binary and write its content in the file given in the first parameter"_doc,
         "output"_a,
         nb::rv_policy::reference_internal)
 
     .def("write",
-        nb::overload_cast<const std::string&, Builder::config_t>(&Binary::write),
+        [] (Binary& self, nb::PathLike path, const Builder::config_t& config) {
+          return self.write(path, config);
+        },
         R"doc(
         Rebuild the binary and write its content in the file given in the first parameter.
         The ``config`` parameter can be used to tweak the building process.
@@ -777,6 +802,14 @@ void create<Binary>(nb::module_& m) {
         This is only available with the extended version of LIEF.
       )doc"_doc
     )
+
+    .def_prop_ro("notes",
+        nb::overload_cast<>(&Binary::notes),
+        "Iterator over the different ``LC_NOTE`` commands"_doc,
+        nb::keep_alive<0, 1>())
+
+    .def_prop_ro("has_notes", &Binary::has_notes,
+      "True if the binary contains ``LC_NOTE`` command(s)")
 
     .def("__getitem__",
         nb::overload_cast<LoadCommand::TYPE>(&Binary::operator[]),

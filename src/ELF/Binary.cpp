@@ -942,7 +942,7 @@ result<uint64_t> Binary::get_function_address(const std::string& func_name) cons
     return *res;
   }
 
-  return make_error_code(lief_errors::not_found);
+  return LIEF::Binary::get_function_address(func_name);;
 }
 
 result<uint64_t> Binary::get_function_address(const std::string& func_name, bool demangled) const {
@@ -984,7 +984,10 @@ result<uint64_t> Binary::get_function_address(const std::string& func_name, bool
       });
 
   if (it_symtab != symtab_symbols_.end()) {
-    return (*it_symtab)->value();
+    uint64_t value = (*it_symtab)->value();
+    if (value > 0) {
+      return value;
+    }
   }
   return make_error_code(lief_errors::not_found);
 
@@ -1644,13 +1647,13 @@ bool Binary::has_interpreter() const {
   return it_segment_interp != std::end(segments_) && !interpreter_.empty();
 }
 
-void Binary::write(const std::string& filename, Builder::config_t config) {
+void Binary::write(const std::string& filename, const Builder::config_t& config) {
   Builder builder{*this, config};
   builder.build();
   builder.write(filename);
 }
 
-void Binary::write(std::ostream& os, Builder::config_t config) {
+void Binary::write(std::ostream& os, const Builder::config_t& config) {
   Builder builder{*this, config};
   builder.build();
   builder.write(os);
@@ -2553,12 +2556,13 @@ uint64_t Binary::relocate_phdr_table_auto() {
 
   const bool has_phdr_s = has(Segment::TYPE::PHDR);
   const bool has_interp_s = has(Segment::TYPE::INTERP);
+  const bool has_soname = has(DynamicEntry::TAG::SONAME);
   const bool is_dyn = header_.file_type() == Header::FILE_TYPE::DYN;
   const bool is_exec = header_.file_type() == Header::FILE_TYPE::EXEC;
   const bool has_ep = entrypoint() > 0;
 
   uint64_t offset = 0;
-  if (is_dyn && (has_phdr_s || has_interp_s)) {
+  if (is_dyn && (has_phdr_s || has_interp_s || has_soname)) {
     if (offset = relocate_phdr_table_pie(); offset > 0) {
       return offset;
     }

@@ -1,4 +1,3 @@
-
 /* Copyright 2017 - 2025 R. Thomas
  * Copyright 2017 - 2025 Quarkslab
  *
@@ -20,13 +19,15 @@
 
 #include <nanobind/stl/string.h>
 #include <nanobind/stl/vector.h>
+#include "nanobind/extra/stl/pathlike.h"
 
 namespace LIEF::COFF::py {
 
 void init_utils(nb::module_& m) {
   lief_mod->def("is_coff",
-      nb::overload_cast<const std::string&>(&is_coff),
-      "Check if the given file is a COFF"_doc,
-      "file"_a);
+    [] (nb::PathLike path) { return is_coff(path); },
+    "Check if the given file is a COFF"_doc,
+    "file"_a
+  );
 }
 }

@@ -47,6 +47,10 @@ fn explore_macho(_: &str, macho: &lief::macho::Binary) {
         format!("{func:?}");
     }
 
+    for note in macho.notes() {
+        format!("{note:?}");
+    }
+
     for section in macho.sections() {
         format!("{section:?}");
         format!("{:?}", section.segment());
@@ -134,6 +138,20 @@ fn explore_macho(_: &str, macho: &lief::macho::Binary) {
                 }
                 for export in cmd.exports() {
                     format!("{:?}", export);
+                }
+            }
+
+            Commands::Note(note) => {
+                println!("Note {note:?}");
+            }
+
+            Commands::FunctionVariants(func) => {
+                println!("{func:?}");
+                for runtime_table in func.runtime_table() {
+                    println!("{runtime_table:?} {runtime_table}");
+                    for entry in runtime_table.entries() {
+                        println!("{entry:?} {entry}")
+                    }
                 }
             }
 
@@ -334,6 +352,8 @@ fn test_api() {
     test_with("libadd_unknown_cmd.so");
     test_with("StocksAnalytics");
     test_with("liblog_srp.dylib");
+    test_with("binary.metallib");
+    test_with("variants_alt.dylib");
     test_with_fullpath("CoreFoundation", "private/MachO/CoreFoundation");
 }
 

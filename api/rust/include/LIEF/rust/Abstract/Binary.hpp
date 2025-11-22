@@ -61,6 +61,7 @@ class AbstractBinary : public Mirror<LIEF::Binary> {
 
   uint64_t entrypoint() const { return get().entrypoint(); }
   uint64_t imagebase() const { return get().imagebase(); }
+  uint64_t virtual_size() const { return get().virtual_size(); }
   uint64_t original_size() const { return get().original_size(); }
   bool is_pie() const { return get().is_pie(); }
   bool has_nx() const { return get().has_nx(); }
@@ -109,6 +110,10 @@ class AbstractBinary : public Mirror<LIEF::Binary> {
     std::unique_ptr<LIEF::assembly::AssemblerConfig> config = from_rust(ffi_config);
     assert(config != nullptr);
     return get().assemble(address, Asm, *config);
+  }
+
+  auto load_debug_info(std::string file) {
+    return details::try_unique<AbstracDebugInfo>(get().load_debug_info(file));
   }
 
   uint64_t page_size() const {

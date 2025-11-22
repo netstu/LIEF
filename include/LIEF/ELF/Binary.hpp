@@ -524,7 +524,7 @@ class LIEF_API Binary : public LIEF::Binary {
   uint64_t imagebase() const override;
 
   /// Return the size of the mapped binary
-  uint64_t virtual_size() const;
+  uint64_t virtual_size() const override;
 
   /// Check if the binary uses a loader (also named linker or interpreter)
   /// @see interpreter
@@ -739,7 +739,7 @@ class LIEF_API Binary : public LIEF::Binary {
   ///
   /// @param filename Path for the written ELF binary
   /// @param config   Builder configuration
-  void write(const std::string& filename, Builder::config_t config);
+  void write(const std::string& filename, const Builder::config_t& config);
 
   /// Reconstruct the binary object and write it in `os` stream
   ///
@@ -755,7 +755,7 @@ class LIEF_API Binary : public LIEF::Binary {
   ///
   /// @param os     Output stream for the written ELF binary
   /// @param config Builder configuration
-  void write(std::ostream& os, Builder::config_t config);
+  void write(std::ostream& os, const Builder::config_t& config);
 
   /// Reconstruct the binary object and return its content as a byte vector
   std::vector<uint8_t> raw();

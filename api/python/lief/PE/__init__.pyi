@@ -882,6 +882,8 @@ class ExportEntry(lief.Symbol):
     @property
     def demangled_name(self) -> str: ...
 
+    def set_forward_info(self, lib: str, function: str) -> None: ...
+
     def __str__(self) -> str: ...
 
 class TLS(lief.Object):
@@ -1090,6 +1092,9 @@ class ExceptionInfo:
 
     @property
     def rva_start(self) -> int: ...
+
+    @property
+    def offset(self) -> int: ...
 
     def copy(self) -> Optional[ExceptionInfo]: ...
 
@@ -3069,7 +3074,7 @@ class Signature(lief.Object):
 
     @overload
     @staticmethod
-    def parse(path: str) -> Optional[Signature]: ...
+    def parse(path: Union[str | os.PathLike]) -> Optional[Signature]: ...
 
     @overload
     @staticmethod
@@ -3576,6 +3581,15 @@ class CHPEMetadataARM64(CHPEMetadata):
 
         def __next__(self) -> CHPEMetadataARM64.redirection_entry_t: ...
 
+    class it_code_range_entry_point:
+        def __getitem__(self, arg: int, /) -> CHPEMetadataARM64.code_range_entry_point_t: ...
+
+        def __len__(self) -> int: ...
+
+        def __iter__(self) -> CHPEMetadataARM64.it_code_range_entry_point: ...
+
+        def __next__(self) -> CHPEMetadataARM64.code_range_entry_point_t: ...
+
     class range_entry_t:
         class TYPE(enum.Enum):
             ARM64 = 0
@@ -3601,6 +3615,13 @@ class CHPEMetadataARM64(CHPEMetadata):
         src: int
 
         dst: int
+
+    class code_range_entry_point_t:
+        start_rva: int
+
+        end_rva: int
+
+        entrypoint: int
 
     code_map: int
 
@@ -3651,6 +3672,9 @@ class CHPEMetadataARM64(CHPEMetadata):
 
     @property
     def redirections(self) -> CHPEMetadataARM64.it_redirection_entries: ...
+
+    @property
+    def code_range_entry_point(self) -> CHPEMetadataARM64.it_code_range_entry_point: ...
 
 class CHPEMetadataX86(CHPEMetadata):
     chpe_code_address_range_offset: int
@@ -4122,6 +4146,12 @@ class LoadConfiguration(lief.Object):
 
         EH_CONTINUATION_TABLE_PRESENT = 4194304
 
+        XFG_ENABLED = 8388608
+
+        CASTGUARD_PRESENT = 16777216
+
+        MEMCPY_PRESENT = 33554432
+
     characteristics: int
 
     size: int
@@ -4258,6 +4288,8 @@ class LoadConfiguration(lief.Object):
     cast_guard_os_determined_failure_mode: int | None
 
     guard_memcpy_function_pointer: int | None
+
+    uma_function_pointers: int | None
 
     def copy(self) -> LoadConfiguration: ...
 
@@ -4572,10 +4604,10 @@ class Binary(lief.Binary):
     def is_arm64x(self) -> bool: ...
 
     @overload
-    def write(self, output_path: str) -> Optional[Builder]: ...
+    def write(self, output_path: Union[str | os.PathLike]) -> None: ...
 
     @overload
-    def write(self, output_path: str, config: Builder.config_t) -> Optional[Builder]: ...
+    def write(self, output_path: Union[str | os.PathLike], config: Builder.config_t) -> None: ...
 
     @overload
     def write_to_bytes(self, config: Builder.config_t) -> bytes: ...
@@ -4666,7 +4698,7 @@ class IMPHASH_MODE(enum.Enum):
 def oid_to_string(arg: str, /) -> str: ...
 
 @overload
-def get_type(file: str) -> Union[PE_TYPE, lief.lief_errors]: ...
+def get_type(file: Union[str | os.PathLike]) -> Union[PE_TYPE, lief.lief_errors]: ...
 
 @overload
 def get_type(raw: Sequence[int]) -> Union[PE_TYPE, lief.lief_errors]: ...

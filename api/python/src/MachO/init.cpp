@@ -39,12 +39,15 @@
 #include <LIEF/MachO/FatBinary.hpp>
 #include <LIEF/MachO/FilesetCommand.hpp>
 #include <LIEF/MachO/FunctionStarts.hpp>
+#include <LIEF/MachO/FunctionVariants.hpp>
+#include <LIEF/MachO/FunctionVariantFixups.hpp>
 #include <LIEF/MachO/AtomInfo.hpp>
 #include <LIEF/MachO/Header.hpp>
 #include <LIEF/MachO/IndirectBindingInfo.hpp>
 #include <LIEF/MachO/LinkerOptHint.hpp>
 #include <LIEF/MachO/LoadCommand.hpp>
 #include <LIEF/MachO/MainCommand.hpp>
+#include <LIEF/MachO/NoteCommand.hpp>
 #include <LIEF/MachO/Parser.hpp>
 #include <LIEF/MachO/ParserConfig.hpp>
 #include <LIEF/MachO/RPathCommand.hpp>
@@ -87,6 +90,7 @@ void init_objects(nb::module_& m) {
   CREATE(SegmentCommand, m);
   CREATE(Section, m);
   CREATE(MainCommand, m);
+  CREATE(NoteCommand, m);
   CREATE(DynamicSymbolCommand, m);
   CREATE(DylinkerCommand, m);
   CREATE(DyldInfo, m);
@@ -104,6 +108,8 @@ void init_objects(nb::module_& m) {
   CREATE(DyldBindingInfo, m);
   CREATE(ExportInfo, m);
   CREATE(FunctionStarts, m);
+  CREATE(FunctionVariants, m);
+  CREATE(FunctionVariantFixups, m);
   CREATE(AtomInfo, m);
   CREATE(CodeSignature, m);
   CREATE(CodeSignatureDir, m);

@@ -105,7 +105,20 @@ class Dynamic(lief.dwarf.Type):
     pass
 
 class Enum(lief.dwarf.Type):
-    pass
+    class Entry:
+        @property
+        def name(self) -> str: ...
+
+        @property
+        def value(self) -> int | None: ...
+
+    @property
+    def entries(self) -> list[Enum.Entry]: ...
+
+    @property
+    def underlying_type(self) -> lief.dwarf.Type: ...
+
+    def find_entry(self, value: int) -> Enum.Entry | None: ...
 
 class File(lief.dwarf.Type):
     pass
@@ -148,6 +161,9 @@ class StringTy(lief.dwarf.Type):
     pass
 
 class Subroutine(lief.dwarf.Type):
+    @property
+    def return_type(self) -> Optional[lief.dwarf.Type]: ...
+
     @property
     def parameters(self) -> list[Optional[lief.dwarf.Parameter]]: ...
 

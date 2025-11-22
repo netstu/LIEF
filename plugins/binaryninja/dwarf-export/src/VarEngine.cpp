@@ -14,8 +14,8 @@
  */
 #include <LIEF/DWARF/editor/Variable.hpp>
 
-#include "VarEngine.hpp"
-#include "TypeEngine.hpp"
+#include "binaryninja/dwarf-export/VarEngine.hpp"
+#include "binaryninja/dwarf-export/TypeEngine.hpp"
 
 #include "binaryninja/api_compat.hpp"
 
@@ -32,6 +32,7 @@ dw::Variable* VarEngine::add_variable(const bn::DataVariable& var) {
   if (auto it = vars_.find(var.address); it != vars_.end()) {
     return it->second.get();
   }
+
 
   std::string name = fmt::format("data_{:04x}", var.address);
   bool is_external = false;
@@ -54,7 +55,13 @@ dw::Variable* VarEngine::add_variable(const bn::DataVariable& var) {
   std::unique_ptr<dw::Variable> dw_var = unit_.create_variable(name);
 
   dw_var->set_addr(var.address);
-  dw_var->set_type(types_.add_type(var.type->GetTypeName(), api_compat::get_type(var.type)));
+  dw_var->set_type(types_.add_type(api_compat::get_type(var.type)));
+
+
+  std::string comment = bv_.GetCommentForAddress(var.address);
+  if (!comment.empty()) {
+    dw_var->add_description(comment);
+  }
 
   if (is_external) {
     dw_var->set_external();

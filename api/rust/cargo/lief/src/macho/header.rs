@@ -19,6 +19,9 @@ pub enum FileType {
     DYLIB_STUB,
     DSYM,
     KEXT_BUNDLE,
+    FILESET,
+    GPU_EXECUTE,
+    GPU_DYLIB,
     UNKNOWN(u32),
 }
 
@@ -36,6 +39,9 @@ impl From<u32> for FileType {
             0x00000009 => FileType::DYLIB_STUB,
             0x0000000a => FileType::DSYM,
             0x0000000b => FileType::KEXT_BUNDLE,
+            0x0000000c => FileType::FILESET,
+            0x0000000d => FileType::GPU_EXECUTE,
+            0x0000000e => FileType::GPU_DYLIB,
             _ => FileType::UNKNOWN(value),
 
         }
@@ -55,7 +61,10 @@ impl From<FileType> for u32 {
             FileType::DYLIB_STUB => 0x00000009,
             FileType::DSYM => 0x0000000a,
             FileType::KEXT_BUNDLE => 0x0000000b,
-            FileType::UNKNOWN(_) => 0xFF,
+            FileType::FILESET => 0x0000000c,
+            FileType::GPU_EXECUTE => 0x0000000d,
+            FileType::GPU_DYLIB => 0x0000000e,
+            FileType::UNKNOWN(value) => value,
         }
     }
 }
@@ -78,6 +87,10 @@ pub enum CpuType {
     ALPHA,
     POWERPC,
     POWERPC64,
+    APPLE_GPU,
+    AMD_GPU,
+    INTEL_GPU,
+    AIR64,
     UNKNOWN(i32),
 }
 
@@ -98,6 +111,10 @@ impl From<i32> for CpuType {
             0x00000010 => CpuType::ALPHA,
             0x00000012 => CpuType::POWERPC,
             0x01000012 => CpuType::POWERPC64,
+            0x01000013 => CpuType::APPLE_GPU,
+            0x01000014 => CpuType::AMD_GPU,
+            0x01000015 => CpuType::INTEL_GPU,
+            0x01000017 => CpuType::AIR64,
             _ => CpuType::UNKNOWN(value),
 
         }
@@ -120,6 +137,10 @@ impl From<CpuType> for i32 {
             CpuType::ALPHA => 0x00000010,
             CpuType::POWERPC => 0x00000012,
             CpuType::POWERPC64 => 0x01000012,
+            CpuType::APPLE_GPU => 0x01000013,
+            CpuType::AMD_GPU => 0x01000014,
+            CpuType::INTEL_GPU => 0x01000015,
+            CpuType::AIR64 => 0x01000017,
             CpuType::UNKNOWN(_) => -1,
         }
     }
@@ -155,6 +176,10 @@ bitflags! {
         const HAS_TLV_DESCRIPTORS = 0x800000;
         const NO_HEAP_EXECUTION = 0x1000000;
         const APP_EXTENSION_SAFE = 0x2000000;
+        const NLIST_OUTOFSYNC_WITH_DYLDINFO = 0x04000000;
+        const SIM_SUPPORT = 0x08000000;
+        const IMPLICIT_PAGEZERO = 0x10000000;
+        const DYLIB_IN_CACHE = 0x80000000;
     }
 }
 

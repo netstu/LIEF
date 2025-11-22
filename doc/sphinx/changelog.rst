@@ -3,8 +3,47 @@
 :fa:`solid fa-code-compare` Changelog
 =====================================
 
-0.17.0 - Not Released Yet
--------------------------
+1.0.0 - Not Released Yet
+------------------------
+
+:BinaryNinja:
+
+  * Add :ref:`Android JNI Analyzer <plugins-binaryninja-analyzers-android-jni>`
+
+:DWARF:
+
+  * Add support to access Enum entries: |lief-dwarf-types-Enum-entries|
+  * Add support to read or assign a register to a function's parameter
+  * Add support to read or assign a description (``DW_AT_description``) to
+    a |lief-dwarf-function|, |lief-dwarf-variable|, |lief-dwarf-lexical-block|:
+
+    - |lief-dwarf-function-description|
+    - |lief-dwarf-variable-description|
+    - |lief-dwarf-lexical-block-description|
+
+  * Add support created nested |lief-dwarf-editor-Function-lexical-block|
+
+
+:COFF:
+
+  * Add |lief-coff-section-coff_string| for accessing the full section name when
+    this name does not fit in 8 bytes.
+
+0.17.1 - October 25th, 2025
+---------------------------
+
+:ELF:
+
+  * Fix :issue:`1251`
+
+:Compilation:
+
+  * Fix missing visibility (:pr:`1254`)
+  * Fix incorrect paging computations that occurred when only a subset of formats was enabled.
+  * Fix include issue with the COFF format
+
+0.17.0 - September 14th, 2025
+-----------------------------
 
 .. admonition:: BinaryNinja & Ghidra Plugins
   :class: tip
@@ -27,6 +66,21 @@
   * Add support for :ref:`Contextual Assembly Patching <extended-assembler-contextual-patching>`
 
 :DSC:
+
+  * Add enum for the latest dyld shared cache version introducing
+    changes in the header layout (``dyld-1284.13 - 2025-04-25``)
+
+    .. code-block:: diff
+
+         uint64_t    dynamicDataOffset;
+         uint64_t    dynamicDataMaxSize;
+         uint32_t    tproMappingsOffset;
+         uint32_t    tproMappingsCount;
+      +  uint64_t    functionVariantInfoAddr;
+      +  uint64_t    functionVariantInfoSize;
+      +  uint64_t    prewarmingDataOffset;
+      +  uint64_t    prewarmingDataSize;
+      };
 
   * Add enum for the latest dyld shared cache version introducing
     changes in the header layout (``dyld-1231.3 - 2024-09-24``)
@@ -53,6 +107,9 @@
 
 :Mach-O:
 
+  * Initial support for |lief-macho-function-variants-command| and
+    |lief-macho-function-variant-fixups-command| commands (``LC_FUNCTION_VARIANTS, LC_FUNCTION_VARIANT_FIXUPS``)
+  * Add support for |lief-macho-note-command| command (``LC_NOTE``)
   * Add support for |lief-macho-atom-info| command (``LC_ATOM_INFO``)
   * Add support for modifying Mach-O commands that embed variable-length data
     (:issue:`1204`, :issue:`1125`). See: :ref:`RPath and Library Path Modification <format-macho-rpath>`.
@@ -152,6 +209,7 @@
 
 :PDB:
 
+  * Add |lief-pdb-is_pdb|
   * Add support for CodeView symbols: ``S_COMPILE3, S_COMPILE2, S_BUILDINFO, S_ENVBLOCK``.
     These symbols are exposed through the interface |lief-pdb-buildmetadata|,
     which can be accessed using |lief-pdb-compilationunit-buildmetadata|.
@@ -207,12 +265,17 @@
 :Abstraction:
 
   * Expose |lief-abstract-binary-page_size|
+  * Add |lief-abstract-binary-load_debug_info| to attach an external debug file
+    to a |lief-abstract-binary|. See these sections for more details:
+    :ref:`DWARF: Loading an external debug file <extended-dwarf-load-ext>`
+    :ref:`PDB: Loading an external debug file <extended-pdb-load-ext>`
+  * Add |lief-debug-info-find_function_address|
 
 :Extended:
 
   * Fix issue in the Python bindings while trying to access ``lief.__LIEF_MAIN_COMMIT__``
   * Fix CMake issue with ``find_package(lief-extended)``
-  * Use LLVM 20.1.7
+  * Use LLVM ``21.1.x``
 
 :Build System:
 
@@ -221,13 +284,37 @@
 
 :Dependencies:
 
-  * Move to spdlog ``1.15.1``
+  * Move to tl-expected ``1.2.0``
+  * Move to utfcpp ``4.0.6``
+  * Move to mbedtls ``3.6.4``
+  * Move to spdlog ``1.15.3``
   * Move to ``nlohmann/json`` ``3.12.0``
-  * Upgrade nanobind to version ``v2.6.x``
+  * Upgrade nanobind to version ``v2.8.x``
 
 :Utilities:
 
   * Add |lief-dump|
+
+0.16.7 - October 5th, 2025
+--------------------------
+
+:Python:
+
+  * Add wheels for Python 3.14
+
+:Mach-O:
+
+  * Fix ``has_nx`` (:pr:`1218`)
+  * Fix :issue:`1228`
+
+:ELF:
+
+  * Fix :issue:`1241`
+
+:Other:
+
+  * :pr:`1220`
+
 
 0.16.6 - May 29th, 2025
 -----------------------

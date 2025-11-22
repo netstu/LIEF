@@ -31,7 +31,7 @@ namespace unwind_aarch64 {
 class LIEF_API UnpackedFunction : public RuntimeFunctionAArch64 {
   public:
 
-  /// This strucure describes an epilog scope.
+  /// This structure describes an epilog scope.
   struct epilog_scope_t {
     static epilog_scope_t from_raw(uint32_t raw);
     /// Offset of the epilog relatives to the start of the function
@@ -125,6 +125,23 @@ class LIEF_API UnpackedFunction : public RuntimeFunctionAArch64 {
     return unwind_code_;
   }
 
+  /// Whether it uses 2-words encoding
+  bool is_extended() const {
+    return is_extended_;
+  }
+
+  uint64_t epilog_scopes_offset() const {
+    return epilog_scopes_offset_;
+  }
+
+  uint64_t unwind_code_offset() const {
+    return unwind_code_offset_;
+  }
+
+  uint64_t exception_handler_offset() const {
+    return exception_handler_offset_;
+  }
+
   /// Iterator over the epilog scopes
   it_epilog_scopes epilog_scopes() {
     return epilog_scopes_;
@@ -179,6 +196,11 @@ class LIEF_API UnpackedFunction : public RuntimeFunctionAArch64 {
     return *this;
   }
 
+  UnpackedFunction& is_extended(bool value) {
+    is_extended_ = value;
+    return *this;
+  }
+
   static bool classof(const ExceptionInfo* info) {
     if (!RuntimeFunctionAArch64::classof(info)) {
       return false;
@@ -201,6 +223,11 @@ class LIEF_API UnpackedFunction : public RuntimeFunctionAArch64 {
 
   epilog_scopes_t epilog_scopes_;
   std::vector<uint8_t> unwind_code_;
+  bool is_extended_ = false;
+
+  uint64_t epilog_scopes_offset_ = 0;
+  uint64_t unwind_code_offset_ = 0;
+  uint64_t exception_handler_offset_ = 0;
 };
 }
 }
