@@ -665,6 +665,10 @@ result<uint64_t> ClassLike::Member::bit_offset() const {
   return make_error_code(lief_errors::not_implemented);
 }
 
+result<uint64_t> ClassLike::Member::bit_size() const {
+  return make_error_code(lief_errors::not_implemented);
+}
+
 bool ClassLike::Member::is_external() const {
   return false;
 }
@@ -939,6 +943,10 @@ std::unique_ptr<Editor> Editor::from_binary(LIEF::Binary& /*bin*/) {
   return nullptr;
 }
 
+std::unique_ptr<Editor> Editor::create(FORMAT /*fmt*/, ARCH /*arch*/) {
+  logging::needs_lief_extended();
+  return nullptr;
+}
 
 std::unique_ptr<editor::CompilationUnit> Editor::create_compilation_unit() {
   return nullptr;
@@ -1244,10 +1252,16 @@ StructType& StructType::set_size(uint64_t /*size*/) {
   return *this;
 }
 
-/// Add a member to the current struct-like
 std::unique_ptr<StructType::Member>
   StructType::add_member(const std::string& /*name*/, const Type& /*type*/,
                          int64_t /*offset*/)
+{
+  return nullptr;
+}
+
+std::unique_ptr<StructType::Member>
+  StructType::add_bitfield(const std::string& /*name*/, const Type& /*type*/,
+                           uint64_t /*bitsize*/, int64_t /*bitoffset*/)
 {
   return nullptr;
 }

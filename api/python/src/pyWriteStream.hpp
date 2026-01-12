@@ -1,4 +1,4 @@
-/* Copyright 2022 - 2025 R. Thomas
+/* Copyright 2017 - 2025 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,23 +12,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package lief.dwarf.editor;
+#ifndef PY_LIEF_WRITERSTREAM_INIT_H
+#define PY_LIEF_WRITERSTREAM_INIT_H
+#include "pyLIEF.hpp"
 
-public class Variable extends lief.Base {
-    @Override
-    protected native void destroy();
-
-    private Variable(long impl) {
-        super(impl);
-    }
-
-    public native Variable setAddr(long addr);
-
-    public native Variable setStackOffset(long offset);
-
-    public native Variable setExternal();
-
-    public native Variable setType(Type ty);
-
-    public native Variable addDescription(String desc);
-};
+namespace LIEF::py {
+void init_writerstream(nb::module_& m);
+}
+#endif
