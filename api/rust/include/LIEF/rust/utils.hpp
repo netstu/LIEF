@@ -1,4 +1,4 @@
-/* Copyright 2022 - 2025 R. Thomas
+/* Copyright 2022 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,8 +13,9 @@
  * limitations under the License.
  */
 #pragma once
-#include "LIEF/utils.hpp"
 #include "LIEF/rust/error.hpp"
+#include "LIEF/rust/helpers.hpp"
+#include "LIEF/utils.hpp"
 
 class LIEFVersion {
   public:
@@ -28,12 +29,13 @@ inline bool is_extended() {
   return LIEF::is_extended();
 }
 
-inline std::string demangle(std::string mangled, uint32_t& err) {
-  return details::make_error<std::string>(LIEF::demangle(mangled), err);
+inline auto demangle(const std::string& mangled, uint32_t& err) {
+  return to_unique_string(details::make_error<std::string>(LIEF::demangle(mangled),
+                                                           err));
 }
 
-inline std::string extended_version_info() {
-  return LIEF::extended_version_info();
+inline auto extended_version_info() {
+  return to_unique_string(LIEF::extended_version_info());
 }
 
 inline LIEFVersion extended_version() {
@@ -45,12 +47,11 @@ inline LIEFVersion version() {
   auto version = LIEF::version();
   return {version.major, version.minor, version.patch, version.id};
 }
-
-inline std::string dump(const uint8_t* buffer, size_t size) {
-  return LIEF::dump(buffer, size);
+inline auto dump(const uint8_t* buffer, size_t size) {
+  return to_unique_string(LIEF::dump(buffer, size));
 }
 
-inline std::string dump_with_limit(const uint8_t* buffer, size_t size,
-                                   uint64_t limit) {
-  return LIEF::dump(buffer, size, /*title=*/"", /*prefix=*/"", limit);
+inline auto dump_with_limit(const uint8_t* buffer, size_t size, uint64_t limit) {
+  return to_unique_string(LIEF::dump(buffer, size, /*title=*/"", /*prefix=*/"",
+                                     limit));
 }

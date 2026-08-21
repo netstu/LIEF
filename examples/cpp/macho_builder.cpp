@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@
 
 using namespace LIEF;
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   std::cout << "MachO Rebuilder" << '\n';
   if (argc != 3) {
     std::cerr << "Usage: " << argv[0] << " <Input Binary> <Output Binary>" << "\n";

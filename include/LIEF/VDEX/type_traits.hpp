@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,20 +15,20 @@
  */
 #ifndef LIEF_VDEX_TYPE_TRAITS_H
 #define LIEF_VDEX_TYPE_TRAITS_H
-#include <cstdint>
+#include "LIEF/DEX/deopt.hpp"
 #include <unordered_map>
-#include <LIEF/DEX/deopt.hpp>
+#include <cstdint>
 
 namespace LIEF {
 namespace DEX {
 class File;
-} // namespace DEX
+}
 
 namespace VDEX {
 using vdex_version_t = uint32_t;
 using dex2dex_info_t = std::unordered_map<const DEX::File*, DEX::dex2dex_info_t>;
-} // namespace VDEX
-} // namespace LIEF
+}
+}
 
 
 #endif

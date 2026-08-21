@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,7 +58,7 @@ void init_utils(nb::module_& m) {
         return error_or(static_cast<result<PE_TYPE> (*)(const std::string&)>(&get_type), file);
       },
       R"delim(
-      If the input file is a a valid ``PE``, return the :class:`~.lief.PE.PE_TYPE`.
+      If the input file is a valid ``PE``, return the :class:`~.lief.PE.PE_TYPE`.
       Otherwise, return a :class:`lief.lief_errors`.
       )delim"_doc,
       "file"_a);
@@ -78,7 +78,7 @@ void init_utils(nb::module_& m) {
       Properties of the hash generated:
 
         * Order agnostic
-        * Casse agnostic
+        * Case agnostic
         * Ordinal (**in some extent**) agnostic
 
       If one needs the same output as Virus Total (i.e. pefile), you can use :attr:`~lief.PE.IMPHASH_MODE.PEFILE`

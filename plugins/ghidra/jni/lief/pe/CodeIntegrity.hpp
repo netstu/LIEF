@@ -1,4 +1,4 @@
-/* Copyright 2022 - 2025 R. Thomas
+/* Copyright 2022 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,24 +16,24 @@
 
 #include <jni_bind.h>
 
-#include "jni/mirror.hpp"
 #include "jni/canbe_unique.hpp"
+#include "jni/mirror.hpp"
 
 #include <LIEF/PE/CodeIntegrity.hpp>
 
 namespace lief_jni::pe {
 
-class CodeIntegrity : public JNI<
-  CodeIntegrity, canbe_unique<LIEF::PE::CodeIntegrity>>
-{
+class CodeIntegrity
+  : public JNI<CodeIntegrity, canbe_unique<LIEF::PE::CodeIntegrity>> {
   public:
   using lief_t = LIEF::PE::CodeIntegrity;
 
-  static constexpr jni::Class kClass {
-    "lief/pe/CodeIntegrity",
-    jni::Constructor{ jlong{} },
-    jni::Field { "impl", jlong{}, }
-  };
+  static constexpr jni::Class kClass{"lief/pe/CodeIntegrity",
+                                     jni::Constructor{jlong{}},
+                                     jni::Field{
+                                         "impl",
+                                         jlong{},
+                                     }};
 
   static int register_natives(JNIEnv* env);
 

@@ -1,4 +1,4 @@
-/* Copyright 2024 - 2025 R. Thomas
+/* Copyright 2024 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,11 +17,13 @@
 #include "LIEF/COFF/AuxiliarySymbols/AuxiliaryCLRToken.hpp"
 #include "LIEF/rust/COFF/AuxiliarySymbol.hpp"
 #include "LIEF/rust/COFF/Symbol.hpp"
+#include "LIEF/rust/Span.hpp"
 
 class COFF_AuxiliaryCLRToken : public COFF_AuxiliarySymbol {
   public:
   using lief_t = LIEF::COFF::AuxiliaryCLRToken;
-  COFF_AuxiliaryCLRToken(const lief_t& obj) : COFF_AuxiliarySymbol(obj) {}
+  COFF_AuxiliaryCLRToken(const lief_t& obj) :
+    COFF_AuxiliarySymbol(obj) {}
 
   auto aux_type() const {
     return impl().aux_type();
@@ -43,10 +45,12 @@ class COFF_AuxiliaryCLRToken : public COFF_AuxiliarySymbol {
     return make_span(impl().rgb_reserved());
   }
 
-  static bool classof(const COFF_AuxiliarySymbol& entry) {
+  static auto classof(const COFF_AuxiliarySymbol& entry) {
     return lief_t::classof(&entry.get());
   }
 
   private:
-  const lief_t& impl() const { return as<lief_t>(this); }
+  const lief_t& impl() const {
+    return as<lief_t>(this);
+  }
 };

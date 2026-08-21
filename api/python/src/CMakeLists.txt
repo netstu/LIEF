@@ -10,6 +10,7 @@ target_sources(pyLIEF PRIVATE
   pyutils.cpp
   pyParser.cpp
   pyWriteStream.cpp
+  pyDebugDeclOpt.cpp
 )
 
 add_subdirectory(typing)
@@ -22,6 +23,8 @@ add_subdirectory(ObjC)
 add_subdirectory(DyldSharedCache)
 add_subdirectory(asm)
 add_subdirectory(BinaryStream)
+
+add_subdirectory(runtime)
 
 if(LIEF_ELF)
   add_subdirectory(ELF)

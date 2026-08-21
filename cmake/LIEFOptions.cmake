@@ -1,12 +1,8 @@
-if(__add_lief_options)
-  return()
-endif()
-set(__add_lief_options ON)
+include_guard(GLOBAL)
 include(CMakeDependentOption)
 
 option(LIEF_TESTS                      "Enable tests"                               OFF)
 option(LIEF_PYTHON_API                 "Enable Python Bindings"                     OFF)
-option(LIEF_C_API                      "C API"                                      ON)
 option(LIEF_EXAMPLES                   "Build LIEF C++ examples"                    ON)
 option(LIEF_FORCE32                    "Force build LIEF 32 bits version"           OFF)
 option(LIEF_USE_CCACHE                 "Use ccache to speed up compilation"         ON)
@@ -17,11 +13,14 @@ option(LIEF_ENABLE_JSON                "Enable JSON-related APIs"               
 option(LIEF_OPT_NLOHMANN_JSON_EXTERNAL "Use nlohmann/json externally"               OFF)
 option(LIEF_FORCE_API_EXPORTS          "Force exports of API symbols"               OFF)
 option(LIEF_PY_LIEF_EXT                "Use a pre-installed version of LIEF for the bindings" OFF)
+option(LIEF_PRECOMPILED                "Use a pre-compiled version of LIEF" OFF)
 option(LIEF_RUST_API                   "Generate the C++ bridge for Rust's cxx" OFF)
 option(LIEF_DISABLE_EXCEPTIONS         "Disable C++ exceptions on the core library" ON)
 option(LIEF_SO_VERSION                 "Embed versioning for LIEF shared library target" OFF)
+option(LIEF_COMPILE_DOC_EXAMPLES       "Compile C++ examples in doc/code/" OFF)
 
 option(LIEF_DISABLE_FROZEN "Disable Frozen even if it is supported"     OFF)
+option(LIEF_RUNTIME        "Enable runtime features" OFF)
 
 option(LIEF_ELF            "Build LIEF with ELF module"                 ON)
 option(LIEF_PE             "Build LIEF with PE module"                  ON)
@@ -45,6 +44,10 @@ if (LIEF_PE AND NOT LIEF_COFF)
   message(FATAL_ERROR "PE module requires LIEF_COFF enabled")
 endif()
 
+if (LIEF_PY_LIEF_EXT)
+  set(LIEF_PRECOMPILED ON)
+endif()
+
 cmake_dependent_option(LIEF_PYTHON_EDITABLE "Make an editable build " OFF
                        "LIEF_PYTHON_API" OFF)
 
@@ -53,6 +56,12 @@ cmake_dependent_option(LIEF_PY_LIEF_EXT_SHARED
                        "LIEF_PY_LIEF_EXT" OFF)
 
 cmake_dependent_option(LIEF_PYTHON_STATIC "Internal usage" OFF
+                       "LIEF_PYTHON_API" OFF)
+
+cmake_dependent_option(LIEF_PYTHON_STABLE_ABI "Compile LIEF Python bindings with the stable ABI" OFF
+                       "LIEF_PYTHON_API" OFF)
+
+cmake_dependent_option(LIEF_PYTHON_FREE_THREADED "Compile LIEF Python bindings with free-threading enabled" OFF
                        "LIEF_PYTHON_API" OFF)
 
 # OAT support relies on the ELF and DEX format.
@@ -75,6 +84,11 @@ option(LIEF_FUZZING "Fuzz LIEF" OFF)
 
 # Profiling
 option(LIEF_PROFILING "Enable performance profiling" OFF)
+
+# QA / Linters
+option(LIEF_CLANG_TIDY "Enable clang-tidy checks" OFF)
+cmake_dependent_option(LIEF_CLANG_TIDY_WARN_ERR
+  "Enable WarningsAsErrors when running clang-tidy" OFF "LIEF_CLANG_TIDY" OFF)
 
 # Install options
 cmake_dependent_option(LIEF_INSTALL_COMPILED_EXAMPLES "Install LIEF Compiled examples" OFF
@@ -115,6 +129,7 @@ option(LIEF_USE_MELKOR "Build Melkor for testing" ON)
 
 # This option enables the install target in the cmake
 option(LIEF_INSTALL "Generate the install target." ON)
+set(LIEF_RUNTIME_SUPPORT 0)
 
 set(LIEF_ELF_SUPPORT 0)
 set(LIEF_PE_SUPPORT 0)
@@ -143,6 +158,10 @@ set(LIEF_OBJC_SUPPORT 0)
 set(LIEF_DYLD_SHARED_CACHE_SUPPORT 0)
 set(LIEF_ASM_SUPPORT 0)
 set(LIEF_EXTENDED 0)
+
+if(LIEF_RUNTIME)
+  set(LIEF_RUNTIME_SUPPORT 1)
+endif()
 
 if(LIEF_ELF)
   set(LIEF_ELF_SUPPORT 1)
@@ -242,4 +261,8 @@ endif()
 
 if (LIEF_DEBUG_INFO OR LIEF_OBJC OR LIEF_DYLD_SHARED_CACHE OR LIEF_ASM) # or any other extended feature
   set(LIEF_EXTENDED 1)
+endif()
+
+if (LIEF_RUNTIME)
+  include(LIEFRuntime)
 endif()

@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,6 +39,19 @@ void create<Parser>(nb::module_& m) {
     R"delim(
     Parse the Mach-O binary from the address given in the first parameter
     )delim"_doc, "address"_a, "config"_a = ParserConfig::deep(),
+    nb::rv_policy::take_ownership);
+
+  m.def("parse_from_dump",
+    [] (typing::InputParser obj, uint64_t addr, const ParserConfig& config) {
+      return Parser::parse_from_dump(obj.into_stream(), addr, config);
+    },
+    R"delim(
+    Parse the Mach-O binary from a memory dump given in the first parameter.
+
+    A dump is a raw capture of the process memory that was mapped starting at
+    the virtual address given in the second parameter.
+    )delim"_doc,
+    "obj"_a, "addr"_a, "config"_a = ParserConfig::deep(),
     nb::rv_policy::take_ownership);
 
   m.def("parse",

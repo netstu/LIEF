@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 #include <string>
 #include <sstream>
 #include <nanobind/stl/string.h>
+#include <nanobind/stl/string_view.h>
 
 #include "LIEF/MachO/SubClient.hpp"
 
@@ -29,7 +30,7 @@ void create<SubClient>(nb::module_& m) {
   nb::class_<SubClient, LoadCommand>(m, "SubClient",
       R"delim(
       Class that represents the SubClient command.
-      Accodring to the Mach-O ``loader.h`` documentation:
+      According to the Mach-O ``loader.h`` documentation:
 
       > For dynamically linked shared libraries that are subframework of an umbrella
       > framework they can allow clients other than the umbrella framework or other

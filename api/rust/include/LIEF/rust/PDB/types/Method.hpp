@@ -1,4 +1,4 @@
-/* Copyright 2022 - 2025 R. Thomas
+/* Copyright 2022 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,13 +13,24 @@
  * limitations under the License.
  */
 #pragma once
-#include "LIEF/rust/Mirror.hpp"
 #include "LIEF/PDB/types/Method.hpp"
+#include "LIEF/rust/Mirror.hpp"
+#include "LIEF/rust/helpers.hpp"
 
 class PDB_types_Method : private Mirror<LIEF::pdb::types::Method> {
   public:
   using Mirror::Mirror;
   using lief_t = LIEF::pdb::types::Method;
 
-  auto name() const { return get().name(); }
+  auto name() const {
+    return to_unique_string(get().name());
+  }
+
+  auto get_type() const {
+    return as_u32(get().type());
+  }
+
+  auto access() const {
+    return to_int(get().access());
+  }
 };

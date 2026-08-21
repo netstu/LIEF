@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,14 +15,14 @@
  */
 #ifndef LIEF_ELF_NOTE_DETAILS_PROPERTIES_X86FEATURES_H
 #define LIEF_ELF_NOTE_DETAILS_PROPERTIES_X86FEATURES_H
-#include <vector>
 #include <utility>
+#include <vector>
 
 #include "LIEF/ELF/NoteDetails/NoteGnuProperty.hpp"
 #include "LIEF/visibility.h"
 
-namespace LIEF {
-namespace ELF {
+
+namespace LIEF::ELF {
 
 /// This class interfaces the different ``GNU_PROPERTY_X86_FEATURE_*``
 /// properties which includes:
@@ -31,7 +31,6 @@ namespace ELF {
 /// - ``GNU_PROPERTY_X86_FEATURE_2_NEEDED``
 class LIEF_API X86Features : public NoteGnuProperty::Property {
   public:
-
   /// Flag according to the ``_AND``, ``_USED`` or ``_NEEDED`` suffixes
   enum class FLAG {
     NONE = 0, ///< For the original ``GNU_PROPERTY_X86_FEATURE_1_AND`` property
@@ -79,17 +78,18 @@ class LIEF_API X86Features : public NoteGnuProperty::Property {
     return features_;
   }
 
-  void dump(std::ostream &os) const override;
+  void dump(std::ostream& os) const override;
 
   ~X86Features() override = default;
 
   protected:
-  inline static std::unique_ptr<X86Features> create_feat1(FLAG flag, BinaryStream& stream);
-  inline static std::unique_ptr<X86Features> create_feat2(FLAG flag, BinaryStream& stream);
+  inline static std::unique_ptr<X86Features> create_feat1(FLAG flag,
+                                                          BinaryStream& stream);
+  inline static std::unique_ptr<X86Features> create_feat2(FLAG flag,
+                                                          BinaryStream& stream);
   X86Features(features_t values) :
     NoteGnuProperty::Property(NoteGnuProperty::Property::TYPE::X86_FEATURE),
-    features_(std::move(values))
-  {}
+    features_(std::move(values)) {}
 
   features_t features_;
 };
@@ -98,6 +98,6 @@ LIEF_API const char* to_string(X86Features::FLAG flag);
 LIEF_API const char* to_string(X86Features::FEATURE feat);
 
 }
-}
+
 
 #endif

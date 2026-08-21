@@ -1,4 +1,4 @@
-/* Copyright 2022 - 2025 R. Thomas
+/* Copyright 2022 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +16,43 @@
 #include "LIEF/PDB/types/Function.hpp"
 #include "LIEF/rust/PDB/Type.hpp"
 
+#include "LIEF/rust/Iterator.hpp"
+
 class PDB_types_Function : public PDB_Type {
   public:
   using lief_t = LIEF::pdb::types::Function;
 
-  static bool classof(const PDB_Type& type) {
+  class it_parameters
+    : public ContainerIterator<PDB_Type,
+                               std::vector<std::unique_ptr<LIEF::pdb::Type>>> {
+    public:
+    using container_t = std::vector<std::unique_ptr<LIEF::pdb::Type>>;
+    it_parameters(container_t content) :
+      ContainerIterator(std::move(content)) {}
+    auto next() {
+      return ContainerIterator::next();
+    }
+    auto size() const {
+      return ContainerIterator::size();
+    }
+  };
+
+  auto return_type() const {
+    return details::try_unique<PDB_Type>(impl().return_type());
+  }
+
+  auto parameters() const {
+    return std::make_unique<it_parameters>(impl().parameters());
+  }
+
+  static auto classof(const PDB_Type& type) {
     return lief_t::classof(&type.get());
   }
 
   private:
-  const lief_t& impl() const { return as<lief_t>(this); }
+  const lief_t& impl() const {
+    return as<lief_t>(this);
+  }
 };
+
+using PDB_types_Function_it_parameters = PDB_types_Function::it_parameters;

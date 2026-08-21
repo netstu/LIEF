@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,14 +15,16 @@
  */
 #ifndef LIEF_PE_DEBUG_CODE_VIEW_PDB_H
 #define LIEF_PE_DEBUG_CODE_VIEW_PDB_H
+#include <string_view>
+
 #include "LIEF/PE/debug/CodeView.hpp"
+#include "LIEF/compiler_attributes.hpp"
 
-#include <cstdint>
 #include <array>
-#include <ostream>
+#include <cstdint>
 
-namespace LIEF {
-namespace PE {
+
+namespace LIEF::PE {
 class Parser;
 class Builder;
 
@@ -39,14 +41,12 @@ class LIEF_API CodeViewPDB : public CodeView {
   public:
   using signature_t = std::array<uint8_t, 16>;
   CodeViewPDB() :
-    CodeView(CodeView::SIGNATURES::PDB_70)
-  {}
+    CodeView(CodeView::SIGNATURES::PDB_70) {}
 
   CodeViewPDB(std::string filename) :
     CodeView(CodeView::SIGNATURES::PDB_70),
     signature_{0},
-    filename_(std::move(filename))
-  {}
+    filename_(std::move(filename)) {}
 
   CodeViewPDB(const details::pe_debug& debug_info,
               const details::pe_pdb_70& pdb_70, Section* sec);
@@ -60,12 +60,13 @@ class LIEF_API CodeViewPDB : public CodeView {
   CodeViewPDB(CodeViewPDB&& other) = default;
   CodeViewPDB& operator=(CodeViewPDB&& other) = default;
 
-  /// The GUID signature to verify against the .pdb file signature.
+  /// The GUID signature to verify against the `.pdb` file signature.
   /// This attribute might be used to lookup remote PDB file on a symbol server
   std::string guid() const;
 
   /// Age value to verify. The age does not necessarily correspond to any known
-  /// time value, it is used to determine if a .pdb file is out of sync with a corresponding .exe file.
+  /// time value, it is used to determine if a .pdb file is out of sync with
+  /// corresponding `.exe` file.
   uint32_t age() const {
     return age_;
   }
@@ -76,7 +77,7 @@ class LIEF_API CodeViewPDB : public CodeView {
   }
 
   /// The path to the `.pdb` file
-  const std::string& filename() const {
+  std::string_view filename() const LIEF_LIFETIMEBOUND {
     return filename_;
   }
 
@@ -118,6 +119,6 @@ class LIEF_API CodeViewPDB : public CodeView {
   std::string filename_;
 };
 
-} // namespace PE
-} // namespace LIEF
+}
+
 #endif

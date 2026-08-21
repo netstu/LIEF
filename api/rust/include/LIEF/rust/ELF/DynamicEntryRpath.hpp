@@ -1,4 +1,4 @@
-/* Copyright 2024 - 2025 R. Thomas
+/* Copyright 2024 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,47 +13,52 @@
  * limitations under the License.
  */
 #pragma once
-#include "LIEF/rust/ELF/DynamicEntry.hpp"
 #include "LIEF/ELF/DynamicEntryRpath.hpp"
+#include "LIEF/rust/ELF/DynamicEntry.hpp"
 
 class ELF_DynamicEntryRpath : public ELF_DynamicEntry {
   public:
   using lief_t = LIEF::ELF::DynamicEntryRpath;
 
   ELF_DynamicEntryRpath(std::unique_ptr<lief_t> impl) :
-    ELF_DynamicEntry(std::move(impl))
-  {}
+    ELF_DynamicEntry(std::move(impl)) {}
 
-  static auto create(std::string name) {
-    return std::make_unique<ELF_DynamicEntryRpath>(
-        std::make_unique<lief_t>(name)
-    );
+  static auto create(const std::string& name) {
+    return std::make_unique<ELF_DynamicEntryRpath>(std::make_unique<lief_t>(name));
   }
 
-  std::string rpath() const { return impl().rpath(); }
-  std::vector<std::string> paths() const { return impl().paths(); }
+  auto rpath() const {
+    return to_unique_string(impl().rpath());
+  }
+  auto paths() const {
+    return make_unique_vector<std::string>(impl().paths());
+  }
 
-  void insert(uint32_t pos, std::string name) {
+  auto insert(uint32_t pos, const std::string& name) {
     impl().insert(pos, name);
   }
 
-  void append(std::string name) {
+  auto append(const std::string& name) {
     impl().append(name);
   }
 
-  void remove(std::string path) {
+  auto remove(const std::string& path) {
     impl().remove(path);
   }
 
-  void set_rpath(std::string path) {
-    impl().rpath(std::move(path));
+  auto set_rpath(const std::string& path) {
+    impl().rpath(path);
   }
 
-  static bool classof(const ELF_DynamicEntry& entry) {
+  static auto classof(const ELF_DynamicEntry& entry) {
     return lief_t::classof(&entry.get());
   }
 
   private:
-  const lief_t& impl() const { return as<lief_t>(this); }
-  lief_t& impl() { return as<lief_t>(this); }
+  const lief_t& impl() const {
+    return as<lief_t>(this);
+  }
+  lief_t& impl() {
+    return as<lief_t>(this);
+  }
 };

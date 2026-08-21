@@ -1,4 +1,4 @@
-/* Copyright 2025 R. Thomas
+/* Copyright 2025 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,15 +12,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "log.hpp"
-#include "binaryninja/analysis/ELF/TypeBuilder.hpp"
-#include "binaryninja/lief_utils.hpp"
+#include "binaryninja/analysis/ELF/analyzers/AndroidPackedRelocations.hpp"
 #include "LIEF/ELF/Binary.hpp"
 #include "LIEF/ELF/Relocation.hpp"
-#include "binaryninja/analysis/ELF/analyzers/AndroidPackedRelocations.hpp"
+#include "binaryninja/analysis/ELF/TypeBuilder.hpp"
+#include "binaryninja/lief_utils.hpp"
+#include "log.hpp"
 
-#include <binaryninja/binaryninjacore.h>
 #include <binaryninja/binaryninjaapi.h>
+#include <binaryninja/binaryninjacore.h>
 
 #include "binaryninja/BNStream.hpp"
 
@@ -29,15 +29,13 @@ using namespace BinaryNinja;
 
 namespace analysis_plugin::elf::analyzers {
 
-bool AndroidPackedRelocations::can_run(BinaryNinja::BinaryView& bv, Binary& elf) {
+bool AndroidPackedRelocations::can_run(BinaryNinja::BinaryView& /*bv*/,
+                                       Binary& elf) {
   for (const DynamicEntry& DT : elf.dynamic_entries()) {
     switch (DT.tag()) {
       case DynamicEntry::TAG::ANDROID_REL:
-      case DynamicEntry::TAG::ANDROID_RELA:
-        return true;
-      default:
-        continue;
-
+      case DynamicEntry::TAG::ANDROID_RELA: return true;
+      default: continue;
     }
   }
   return false;
@@ -46,10 +44,10 @@ bool AndroidPackedRelocations::can_run(BinaryNinja::BinaryView& bv, Binary& elf)
 void AndroidPackedRelocations::process_packed(binaryninja::BNStream& stream) {
   // This function mimics LIEF::ELF::Parser::parse_packed_relocations
   // but it defines BinaryData types while processing the stream
-  static constexpr uint64_t GROUPED_BY_INFO_FLAG         = 1 << 0;
+  static constexpr uint64_t GROUPED_BY_INFO_FLAG = 1 << 0;
   static constexpr uint64_t GROUPED_BY_OFFSET_DELTA_FLAG = 1 << 1;
-  static constexpr uint64_t GROUPED_BY_ADDEND_FLAG       = 1 << 2;
-  static constexpr uint64_t GROUP_HAS_ADDEND_FLAG        = 1 << 3;
+  static constexpr uint64_t GROUPED_BY_ADDEND_FLAG = 1 << 2;
+  static constexpr uint64_t GROUP_HAS_ADDEND_FLAG = 1 << 3;
 
   const uint64_t start = stream.pos();
 
@@ -77,7 +75,7 @@ void AndroidPackedRelocations::process_packed(binaryninja::BNStream& stream) {
     nb_relocs = *value;
   }
 
-  uint64_t r_offset = 0;
+  [[maybe_unused]] uint64_t r_offset = 0;
   {
     const uint64_t pos = stream.pos();
     size_t size = 0;
@@ -89,7 +87,7 @@ void AndroidPackedRelocations::process_packed(binaryninja::BNStream& stream) {
     r_offset = *value;
   }
 
-  uint64_t addend = 0;
+  [[maybe_unused]] uint64_t addend = 0;
   size_t leb128_size = 0;
   while (nb_relocs > 0) {
     auto nb_reloc_group_r = stream.read_sleb128(&leb128_size);
@@ -97,8 +95,8 @@ void AndroidPackedRelocations::process_packed(binaryninja::BNStream& stream) {
       break;
     }
 
-    define_type_at(stream.pos() - leb128_size,
-        type_builder_.sleb128(leb128_size), "group_size");
+    define_type_at(stream.pos() - leb128_size, type_builder_.sleb128(leb128_size),
+                   "group_size");
 
     uint64_t nb_reloc_group = *nb_reloc_group_r;
 
@@ -113,22 +111,22 @@ void AndroidPackedRelocations::process_packed(binaryninja::BNStream& stream) {
       break;
     }
 
-    define_type_at(stream.pos() - leb128_size,
-        type_builder_.sleb128(leb128_size), "group_flags");
+    define_type_at(stream.pos() - leb128_size, type_builder_.sleb128(leb128_size),
+                   "group_flags");
 
     uint64_t group_flag = *group_flag_r;
 
-    const bool g_by_info         = group_flag & GROUPED_BY_INFO_FLAG;
+    const bool g_by_info = group_flag & GROUPED_BY_INFO_FLAG;
     const bool g_by_offset_delta = group_flag & GROUPED_BY_OFFSET_DELTA_FLAG;
-    const bool g_by_addend       = group_flag & GROUPED_BY_ADDEND_FLAG;
-    const bool g_has_addend      = group_flag & GROUP_HAS_ADDEND_FLAG;
+    const bool g_by_addend = group_flag & GROUPED_BY_ADDEND_FLAG;
+    const bool g_has_addend = group_flag & GROUP_HAS_ADDEND_FLAG;
 
     uint64_t group_off_delta = 0;
     if (g_by_offset_delta) {
       if (auto value = stream.read_sleb128(&leb128_size)) {
         group_off_delta = *value;
         define_type_at(stream.pos() - leb128_size,
-            type_builder_.sleb128(leb128_size), "reloc_offset");
+                       type_builder_.sleb128(leb128_size), "reloc_offset");
       }
     }
 
@@ -138,7 +136,7 @@ void AndroidPackedRelocations::process_packed(binaryninja::BNStream& stream) {
         groupr_info = *value;
 
         define_type_at(stream.pos() - leb128_size,
-            type_builder_.sleb128(leb128_size), "reloc_info");
+                       type_builder_.sleb128(leb128_size), "reloc_info");
       }
     }
 
@@ -146,7 +144,7 @@ void AndroidPackedRelocations::process_packed(binaryninja::BNStream& stream) {
       if (auto value = stream.read_sleb128(&leb128_size)) {
         addend += *value;
         define_type_at(stream.pos() - leb128_size,
-            type_builder_.sleb128(leb128_size), "reloc_addend");
+                       type_builder_.sleb128(leb128_size), "reloc_addend");
       }
     }
 
@@ -160,8 +158,8 @@ void AndroidPackedRelocations::process_packed(binaryninja::BNStream& stream) {
         if (auto value = stream.read_sleb128(&leb128_size)) {
           r_offset += *value;
           define_type_at(stream.pos() - leb128_size,
-              type_builder_.sleb128(leb128_size), fmt::format(
-                "reloc_offset_{}", i));
+                         type_builder_.sleb128(leb128_size),
+                         fmt::format("reloc_offset_{}", i));
         }
       }
 
@@ -171,8 +169,8 @@ void AndroidPackedRelocations::process_packed(binaryninja::BNStream& stream) {
           groupr_info = *value;
 
           define_type_at(stream.pos() - leb128_size,
-              type_builder_.sleb128(leb128_size), fmt::format(
-                "reloc_info_{}", i));
+                         type_builder_.sleb128(leb128_size),
+                         fmt::format("reloc_info_{}", i));
         }
       }
 
@@ -181,15 +179,17 @@ void AndroidPackedRelocations::process_packed(binaryninja::BNStream& stream) {
           addend += *value;
 
           define_type_at(stream.pos() - leb128_size,
-              type_builder_.sleb128(leb128_size), fmt::format(
-                "reloc_addend_{}", i));
+                         type_builder_.sleb128(leb128_size),
+                         fmt::format("reloc_addend_{}", i));
         }
       }
     }
   }
 }
 
-void AndroidPackedRelocations::process_packed(const LIEF::ELF::DynamicEntry& entry) {
+void AndroidPackedRelocations::process_packed(
+    const LIEF::ELF::DynamicEntry& entry
+) {
   uint64_t taddr = translate_addr(entry.value());
   auto stream = binaryninja::BNStream::from_bv(bv_);
   assert(stream != nullptr);

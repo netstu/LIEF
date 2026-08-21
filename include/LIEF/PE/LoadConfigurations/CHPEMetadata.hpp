@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,9 @@
  */
 #ifndef LIEF_PE_LOAD_CONFIGURATION_CHPE_METADATA_HEADERS_H
 #define LIEF_PE_LOAD_CONFIGURATION_CHPE_METADATA_HEADERS_H
+// IWYU pragma: begin_exports
 #include "LIEF/PE/LoadConfigurations/CHPEMetadata/Metadata.hpp"
 #include "LIEF/PE/LoadConfigurations/CHPEMetadata/MetadataARM64.hpp"
 #include "LIEF/PE/LoadConfigurations/CHPEMetadata/MetadataX86.hpp"
+// IWYU pragma: end_exports
 #endif

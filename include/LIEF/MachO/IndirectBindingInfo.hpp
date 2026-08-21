@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,24 +15,23 @@
  */
 #ifndef LIEF_MACHO_INDIRECT_BINDING_INFO_H
 #define LIEF_MACHO_INDIRECT_BINDING_INFO_H
-#include <ostream>
 #include <cstdint>
+#include <ostream>
 
-#include "LIEF/visibility.h"
 #include "LIEF/MachO/BindingInfo.hpp"
+#include "LIEF/visibility.h"
 
-namespace LIEF {
-namespace MachO {
 
-/// This class represents a binding operation infered from the indirect symbol
+namespace LIEF::MachO {
+
+/// This class represents a binding operation inferred from the indirect symbol
 /// table.
 class LIEF_API IndirectBindingInfo : public BindingInfo {
   friend class BinaryParser;
-  public:
 
+  public:
   IndirectBindingInfo(SegmentCommand& segment, Symbol& symbol, int32_t ordinal,
-                      DylibCommand* dylib, uint64_t address)
-  {
+                      DylibCommand* dylib, uint64_t address) {
     segment_ = &segment;
     symbol_ = &symbol;
     library_ordinal_ = ordinal;
@@ -56,13 +55,13 @@ class LIEF_API IndirectBindingInfo : public BindingInfo {
 
   ~IndirectBindingInfo() override = default;
 
-  LIEF_API friend
-  std::ostream& operator<<(std::ostream& os, const IndirectBindingInfo& info) {
+  LIEF_API friend std::ostream& operator<<(std::ostream& os,
+                                           const IndirectBindingInfo& info) {
     os << static_cast<const BindingInfo&>(info);
     return os;
   }
 };
 
 }
-}
+
 #endif

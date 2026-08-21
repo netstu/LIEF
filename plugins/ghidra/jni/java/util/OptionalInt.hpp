@@ -1,4 +1,4 @@
-/* Copyright 2022 - 2025 R. Thomas
+/* Copyright 2022 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,28 +19,18 @@ namespace java::util {
 
 class OptionalInt {
   public:
-  static constexpr jni::Class kClass {
-    "java/util/OptionalInt",
-    jni::Static {
-      jni::Method {
-        "empty", jni::Return{jni::Self{}}
-      },
-      jni::Method {
-        "of", jni::Return{jni::Self{}}, jni::Params {
-          jint{}
-        }
-      }
-    }
+  static constexpr jni::Class kClass{
+      "java/util/OptionalInt",
+      jni::Static{jni::Method{"empty", jni::Return{jni::Self{}}},
+                  jni::Method{"of", jni::Return{jni::Self{}}, jni::Params{jint{}}}}
   };
 
   static jobject empty() {
-    return jni::StaticRef<kClass>{}. template Call<"empty">().Release();
+    return jni::StaticRef<kClass>{}.template Call<"empty">().Release();
   }
 
   static jobject of(int32_t value) {
-    return jni::StaticRef<kClass>{}. template Call<"of">(
-        (jint)value
-    ).Release();
+    return jni::StaticRef<kClass>{}.template Call<"of">((jint)value).Release();
   }
 };
 }

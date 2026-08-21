@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,9 @@ namespace LIEF::py {
 template<class T>
 void init_ref_iterator(nanobind::handle& m, const char* it_name) {
   using ElementTy = typename T::value_type;
+
+  static nb::ft_mutex mu;
+  nb::ft_lock_guard lock(mu);
 
   if (auto type = nb::type<T>(); type.is_valid()) {
     m.attr(it_name) = type;

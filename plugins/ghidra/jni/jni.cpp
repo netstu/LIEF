@@ -1,4 +1,4 @@
-/* Copyright 2022 - 2025 R. Thomas
+/* Copyright 2022 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,33 +12,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include <jni.h>
 #include <jni_bind.h>
 #include <spdlog/logger.h>
+#include <jni.h>
 
-#include "jni/log.hpp"
 #include "jni/ghidra_logger_sink.hpp"
+#include "jni/log.hpp"
 
 #include "jni/lief/dwarf/Editor.hpp"
 #include "jni/lief/generic/jni.hpp"
 
 #include "jni/lief/elf/jni.hpp"
-#include "jni/lief/pe/jni.hpp"
 #include "jni/lief/macho/jni.hpp"
+#include "jni/lief/pe/jni.hpp"
 
 #include "jni/lief/Utils.hpp"
 
-jint JNI_OnLoad(JavaVM *vm, void *reserved) {
+jint JNI_OnLoad(JavaVM* vm, void* reserved) {
   static auto jvm = std::make_unique<jni::JvmRef<jni::kDefaultJvm>>(vm);
-  LIEF::logging::named::set_logger(GHIDRA_LIEF_LOGGER_NAME,
-    spdlog::ghidra_logger_mt(GHIDRA_LIEF_LOGGER_NAME, GHIDRA_LIEF_LOGGER_NAME)
+  LIEF::logging::named::set_logger(
+      GHIDRA_LIEF_LOGGER_NAME,
+      spdlog::ghidra_logger_mt(GHIDRA_LIEF_LOGGER_NAME, GHIDRA_LIEF_LOGGER_NAME)
   );
 
-  LIEF::logging::named::set_level(
-    GHIDRA_LIEF_LOGGER_NAME,
-    getenv("LIEF_JNI_DEBUG") != nullptr ? LIEF::logging::LEVEL::DEBUG :
-                                          LIEF::logging::LEVEL::INFO
-  );
+  LIEF::logging::named::set_level(GHIDRA_LIEF_LOGGER_NAME,
+                                  getenv("LIEF_JNI_DEBUG") != nullptr ?
+                                      LIEF::logging::Level::Debug :
+                                      LIEF::logging::Level::Info);
 
   JNIEnv* env = nullptr;
   if (int ret = vm->GetEnv((void**)&env, JNI_VERSION_1_6); ret == JNI_EDETACHED) {

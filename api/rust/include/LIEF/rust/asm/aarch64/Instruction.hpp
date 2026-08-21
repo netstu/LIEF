@@ -1,4 +1,4 @@
-/* Copyright 2024 - 2025 R. Thomas
+/* Copyright 2024 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,21 +18,26 @@
 #include "LIEF/rust/asm/Instruction.hpp"
 #include "LIEF/rust/asm/aarch64/Operand.hpp"
 
-#include "LIEF/rust/helpers.hpp"
 #include "LIEF/rust/Iterator.hpp"
+#include "LIEF/rust/helpers.hpp"
 
 class asm_aarch64_Instruction : public asm_Instruction {
   public:
   using lief_t = LIEF::assembly::aarch64::Instruction;
 
-  class it_operands :
-      public ForwardIterator<asm_aarch64_Operand, LIEF::assembly::aarch64::Operand::Iterator>
-  {
+  class it_operands
+    : public ForwardIterator<asm_aarch64_Operand,
+                             LIEF::assembly::aarch64::Operand::Iterator> {
     public:
-    it_operands(const asm_aarch64_Instruction::lief_t& src)
-      : ForwardIterator(src.operands()) { }
+    it_operands(const asm_aarch64_Instruction::lief_t& src) :
+      ForwardIterator(src.operands()) {}
 
-    auto next() { return ForwardIterator::next(); }
+    auto next() {
+      return ForwardIterator::next();
+    }
+    auto size() const {
+      return ForwardIterator::size();
+    }
   };
 
   uint64_t opcode() const {
@@ -42,10 +47,14 @@ class asm_aarch64_Instruction : public asm_Instruction {
     return std::make_unique<it_operands>(impl());
   }
 
-  static bool classof(const asm_Instruction& inst) {
+  static auto classof(const asm_Instruction& inst) {
     return lief_t::classof(&inst.get());
   }
 
   private:
-  const lief_t& impl() const { return as<lief_t>(this); }
+  const lief_t& impl() const {
+    return as<lief_t>(this);
+  }
 };
+
+using asm_aarch64_Instruction_it_operands = asm_aarch64_Instruction::it_operands;

@@ -1,4 +1,4 @@
-/* Copyright 2024 - 2025 R. Thomas
+/* Copyright 2024 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +16,23 @@
 #pragma once
 #include "LIEF/ELF/SysvHash.hpp"
 #include "LIEF/rust/Mirror.hpp"
+#include "LIEF/rust/helpers.hpp"
 
 class ELF_SysvHash : private Mirror<LIEF::ELF::SysvHash> {
   public:
   using lief_t = LIEF::ELF::SysvHash;
   using Mirror::Mirror;
 
-  uint32_t nbucket() const { return get().nbucket(); }
-  uint32_t nchain() const { return get().nchain(); }
-  std::vector<uint32_t> buckets() const { return get().buckets(); }
-  std::vector<uint32_t> chains() const { return get().chains(); }
+  uint32_t nbucket() const {
+    return get().nbucket();
+  }
+  uint32_t nchain() const {
+    return get().nchain();
+  }
+  auto buckets() const {
+    return make_unique_vector<uint32_t>(get().buckets());
+  }
+  auto chains() const {
+    return make_unique_vector<uint32_t>(get().chains());
+  }
 };

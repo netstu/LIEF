@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,15 +16,15 @@
 #ifndef LIEF_DSC_UTILS_H
 #define LIEF_DSC_UTILS_H
 
-#include <LIEF/visibility.h>
+#include "LIEF/visibility.h"
 
 #include "LIEF/BinaryStream/FileStream.hpp"
 #include "LIEF/BinaryStream/SpanStream.hpp"
 
 #include <string>
 
-namespace LIEF {
-namespace dsc {
+
+namespace LIEF::dsc {
 
 /// Check if the given stream wraps a Dyld Shared Cache
 LIEF_API bool is_shared_cache(BinaryStream& stream);
@@ -50,5 +50,5 @@ inline bool is_shared_cache(const std::vector<uint8_t>& buffer) {
 }
 
 }
-}
+
 #endif

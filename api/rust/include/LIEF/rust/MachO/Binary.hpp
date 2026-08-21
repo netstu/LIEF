@@ -1,4 +1,4 @@
-/* Copyright 2024 - 2025 R. Thomas
+/* Copyright 2025 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,8 +14,9 @@
  */
 
 #pragma once
-#include <memory>
 #include <LIEF/MachO.hpp>
+#include <memory>
+#include <sstream>
 
 #include "LIEF/rust/MachO/AtomInfo.hpp"
 #include "LIEF/rust/MachO/BuildVersion.hpp"
@@ -30,10 +31,12 @@
 #include "LIEF/rust/MachO/Dylinker.hpp"
 #include "LIEF/rust/MachO/DynamicSymbolCommand.hpp"
 #include "LIEF/rust/MachO/EncryptionInfo.hpp"
+#include "LIEF/rust/MachO/ExportInfo.hpp"
 #include "LIEF/rust/MachO/FunctionStarts.hpp"
-#include "LIEF/rust/MachO/FunctionVariants.hpp"
 #include "LIEF/rust/MachO/FunctionVariantFixups.hpp"
+#include "LIEF/rust/MachO/FunctionVariants.hpp"
 #include "LIEF/rust/MachO/Header.hpp"
+#include "LIEF/rust/MachO/LazyLoadDylibInfo.hpp"
 #include "LIEF/rust/MachO/LinkerOptHint.hpp"
 #include "LIEF/rust/MachO/LoadCommand.hpp"
 #include "LIEF/rust/MachO/Main.hpp"
@@ -58,130 +61,251 @@
 
 #include "LIEF/rust/ObjC/Metadata.hpp"
 
+#include "LIEF/rust/Span.hpp"
+#include "LIEF/rust/helpers.hpp"
+#include "LIEF/rust/range.hpp"
+
 class MachO_Binary_write_config_t {
   public:
-  bool linkedit;
+  bool linkedit = true;
 };
 
 class MachO_Binary : public AbstractBinary {
   public:
   using lief_t = LIEF::MachO::Binary;
 
-  class it_commands :
-      public Iterator<MachO_Command, LIEF::MachO::Binary::it_const_commands>
-  {
+  class it_commands
+    : public Iterator<MachO_Command, LIEF::MachO::Binary::it_const_commands> {
     public:
-    it_commands(const MachO_Binary::lief_t& src)
-      : Iterator(std::move(src.commands())) { }
-    auto next() { return Iterator::next(); }
-    auto size() const { return Iterator::size(); }
+    it_commands(const MachO_Binary::lief_t& src) :
+      Iterator(src.commands()) {}
+    auto next() {
+      return Iterator::next();
+    }
+    auto size() const {
+      return Iterator::size();
+    }
   };
 
-  class it_symbols :
-      public Iterator<MachO_Symbol, LIEF::MachO::Binary::it_const_symbols>
-  {
+  class it_symbols
+    : public Iterator<MachO_Symbol, LIEF::MachO::Binary::it_const_symbols> {
     public:
-    it_symbols(const MachO_Binary::lief_t& src)
-      : Iterator(std::move(src.symbols())) { }
-    auto next() { return Iterator::next(); }
-    auto size() const { return Iterator::size(); }
+    it_symbols(const MachO_Binary::lief_t& src) :
+      Iterator(src.symbols()) {}
+    auto next() {
+      return Iterator::next();
+    }
+    auto size() const {
+      return Iterator::size();
+    }
   };
 
-  class it_sections :
-      public Iterator<MachO_Section, LIEF::MachO::Binary::it_const_sections>
-  {
+  class it_exported_symbols
+    : public Iterator<MachO_Symbol,
+                      LIEF::MachO::Binary::it_const_exported_symbols> {
     public:
-    it_sections(const MachO_Binary::lief_t& src)
-      : Iterator(std::move(src.sections())) { }
-    auto next() { return Iterator::next(); }
-    auto size() const { return Iterator::size(); }
+    it_exported_symbols(const MachO_Binary::lief_t& src) :
+      Iterator(src.exported_symbols()) {}
+    auto next() {
+      return Iterator::next();
+    }
+    auto size() const {
+      return Iterator::size();
+    }
   };
 
-  class it_segments :
-      public Iterator<MachO_SegmentCommand, LIEF::MachO::Binary::it_const_segments>
-  {
+  class it_sections
+    : public Iterator<MachO_Section, LIEF::MachO::Binary::it_const_sections> {
     public:
-    it_segments(const MachO_Binary::lief_t& src)
-      : Iterator(std::move(src.segments())) { }
-    auto next() { return Iterator::next(); }
-    auto size() const { return Iterator::size(); }
+    it_sections(const MachO_Binary::lief_t& src) :
+      Iterator(src.sections()) {}
+    auto next() {
+      return Iterator::next();
+    }
+    auto size() const {
+      return Iterator::size();
+    }
   };
 
-  class it_libraries :
-      public Iterator<MachO_Dylib, LIEF::MachO::Binary::it_const_libraries>
-  {
+  class it_segments : public Iterator<MachO_SegmentCommand,
+                                      LIEF::MachO::Binary::it_const_segments> {
     public:
-    it_libraries(const MachO_Binary::lief_t& src)
-      : Iterator(std::move(src.libraries())) { }
-    auto next() { return Iterator::next(); }
-    auto size() const { return Iterator::size(); }
+    it_segments(const MachO_Binary::lief_t& src) :
+      Iterator(src.segments()) {}
+    auto next() {
+      return Iterator::next();
+    }
+    auto size() const {
+      return Iterator::size();
+    }
   };
 
-  class it_relocations :
-      public Iterator<MachO_Relocation, LIEF::MachO::Binary::it_const_relocations>
-  {
+  class it_libraries
+    : public Iterator<MachO_Dylib, LIEF::MachO::Binary::it_const_libraries> {
     public:
-    it_relocations(const MachO_Binary::lief_t& src)
-      : Iterator(std::move(src.relocations())) { }
-    auto next() { return Iterator::next(); }
-    auto size() const { return Iterator::size(); }
+    it_libraries(const MachO_Binary::lief_t& src) :
+      Iterator(src.libraries()) {}
+    auto next() {
+      return Iterator::next();
+    }
+    auto size() const {
+      return Iterator::size();
+    }
   };
 
-  class it_sub_clients :
-      public Iterator<MachO_SubClient, LIEF::MachO::Binary::it_const_sub_clients>
-  {
+  class it_lazy_load_dylib_info
+    : public Iterator<MachO_LazyLoadDylibInfo,
+                      LIEF::MachO::Binary::it_const_lazy_load_dylib_info> {
     public:
-    it_sub_clients(const MachO_Binary::lief_t& src)
-      : Iterator(std::move(src.subclients())) { }
-    auto next() { return Iterator::next(); }
-    auto size() const { return Iterator::size(); }
+    it_lazy_load_dylib_info(const MachO_Binary::lief_t& src) :
+      Iterator(src.lazy_load_dylib_infos()) {}
+    auto next() { // NOLINT
+      return Iterator::next();
+    }
+    auto size() const { // NOLINT
+      return Iterator::size();
+    }
   };
 
-  class it_bindings_info :
-      public ForwardIterator<MachO_BindingInfo, LIEF::MachO::BindingInfoIterator>
-  {
+  class it_relocations
+    : public Iterator<MachO_Relocation,
+                      LIEF::MachO::Binary::it_const_relocations> {
     public:
-    it_bindings_info(const MachO_Binary::lief_t& src)
-      : ForwardIterator(src.bindings()) { }
-    auto next() { return ForwardIterator::next(); }
+    it_relocations(const MachO_Binary::lief_t& src) :
+      Iterator(src.relocations()) {}
+    auto next() {
+      return Iterator::next();
+    }
+    auto size() const {
+      return Iterator::size();
+    }
   };
 
-  class it_stubs :
-      public RandomRangeIterator<MachO_Stub, LIEF::MachO::Stub::Iterator>
-  {
+
+  class it_rpaths
+    : public Iterator<MachO_RPathCommand, LIEF::MachO::Binary::it_const_rpaths> {
     public:
-    it_stubs(const MachO_Binary::lief_t& src)
-      : RandomRangeIterator(src.symbol_stubs()) { }
-    auto next() { return RandomRangeIterator::next(); }
-    auto size() const { return RandomRangeIterator::size(); }
+    it_rpaths(const MachO_Binary::lief_t& src) :
+      Iterator(src.rpaths()) {}
+    auto next() {
+      return Iterator::next();
+    }
+    auto size() const {
+      return Iterator::size();
+    }
   };
 
-  class it_notes :
-      public Iterator<MachO_NoteCommand, LIEF::MachO::Binary::it_const_notes>
-  {
+  class it_sub_clients
+    : public Iterator<MachO_SubClient, LIEF::MachO::Binary::it_const_sub_clients> {
     public:
-    it_notes(const MachO_Binary::lief_t& src)
-      : Iterator(std::move(src.notes())) { }
-    auto next() { return Iterator::next(); }
-    auto size() const { return Iterator::size(); }
+    it_sub_clients(const MachO_Binary::lief_t& src) :
+      Iterator(src.subclients()) {}
+    auto next() {
+      return Iterator::next();
+    }
+    auto size() const {
+      return Iterator::size();
+    }
   };
 
-  MachO_Binary(const lief_t& bin) : AbstractBinary(bin) {}
-  MachO_Binary(std::unique_ptr<lief_t> ptr) : AbstractBinary(std::move(ptr)) {}
+  class it_bindings_info
+    : public ForwardIterator<MachO_BindingInfo, LIEF::MachO::BindingInfoIterator> {
+    public:
+    it_bindings_info(const MachO_Binary::lief_t& src) :
+      ForwardIterator(src.bindings()) {}
+    auto next() {
+      return ForwardIterator::next();
+    }
+    auto size() const {
+      return ForwardIterator::size();
+    }
+  };
+
+  class it_stubs
+    : public RandomRangeIterator<MachO_Stub, LIEF::MachO::Stub::Iterator> {
+    public:
+    it_stubs(const MachO_Binary::lief_t& src) :
+      RandomRangeIterator(src.symbol_stubs()) {}
+    auto next() {
+      return RandomRangeIterator::next();
+    }
+    auto size() const {
+      return RandomRangeIterator::size();
+    }
+  };
+
+  class it_notes
+    : public Iterator<MachO_NoteCommand, LIEF::MachO::Binary::it_const_notes> {
+    public:
+    it_notes(const MachO_Binary::lief_t& src) :
+      Iterator(src.notes()) {}
+    auto next() {
+      return Iterator::next();
+    }
+    auto size() const {
+      return Iterator::size();
+    }
+  };
+
+  class it_fileset_binaries
+    : public Iterator<MachO_Binary,
+                      LIEF::MachO::Binary::it_const_fileset_binaries> {
+    public:
+    it_fileset_binaries(const MachO_Binary::lief_t& src) :
+      Iterator(src.filesets()) {}
+    auto next() {
+      return Iterator::next();
+    }
+    auto size() const {
+      return Iterator::size();
+    }
+  };
+
+  MachO_Binary(const lief_t& bin) :
+    AbstractBinary(bin) {}
+  MachO_Binary(std::unique_ptr<lief_t> ptr) :
+    AbstractBinary(std::move(ptr)) {}
 
   auto header() const {
     return std::make_unique<MachO_Header>(impl().header());
   }
 
-  auto commands() const { return std::make_unique<it_commands>(impl()); }
-  auto symbols() const { return std::make_unique<it_symbols>(impl()); }
-  auto sections() const { return std::make_unique<it_sections>(impl()); }
-  auto segments() const { return std::make_unique<it_segments>(impl()); }
-  auto libraries() const { return std::make_unique<it_libraries>(impl()); }
-  auto relocations() const { return std::make_unique<it_relocations>(impl()); }
-  auto bindings() const { return std::make_unique<it_bindings_info>(impl()); }
-  auto symbol_stubs() const { return std::make_unique<it_stubs>(impl()); }
-  auto notes() const { return std::make_unique<it_notes>(impl()); }
+  auto commands() const {
+    return std::make_unique<it_commands>(impl());
+  }
+  auto symbols() const {
+    return std::make_unique<it_symbols>(impl());
+  }
+  auto exported_symbols() const {
+    return std::make_unique<it_exported_symbols>(impl());
+  }
+  auto sections() const {
+    return std::make_unique<it_sections>(impl());
+  }
+  auto segments() const {
+    return std::make_unique<it_segments>(impl());
+  }
+  auto libraries() const {
+    return std::make_unique<it_libraries>(impl());
+  }
+  auto lazy_load_dylib_infos() const {
+    return std::make_unique<it_lazy_load_dylib_info>(impl());
+  }
+  auto relocations() const {
+    return std::make_unique<it_relocations>(impl());
+  }
+  auto rpaths() const {
+    return std::make_unique<it_rpaths>(impl());
+  }
+  auto bindings() const {
+    return std::make_unique<it_bindings_info>(impl());
+  }
+  auto symbol_stubs() const {
+    return std::make_unique<it_stubs>(impl());
+  }
+  auto notes() const {
+    return std::make_unique<it_notes>(impl());
+  }
 
   auto dyld_info() const {
     return details::try_unique<MachO_DyldInfo>(impl().dyld_info());
@@ -224,7 +348,9 @@ class MachO_Binary : public AbstractBinary {
   }
 
   auto dynamic_symbol_command() const {
-    return details::try_unique<MachO_DynamicSymbolCommand>(impl().dynamic_symbol_command());
+    return details::try_unique<MachO_DynamicSymbolCommand>(
+        impl().dynamic_symbol_command()
+    );
   }
 
   auto code_signature() const {
@@ -232,7 +358,9 @@ class MachO_Binary : public AbstractBinary {
   }
 
   auto code_signature_dir() const {
-    return details::try_unique<MachO_CodeSignatureDir>(impl().code_signature_dir());
+    return details::try_unique<MachO_CodeSignatureDir>(
+        impl().code_signature_dir()
+    );
   }
 
   auto data_in_code() const {
@@ -240,7 +368,9 @@ class MachO_Binary : public AbstractBinary {
   }
 
   auto segment_split_info() const {
-    return details::try_unique<MachO_SegmentSplitInfo>(impl().segment_split_info());
+    return details::try_unique<MachO_SegmentSplitInfo>(
+        impl().segment_split_info()
+    );
   }
 
   auto encryption_info() const {
@@ -264,7 +394,9 @@ class MachO_Binary : public AbstractBinary {
   }
 
   auto dyld_chained_fixups() const {
-    return details::try_unique<MachO_DyldChainedFixups>(impl().dyld_chained_fixups());
+    return details::try_unique<MachO_DyldChainedFixups>(
+        impl().dyld_chained_fixups()
+    );
   }
 
   auto dyld_exports_trie() const {
@@ -288,7 +420,9 @@ class MachO_Binary : public AbstractBinary {
   }
 
   auto function_variant_fixups() const {
-    return details::try_unique<MachO_FunctionVariantFixups>(impl().function_variant_fixups());
+    return details::try_unique<MachO_FunctionVariantFixups>(
+        impl().function_variant_fixups()
+    );
   }
 
   auto version_min() const {
@@ -311,29 +445,246 @@ class MachO_Binary : public AbstractBinary {
     return std::make_unique<AbstractBinary::it_functions>(impl().functions());
   }
 
-  bool is_ios() const { return impl().is_ios(); }
-  bool is_macos() const { return impl().is_macos(); }
+  auto is_ios() const {
+    return impl().is_ios();
+  }
+  auto is_macos() const {
+    return impl().is_macos();
+  }
 
-  auto find_library(std::string name) const {
+  auto find_library(const std::string& name) const {
     return details::try_unique<MachO_Dylib>(impl().find_library(name));
   }
 
-  void write(std::string output) { impl().write(output); }
-  void write_with_config(std::string output, MachO_Binary_write_config_t config) {
-    impl().write(output, {
-      config.linkedit
-    });
+  auto write(const std::string& output) {
+    impl().write(output);
+  }
+  void write_with_config(const std::string& output,
+                         const MachO_Binary_write_config_t& config) {
+    impl().write(output, {config.linkedit});
   }
 
-  auto add_library(std::string name) {
-    return details::try_unique<MachO_Dylib>(impl().add_library(name)->cast<LIEF::MachO::DylibCommand>());
+  auto write_to_bytes() {
+    std::ostringstream os;
+    impl().write(os);
+    std::string bytes = os.str();
+    return make_unique_vector<uint8_t>(bytes.begin(), bytes.end());
   }
 
-  static bool is_exported(const MachO_Symbol& symbol) {
-    return lief_t::is_exported(static_cast<const LIEF::MachO::Symbol&>(symbol.get()));
+  auto write_to_bytes_with_config(const MachO_Binary_write_config_t& config) {
+    std::ostringstream os;
+    impl().write(os, {config.linkedit});
+    std::string bytes = os.str();
+    return make_unique_vector<uint8_t>(bytes.begin(), bytes.end());
+  }
+
+  auto add_command(const MachO_Command& command) {
+    return details::try_unique<MachO_Command>(impl().add(command.get()));
+  }
+
+  auto add_library(const std::string& name) {
+    return details::try_unique<MachO_Dylib>(
+        impl().add_library(name)->cast<LIEF::MachO::DylibCommand>()
+    );
+  }
+
+  auto remove_commands_by_type(uint64_t type) {
+    return impl().remove((LIEF::MachO::LoadCommand::TYPE)type);
+  }
+
+  static auto is_exported(const MachO_Symbol& symbol) {
+    return lief_t::is_exported(
+        static_cast<const LIEF::MachO::Symbol&>(symbol.get())
+    );
+  }
+
+  auto filesets() const {
+    return std::make_unique<it_fileset_binaries>(impl());
+  }
+
+  auto has_filesets() const {
+    return impl().has_filesets();
+  }
+
+  auto fileset_name() const {
+    return to_unique_string(impl().fileset_name());
+  }
+
+  auto fileset_addr() const {
+    return impl().fileset_addr();
+  }
+
+  uint64_t virtual_address_to_offset(uint64_t virtual_address,
+                                     uint32_t& error) const {
+    return details::make_error<uint64_t>(
+        impl().virtual_address_to_offset(virtual_address), error
+    );
+  }
+
+  auto segment_from_offset(uint64_t offset) const {
+    return details::try_unique<MachO_SegmentCommand>(
+        impl().segment_from_offset(offset)
+    );
+  }
+
+  auto segment_from_virtual_address(uint64_t va) const {
+    return details::try_unique<MachO_SegmentCommand>(
+        impl().segment_from_virtual_address(va)
+    );
+  }
+
+  auto section_from_virtual_address(uint64_t va) const {
+    return details::try_unique<MachO_Section>(
+        impl().section_from_virtual_address(va)
+    );
+  }
+
+  auto get_segment(const std::string& name) const {
+    return details::try_unique<MachO_SegmentCommand>(impl().get_segment(name));
+  }
+
+  auto get_section(const std::string& segname, const std::string& secname) const {
+    return details::try_unique<MachO_Section>(impl().get_section(segname,
+                                                                 secname));
+  }
+
+  auto fat_offset() const {
+    return impl().fat_offset();
+  }
+
+  auto overlay() const {
+    return make_span(impl().overlay());
+  }
+
+  auto tlv_initial_content_range() const {
+    auto r = impl().tlv_initial_content_range();
+    return Range{r.start, r.end};
+  }
+
+  auto is_valid_addr(uint64_t address) const {
+    return impl().is_valid_addr(address);
+  }
+
+  auto has_symbol(const std::string& name) const {
+    return impl().has_symbol(name);
+  }
+
+  auto get_symbol(const std::string& name) const {
+    return details::try_unique<MachO_Symbol>(impl().get_symbol(name));
+  }
+
+  auto has_section(const std::string& name) const {
+    return impl().has_section(name);
+  }
+
+  auto section_from_offset(uint64_t offset) const {
+    return details::try_unique<MachO_Section>(impl().section_from_offset(offset));
+  }
+
+  auto has_segment(const std::string& name) const {
+    return impl().has_segment(name);
+  }
+
+  auto has_command_type(uint64_t type) const {
+    return impl().has((LIEF::MachO::LoadCommand::TYPE)type);
+  }
+
+  auto get_command_type(uint64_t type) const {
+    return details::try_unique<MachO_Command>(
+        impl().get((LIEF::MachO::LoadCommand::TYPE)type)
+    );
+  }
+
+  auto remove_command(uint32_t index) {
+    return impl().remove_command(index);
+  }
+
+  auto remove_section(const std::string& name, bool clear) {
+    impl().remove_section(name, clear);
+  }
+
+  void remove_section_seg(const std::string& segname, const std::string& secname,
+                          bool clear) {
+    impl().remove_section(segname, secname, clear);
+  }
+
+  auto remove_signature() {
+    return impl().remove_signature();
+  }
+
+  auto remove_symbol(const std::string& name) {
+    return impl().remove_symbol(name);
+  }
+
+  auto can_remove(const MachO_Symbol& sym) const {
+    return impl().can_remove(as<LIEF::MachO::Symbol>(&sym));
+  }
+
+  auto can_remove_symbol(const std::string& name) const {
+    return impl().can_remove_symbol(name);
+  }
+
+  auto unexport_name(const std::string& name) {
+    return impl().unexport(name);
+  }
+
+  auto unexport_symbol(const MachO_Symbol& sym) {
+    return impl().unexport(as<LIEF::MachO::Symbol>(&sym));
+  }
+
+  auto extend(const MachO_Command& command, uint64_t size) {
+    return impl().extend(command.get(), size);
+  }
+
+  auto extend_segment(const MachO_SegmentCommand& segment, uint64_t size) {
+    return impl().extend_segment(as<LIEF::MachO::SegmentCommand>(&segment), size);
+  }
+
+  auto add_section_default(const MachO_Section& section) {
+    return details::try_unique<MachO_Section>(
+        impl().add_section(as<LIEF::MachO::Section>(&section))
+    );
+  }
+
+  auto add_exported_function(uint64_t address, const std::string& name) {
+    return details::try_unique<MachO_ExportInfo>(
+        impl().add_exported_function(address, name)
+    );
+  }
+
+  auto add_local_symbol(uint64_t address, const std::string& name) {
+    return details::try_unique<MachO_Symbol>(impl().add_local_symbol(address,
+                                                                     name));
+  }
+
+  auto shift(uint64_t value, uint32_t& err) {
+    return details::make_ok_error(impl().shift(value), err);
+  }
+
+  auto shift_linkedit(uint64_t width, uint32_t& err) {
+    return details::make_ok_error(impl().shift_linkedit(width), err);
   }
 
   private:
-  const lief_t& impl() const { return as<lief_t>(this); }
-  lief_t& impl() { return as<lief_t>(this); }
+  const lief_t& impl() const {
+    return as<lief_t>(this);
+  }
+  lief_t& impl() {
+    return as<lief_t>(this);
+  }
 };
+
+using MachO_Binary_it_commands = MachO_Binary::it_commands;
+using MachO_Binary_it_symbols = MachO_Binary::it_symbols;
+using MachO_Binary_it_exported_symbols = MachO_Binary::it_exported_symbols;
+using MachO_Binary_it_sections = MachO_Binary::it_sections;
+using MachO_Binary_it_segments = MachO_Binary::it_segments;
+using MachO_Binary_it_libraries = MachO_Binary::it_libraries;
+using MachO_Binary_it_lazy_load_dylib_info = MachO_Binary::it_lazy_load_dylib_info;
+using MachO_Binary_it_relocations = MachO_Binary::it_relocations;
+using MachO_Binary_it_rpaths = MachO_Binary::it_rpaths;
+using MachO_Binary_it_sub_clients = MachO_Binary::it_sub_clients;
+using MachO_Binary_it_bindings_info = MachO_Binary::it_bindings_info;
+using MachO_Binary_it_stubs = MachO_Binary::it_stubs;
+using MachO_Binary_it_notes = MachO_Binary::it_notes;
+using MachO_Binary_it_fileset_binaries = MachO_Binary::it_fileset_binaries;

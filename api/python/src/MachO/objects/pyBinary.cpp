@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@
 #include <nanobind/stl/vector.h>
 #include <nanobind/stl/string.h>
 #include <nanobind/stl/unique_ptr.h>
+#include <nanobind/stl/string_view.h>
 #include "nanobind/extra/stl/lief_span.h"
 #include "nanobind/extra/stl/pathlike.h"
 #include "nanobind/extra/random_access_iterator.hpp"
@@ -44,6 +45,7 @@
 #include "LIEF/MachO/FunctionStarts.hpp"
 #include "LIEF/MachO/FunctionVariants.hpp"
 #include "LIEF/MachO/FunctionVariantFixups.hpp"
+#include "LIEF/MachO/LazyLoadDylibInfo.hpp"
 #include "LIEF/MachO/LinkEdit.hpp"
 #include "LIEF/MachO/LinkerOptHint.hpp"
 #include "LIEF/MachO/AtomInfo.hpp"
@@ -89,6 +91,7 @@ void create<Binary>(nb::module_& m) {
   init_ref_iterator<Binary::it_sections>(bin, "it_sections");
   init_ref_iterator<Binary::it_segments>(bin, "it_segments");
   init_ref_iterator<Binary::it_libraries>(bin, "it_libraries");
+  init_ref_iterator<Binary::it_lazy_load_dylib_info>(bin, "it_lazy_load_dylib_info");
   init_ref_iterator<Binary::it_relocations>(bin, "it_relocations");
   init_ref_iterator<Binary::it_rpaths>(bin, "it_rpaths");
   init_ref_iterator<Binary::it_sub_clients>(bin, "it_sub_clients");
@@ -125,6 +128,11 @@ void create<Binary>(nb::module_& m) {
     .def_prop_ro("libraries",
         nb::overload_cast<>(&Binary::libraries),
         "Return an iterator over the binary's " RST_CLASS_REF(lief.MachO.DylibCommand) ""_doc,
+        nb::keep_alive<0, 1>())
+
+    .def_prop_ro("lazy_load_dylib_infos",
+        nb::overload_cast<>(&Binary::lazy_load_dylib_infos),
+        "Return an iterator over the binary's " RST_CLASS_REF(lief.MachO.LazyLoadDylibInfo) ""_doc,
         nb::keep_alive<0, 1>())
 
     .def_prop_ro("symbols",
@@ -167,9 +175,14 @@ void create<Binary>(nb::module_& m) {
         &Binary::has_filesets,
         "Return ``True`` if the binary has filesets"_doc)
 
-    .def_prop_ro("fileset_name",
-        &Binary::fileset_name,
-        "Name associated with the LC_FILESET_ENTRY binary"_doc)
+    .def_prop_ro("fileset_name", &Binary::fileset_name,
+        R"doc(
+        Name associated with the ``LC_FILESET_ENTRY`` for this MachO.
+        For instance: ``com.apple.kec.corecrypto``
+        )doc"_doc)
+
+    .def_prop_ro("fileset_addr", &Binary::fileset_addr,
+      "Original address associated with the ``LC_FILESET_ENTRY`` for this MachO."_doc)
 
     .def_prop_ro("imagebase",
         &Binary::imagebase,
@@ -477,11 +490,11 @@ void create<Binary>(nb::module_& m) {
         nb::rv_policy::reference_internal)
 
     .def_prop_ro("has_function_variant_fixups",
-        &Binary::has_function_variants,
+        &Binary::has_function_variant_fixups,
         "``True`` if the binary has a ``LC_FUNCTION_VARIANT_FIXUPS`` command"_doc)
 
     .def_prop_ro("function_variant_fixups",
-        nb::overload_cast<>(&Binary::function_variants),
+        nb::overload_cast<>(&Binary::function_variant_fixups),
         "Return ``LC_FUNCTION_VARIANT_FIXUPS`` command"_doc,
         nb::rv_policy::reference_internal)
 
@@ -522,6 +535,10 @@ void create<Binary>(nb::module_& m) {
         &Binary::off_ranges,
         "Return the range of offsets as a tuple ``(off_start, off_end)``"_doc)
 
+    .def_prop_ro("tlv_initial_content_range",
+        &Binary::tlv_initial_content_range,
+        "Return the TLV initial content range"_doc)
+
     .def("is_valid_addr",
         &Binary::is_valid_addr,
         R"delim(
@@ -535,6 +552,7 @@ void create<Binary>(nb::module_& m) {
         [] (Binary& self, nb::PathLike path) { return self.write(path); },
         "Rebuild the binary and write its content in the file given in the first parameter"_doc,
         "output"_a,
+        nb::lock_self(),
         nb::rv_policy::reference_internal)
 
     .def("write",
@@ -546,69 +564,74 @@ void create<Binary>(nb::module_& m) {
         The ``config`` parameter can be used to tweak the building process.
         )doc"_doc,
         "output"_a, "config"_a,
+        nb::lock_self(),
         nb::rv_policy::reference_internal)
 
     .def("write_to_bytes", [] (Binary& bin, const Builder::config_t& config) -> nb::bytes {
           std::ostringstream out;
           bin.write(out, config);
           return nb::to_bytes(out.str());
-        }, "config"_a)
+        }, "config"_a, nb::lock_self())
 
     .def("write_to_bytes", [] (Binary& bin) -> nb::bytes {
           std::ostringstream out;
           bin.write(out);
           return nb::to_bytes(out.str());
-        })
+        }, nb::lock_self())
 
     .def("add",
         nb::overload_cast<const DylibCommand&>(&Binary::add),
         "Add a new " RST_CLASS_REF(lief.MachO.DylibCommand) ""_doc,
         "dylib_command"_a,
+        nb::lock_self(),
         nb::rv_policy::reference_internal)
 
     .def("add",
         nb::overload_cast<const SegmentCommand&>(&Binary::add),
         "Add a new " RST_CLASS_REF(lief.MachO.SegmentCommand) ""_doc,
         "segment"_a,
+        nb::lock_self(),
         nb::rv_policy::reference_internal)
 
     .def("add",
         nb::overload_cast<const LoadCommand&>(&Binary::add),
         "Add a new " RST_CLASS_REF(lief.MachO.LoadCommand) ""_doc,
         "load_command"_a,
+        nb::lock_self(),
         nb::rv_policy::reference_internal)
 
     .def("add",
         nb::overload_cast<const LoadCommand&, size_t>(&Binary::add),
         "Add a new " RST_CLASS_REF(lief.MachO.LoadCommand) " at ``index``"_doc,
         "load_command"_a, "index"_a,
+        nb::lock_self(),
         nb::rv_policy::reference_internal)
 
     .def("remove",
         nb::overload_cast<const LoadCommand&>(&Binary::remove),
         "Remove a " RST_CLASS_REF(lief.MachO.LoadCommand) ""_doc,
-        "load_command"_a)
+        "load_command"_a, nb::lock_self())
 
     .def("remove",
         nb::overload_cast<LoadCommand::TYPE>(&Binary::remove),
         "Remove **all** the " RST_CLASS_REF(lief.MachO.LoadCommand) " with the given "
         "" RST_CLASS_REF(lief.MachO.LoadCommand.TYPE) ""_doc,
-        "type"_a)
+        "type"_a, nb::lock_self())
 
     .def("remove",
         nb::overload_cast<const Symbol&>(&Binary::remove),
         "Remove the given " RST_CLASS_REF(lief.MachO.Symbol)""_doc,
-        "symbol"_a)
+        "symbol"_a, nb::lock_self())
 
     .def("remove_command",
         nb::overload_cast<size_t>(&Binary::remove_command),
         "Remove the " RST_CLASS_REF(lief.MachO.LoadCommand) " at the given ``index``"_doc,
-        "index"_a)
+        "index"_a, nb::lock_self())
 
     .def("remove_section",
         nb::overload_cast<const std::string&, bool>(&Binary::remove_section),
         "Remove the section with the given name"_doc,
-        "name"_a, "clear"_a = false)
+        "name"_a, "clear"_a = false, nb::lock_self())
 
     .def("remove_section",
         nb::overload_cast<const std::string&, const std::string&, bool>(&Binary::remove_section),
@@ -616,16 +639,17 @@ void create<Binary>(nb::module_& m) {
         Remove the section from the segment with the name
         given in the first parameter and with the section's name provided in the
         second parameter.)delim"_doc,
-        "segname"_a, "secname"_a, "clear"_a = false)
+        "segname"_a, "secname"_a, "clear"_a = false, nb::lock_self())
 
     .def("remove_signature",
         nb::overload_cast<>(&Binary::remove_signature),
-        "Remove the " RST_CLASS_REF(lief.MachO.CodeSignature) " (if any)"_doc)
+        "Remove the " RST_CLASS_REF(lief.MachO.CodeSignature) " (if any)"_doc,
+        nb::lock_self())
 
     .def("remove_symbol",
         nb::overload_cast<const std::string&>(&Binary::remove_symbol),
         "Remove all symbol(s) with the given name"_doc,
-        "name"_a)
+        "name"_a, nb::lock_self())
 
     .def("can_remove",
         nb::overload_cast<const Symbol&>(&Binary::can_remove, nb::const_),
@@ -640,33 +664,35 @@ void create<Binary>(nb::module_& m) {
     .def("unexport",
         nb::overload_cast<const std::string&>(&Binary::unexport),
         "Remove the symbol from the export table"_doc,
-        "name"_a)
+        "name"_a, nb::lock_self())
 
     .def("unexport",
         nb::overload_cast<const Symbol&>(&Binary::unexport),
         "Remove the symbol from the export table"_doc,
-        "symbol"_a)
+        "symbol"_a, nb::lock_self())
 
     .def("extend",
         nb::overload_cast<const LoadCommand&, uint64_t>(&Binary::extend),
         "Extend a " RST_CLASS_REF(lief.MachO.LoadCommand) " by ``size``"_doc,
-        "load_command"_a, "size"_a)
+        "load_command"_a, "size"_a, nb::lock_self())
 
     .def("extend_segment",
         nb::overload_cast<const SegmentCommand&, size_t>(&Binary::extend_segment),
         "Extend the **content** of the given " RST_CLASS_REF(lief.MachO.SegmentCommand) " by ``size``"_doc,
-        "segment_command"_a, "size"_a)
+        "segment_command"_a, "size"_a, nb::lock_self())
 
     .def("add_section",
         nb::overload_cast<const SegmentCommand&, const Section&>(&Binary::add_section),
         "Add a new " RST_CLASS_REF(lief.MachO.Section) " in the given " RST_CLASS_REF(lief.MachO.SegmentCommand) ""_doc,
         "segment"_a, "section"_a,
+        nb::lock_self(),
         nb::rv_policy::reference_internal)
 
     .def("add_section",
         nb::overload_cast<const Section&>(&Binary::add_section),
         "Add a new " RST_CLASS_REF(lief.MachO.Section) " within the ``__TEXT`` segment"_doc,
         "section"_a,
+        nb::lock_self(),
         nb::rv_policy::reference_internal)
 
     .def("find_library", nb::overload_cast<const std::string&>(&Binary::find_library),
@@ -680,12 +706,13 @@ void create<Binary>(nb::module_& m) {
     .def("extend_section",
         nb::overload_cast<Section&, size_t>(&Binary::extend_section),
         "Extend the **content** of the given " RST_CLASS_REF(lief.MachO.Section) " by ``size``"_doc,
-        "section"_a, "size"_a)
+        "section"_a, "size"_a, nb::lock_self())
 
     .def("add_library",
         nb::overload_cast<const std::string&>(&Binary::add_library),
         "Add a new library dependency"_doc,
         "library_name"_a,
+        nb::lock_self(),
         nb::rv_policy::reference_internal)
 
     .def("get",
@@ -726,25 +753,27 @@ void create<Binary>(nb::module_& m) {
          Shift the content located right after the Load commands table.
          This operation can be used to add a new command
          )delim"_doc,
-         "value"_a)
+         "value"_a, nb::lock_self())
 
     .def("shift_linkedit",
          [] (Binary& self, size_t width) {
            return error_or(&Binary::shift_linkedit, self, width);
          },
          "Shift the position on the __LINKEDIT data by `width`"_doc,
-         "value"_a)
+         "value"_a, nb::lock_self())
 
     .def("add_exported_function",
         &Binary::add_exported_function,
         "Add a new export in the binary"_doc,
         "address"_a, "name"_a,
+        nb::lock_self(),
         nb::rv_policy::reference_internal)
 
     .def("add_local_symbol",
         &Binary::add_local_symbol,
-        "Add a new a new symbol in the LC_SYMTAB"_doc,
+        "Add a new symbol in the LC_SYMTAB"_doc,
         "address"_a, "name"_a,
+        nb::lock_self(),
         nb::rv_policy::reference_internal)
 
     .def_prop_ro("bindings",
@@ -826,4 +855,3 @@ void create<Binary>(nb::module_& m) {
     LIEF_DEFAULT_STR(Binary);
 }
 }
-

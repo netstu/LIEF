@@ -1,4 +1,4 @@
-/* Copyright 2024 - 2025 R. Thomas
+/* Copyright 2024 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@
 #pragma once
 
 #include "LIEF/MachO/BindingInfo.hpp"
-#include "LIEF/rust/MachO/SegmentCommand.hpp"
 #include "LIEF/rust/MachO/Dylib.hpp"
+#include "LIEF/rust/MachO/SegmentCommand.hpp"
 #include "LIEF/rust/MachO/Symbol.hpp"
 
 class MachO_BindingInfo : public Mirror<LIEF::MachO::BindingInfo> {
@@ -25,9 +25,15 @@ class MachO_BindingInfo : public Mirror<LIEF::MachO::BindingInfo> {
   using lief_t = LIEF::MachO::BindingInfo;
   using Mirror::Mirror;
 
-  uint64_t address() const { return get().address(); };
-  int64_t addend() const { return get().addend(); };
-  int32_t library_ordinal() const { return get().library_ordinal(); };
+  uint64_t address() const {
+    return get().address();
+  }
+  int64_t addend() const {
+    return get().addend();
+  }
+  int32_t library_ordinal() const {
+    return get().library_ordinal();
+  }
 
   auto library() const {
     return details::try_unique<MachO_Dylib>(get().library());

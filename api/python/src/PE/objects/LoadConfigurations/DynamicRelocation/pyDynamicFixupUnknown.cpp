@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ template<>
 void create<DynamicFixupUnknown>(nb::module_& m) {
   nb::class_<DynamicFixupUnknown, DynamicFixup> obj(m, "DynamicFixupUnknown",
     R"doc(
-    This class represents an special dynamic relocation where the format of the
+    This class represents a special dynamic relocation where the format of the
     fixups is not supported by LIEF.
     )doc"_doc
   );

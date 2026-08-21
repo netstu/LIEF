@@ -1,4 +1,4 @@
-/* Copyright 2024 - 2025 R. Thomas
+/* Copyright 2024 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,35 +16,53 @@
 #include <cstdint>
 
 #include "LIEF/PE/ResourceNode.hpp"
-#include "LIEF/rust/Mirror.hpp"
 #include "LIEF/rust/Iterator.hpp"
+#include "LIEF/rust/Mirror.hpp"
+#include "LIEF/rust/helpers.hpp"
 
 class PE_ResourceNode : public Mirror<LIEF::PE::ResourceNode> {
   public:
   using lief_t = LIEF::PE::ResourceNode;
   using Mirror::Mirror;
 
-  class it_childs :
-      public Iterator<PE_ResourceNode, LIEF::PE::ResourceNode::it_const_childs>
-  {
+  class it_childs
+    : public Iterator<PE_ResourceNode, LIEF::PE::ResourceNode::it_const_childs> {
     public:
-    it_childs(const PE_ResourceNode::lief_t& src)
-      : Iterator(std::move(src.childs())) { }
-    auto next() { return Iterator::next(); }
-    auto size() const { return Iterator::size(); }
+    it_childs(const PE_ResourceNode::lief_t& src) :
+      Iterator(src.childs()) {}
+    auto next() {
+      return Iterator::next();
+    }
+    auto size() const {
+      return Iterator::size();
+    }
   };
 
   static auto from_slice(const uint8_t* buffer, size_t size, uint64_t rva) {
-    return details::try_unique<PE_ResourceNode>(LIEF::PE::ResourceNode::parse(buffer, size, rva));
+    return details::try_unique<PE_ResourceNode>(
+        LIEF::PE::ResourceNode::parse(buffer, size, rva)
+    );
   }
 
-  auto has_name() const { return get().has_name(); }
-  auto name() const { return get().utf8_name(); }
+  auto has_name() const {
+    return get().has_name();
+  }
+  auto name() const {
+    return to_unique_string(get().utf8_name());
+  }
 
-  auto id() const { return get().id(); }
-  auto depth() const { return get().depth(); }
-  auto is_directory() const { return get().is_directory(); }
-  auto is_data() const { return get().is_data(); }
+  auto id() const {
+    return get().id();
+  }
+  auto depth() const {
+    return get().depth();
+  }
+  auto is_directory() const {
+    return get().is_directory();
+  }
+  auto is_data() const {
+    return get().is_data();
+  }
   auto childs() const {
     return std::make_unique<it_childs>(get());
   }
@@ -53,9 +71,13 @@ class PE_ResourceNode : public Mirror<LIEF::PE::ResourceNode> {
     return std::make_unique<PE_ResourceNode>(get().add_child(node.get()));
   }
 
-  void delete_child(uint32_t id) {
+  auto delete_child(uint32_t id) {
     get().delete_child(id);
   }
 
-  auto print() const { return get().to_string(); }
+  auto print() const {
+    return to_unique_string(get().to_string());
+  }
 };
+
+using PE_ResourceNode_it_childs = PE_ResourceNode::it_childs;

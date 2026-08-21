@@ -1,12 +1,13 @@
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 import enum
 import io
 import lief
-import lief.ELF
-import lief.MachO
 import lief.PE
 import os
-from typing import Iterator, Optional, Union, overload
+from typing import Any, Iterator, Optional, Union, overload
+
+import lief.ELF
+import lief.MachO
 
 from . import (
     ART as ART,
@@ -23,7 +24,8 @@ from . import (
     dwarf as dwarf,
     logging as logging,
     objc as objc,
-    pdb as pdb
+    pdb as pdb,
+    runtime as runtime
 )
 
 
@@ -32,6 +34,8 @@ __tag__: str = ...
 __commit__: str = ...
 
 __is_tagged__: bool = ...
+
+__free_threaded__: bool = ...
 
 class lief_version_t:
     major: int
@@ -50,11 +54,19 @@ def disable_leak_warning() -> None: ...
 
 def demangle(mangled: str) -> Optional[str]: ...
 
+@overload
 def dump(buffer: memoryview, title: str = '', prefix: str = '', limit: int = 0) -> str: ...
+
+@overload
+def dump(buffer: bytes, title: str = '', prefix: str = '', limit: int = 0) -> str: ...
 
 def extended_version_info() -> str: ...
 
 def extended_version() -> lief_version_t: ...
+
+def to_int(ptr: Any) -> int: ...
+
+def to_ptr(ptr: int) -> Any: ...
 
 __extended__: bool = ...
 
@@ -153,6 +165,10 @@ class lief_errors(enum.Enum):
 
     require_extended_version = 14
 
+    inconsistent = 15
+
+    runtime_error = 16
+
 @overload
 def hash(arg: Object, /) -> int: ... # type: ignore
 
@@ -174,6 +190,9 @@ class BinaryStream:
     def __bool__(self) -> bool: ...
 
     def __len__(self) -> int: ...
+
+    @property
+    def is_memory_stream(self) -> bool: ...
 
     @property
     def pos(self) -> int: ...
@@ -582,7 +601,7 @@ class Binary(Object):
         def __next__(self) -> Relocation: ...
 
     @property
-    def debug_info(self) -> DebugInfo: ...
+    def debug_info(self) -> DebugInfo | None: ...
 
     @property
     def format(self) -> Binary.FORMATS: ...
@@ -621,19 +640,19 @@ class Binary(Object):
 
     def has_symbol(self, symbol_name: str) -> bool: ...
 
-    def get_symbol(self, symbol_name: str) -> Symbol: ...
+    def get_symbol(self, symbol_name: str) -> Symbol | None: ...
 
     def get_function_address(self, function_name: str) -> Union[int, lief_errors]: ...
 
     @overload
-    def patch_address(self, address: int, patch_value: Sequence[int], va_type: Binary.VA_TYPES = Binary.VA_TYPES.AUTO) -> None: ...
+    def patch_address(self, address: int, patch_value: Sequence[int], va_type: VA_TYPES = VA_TYPES.AUTO) -> None: ...
 
     @overload
-    def patch_address(self, address: int, patch_value: int, size: int = 8, va_type: Binary.VA_TYPES = Binary.VA_TYPES.AUTO) -> None: ...
+    def patch_address(self, address: int, patch_value: int, size: int = 8, va_type: VA_TYPES = VA_TYPES.AUTO) -> None: ...
 
-    def get_content_from_virtual_address(self, virtual_address: int, size: int, va_type: Binary.VA_TYPES = Binary.VA_TYPES.AUTO) -> memoryview: ...
+    def get_content_from_virtual_address(self, virtual_address: int, size: int, va_type: VA_TYPES = VA_TYPES.AUTO) -> memoryview: ...
 
-    def get_int_from_virtual_address(self, address: int, interger_size: int, type: Binary.VA_TYPES = Binary.VA_TYPES.AUTO) -> Optional[int]: ...
+    def get_int_from_virtual_address(self, address: int, interger_size: int, type: VA_TYPES = VA_TYPES.AUTO) -> Optional[int]: ...
 
     @property
     def abstract(self) -> lief.Binary: ...
@@ -670,7 +689,7 @@ class Binary(Object):
     @property
     def page_size(self) -> int: ...
 
-    def load_debug_info(self, path: Union[str | os.PathLike]) -> DebugInfo: ...
+    def load_debug_info(self, path: Union[str | os.PathLike]) -> DebugInfo | None: ...
 
     @property
     def virtual_size(self) -> int: ...
@@ -678,7 +697,11 @@ class Binary(Object):
     def __str__(self) -> str: ...
 
 class Section(Object):
-    name: Union[str, bytes]
+    @property
+    def name(self) -> Union[str, bytes]: ...
+
+    @name.setter
+    def name(self, arg: str, /) -> None: ...
 
     @property
     def fullname(self) -> bytes: ...
@@ -689,7 +712,11 @@ class Section(Object):
 
     virtual_address: int
 
-    content: memoryview
+    @property
+    def content(self) -> memoryview: ...
+
+    @content.setter
+    def content(self, arg: Sequence[int], /) -> None: ...
 
     @property
     def entropy(self) -> float: ...
@@ -712,7 +739,11 @@ class Section(Object):
     def __str__(self) -> str: ...
 
 class Symbol(Object):
-    name: Union[str, bytes]
+    @property
+    def name(self) -> Union[str, bytes]: ... # type: ignore
+
+    @name.setter
+    def name(self, arg: str, /) -> None: ... # type: ignore
 
     value: int
 
@@ -721,6 +752,8 @@ class Symbol(Object):
     def __str__(self) -> str: ...
 
 def parse(obj: Union[str | io.IOBase | os.PathLike | bytes | list[int]]) -> PE.Binary | OAT.Binary | ELF.Binary | MachO.Binary | COFF.Binary | None: ...
+
+def parse_from_dump(obj: Union[str | io.IOBase | os.PathLike | bytes | list[int]], addr: int) -> PE.Binary | OAT.Binary | ELF.Binary | MachO.Binary | COFF.Binary | None: ...
 
 class Relocation(Object):
     address: int
@@ -764,9 +797,9 @@ class Function(Symbol):
 
         DEBUG_INFO = 4
 
-    def add(self, flag: Function.FLAGS) -> Function: ...
+    def add(self, flag: FLAGS) -> Function: ...
 
-    def has(self, flag: Function.FLAGS) -> bool: ...
+    def has(self, flag: FLAGS) -> bool: ...
 
     @property
     def flags(self) -> Function.FLAGS: ...
@@ -799,6 +832,31 @@ class DebugInfo:
     def format(self) -> DebugInfo.FORMAT: ...
 
     def find_function_address(self, name: str) -> int | None: ...
+
+class DeclOpt:
+    def __init__(self) -> None: ...
+
+    indentation: int
+
+    is_cpp: bool
+
+    show_extended_annotations: bool
+
+    include_types: bool
+
+    include_locals: bool
+
+    desugar: bool
+
+    show_field_offsets: bool
+
+    @property
+    def type_aliases(self) -> dict[str, str]: ...
+
+    @type_aliases.setter
+    def type_aliases(self, arg: Mapping[str, str], /) -> DeclOpt: ...
+
+    def add_type_alias(self, name: str, alias: str) -> DeclOpt: ...
 
 def is_pdb(file: Union[str | os.PathLike]) -> bool: ...
 

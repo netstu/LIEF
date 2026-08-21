@@ -1,4 +1,4 @@
-/* Copyright 2022 - 2025 R. Thomas
+/* Copyright 2022 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,11 +15,12 @@
 #ifndef LIEF_PDB_INFO_H
 #define LIEF_PDB_INFO_H
 #include <memory>
-#include <string>
 #include <ostream>
+#include <string>
 
-#include "LIEF/iterators.hpp"
 #include "LIEF/Abstract/DebugInfo.hpp"
+#include "LIEF/compiler_attributes.hpp"
+#include "LIEF/iterators.hpp"
 
 #include "LIEF/PDB/CompilationUnit.hpp"
 #include "LIEF/PDB/PublicSymbol.hpp"
@@ -27,8 +28,8 @@
 
 #include "LIEF/visibility.h"
 
-namespace LIEF {
-namespace pdb {
+
+namespace LIEF::pdb {
 class Function;
 
 /// This class provides an interface for PDB files.
@@ -61,18 +62,23 @@ class LIEF_API DebugInfo : public LIEF::DebugInfo {
 
   /// Iterator over the CompilationUnit from the PDB's DBI stream.
   /// CompilationUnit are also named "Module" in the PDB's official documentation
-  compilation_units_it compilation_units() const;
+  compilation_units_it compilation_units() const LIEF_LIFETIMEBOUND;
 
   /// Return an iterator over the public symbol stream
-  public_symbols_it public_symbols() const;
+  public_symbols_it public_symbols() const LIEF_LIFETIMEBOUND;
 
   /// Return an iterator over the different types registered in this PDB.
-  types_it types() const;
+  types_it types() const LIEF_LIFETIMEBOUND;
 
   /// Find the type with the given name
-  std::unique_ptr<Type> find_type(const std::string& name) const;
+  std::unique_ptr<Type>
+      find_type(const std::string& name) const LIEF_LIFETIMEBOUND;
 
-  /// Try to find the PublicSymbol from the given name (based on the public symbol stream)
+  /// Find the type at the given index
+  std::unique_ptr<Type> find_type(uint32_t index) const LIEF_LIFETIMEBOUND;
+
+  /// Try to find the PublicSymbol from the given name (based on the public symbol
+  /// stream)
   ///
   /// The function returns a nullptr if the symbol can't be found
   ///
@@ -82,10 +88,12 @@ class LIEF_API DebugInfo : public LIEF::DebugInfo {
   ///   // FOUND!
   /// }
   /// ```
-  std::unique_ptr<PublicSymbol> find_public_symbol(const std::string& name) const;
+  std::unique_ptr<PublicSymbol>
+      find_public_symbol(const std::string& name) const LIEF_LIFETIMEBOUND;
 
   /// Attempt to resolve the address of the function specified by `name`.
-  optional<uint64_t> find_function_address(const std::string& name) const override;
+  std::optional<uint64_t>
+      find_function_address(const std::string& name) const override;
 
   /// The number of times the PDB file has been written.
   uint32_t age() const;
@@ -96,9 +104,8 @@ class LIEF_API DebugInfo : public LIEF::DebugInfo {
   /// Pretty representation
   std::string to_string() const;
 
-  friend LIEF_API
-    std::ostream& operator<<(std::ostream& os, const DebugInfo& dbg)
-  {
+  friend LIEF_API std::ostream& operator<<(std::ostream& os,
+                                           const DebugInfo& dbg) {
     os << dbg.to_string();
     return os;
   }
@@ -113,5 +120,5 @@ inline std::unique_ptr<DebugInfo> load(const std::string& pdb_path) {
 }
 
 }
-}
+
 #endif

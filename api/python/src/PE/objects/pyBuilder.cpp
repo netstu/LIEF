@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -136,18 +136,18 @@ void create<Builder>(nb::module_& m) {
         [] (Builder& self) {
           return error_or(static_cast<ok_error_t(Builder::*)()>(&Builder::build), self);
         },
-        "Perform the build process"_doc)
+        "Perform the build process"_doc, nb::lock_self())
 
     .def("write",
         static_cast<void (Builder::*)(const std::string&) const>(&Builder::write),
         "Write the build result into the ``output`` file"_doc,
-        "output"_a)
+        "output"_a, nb::lock_self())
 
-    .def("bytes", [] (Builder& self) -> nb::bytes {
+    .def("raw_bytes", [] (Builder& self) {
           std::ostringstream out;
           self.write(out);
           return nb::to_bytes(out.str());
-        })
+        }, nb::lock_self())
     ;
 
 }

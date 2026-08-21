@@ -1,4 +1,4 @@
-/* Copyright 2025 R. Thomas
+/* Copyright 2025 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,10 +26,11 @@ class TypeBuilder : public analysis_plugin::TypeBuilder {
     return "lief-pe";
   }
 
-  BinaryNinja::Ref<BinaryNinja::Type> get_or_create(const std::string& name) override;
+  BinaryNinja::Ref<BinaryNinja::Type>
+      get_or_create(const std::string& name) override;
 
   // Currently BinaryNinja is not aware of RVA (i.e. creating the associated
-  // xref/symbols) as Ghidra does but in the future this could change so let
+  // xref/symbols) as Ghidra does but in the future this could change so let's
   // make an abstraction for that.
   BinaryNinja::Ref<BinaryNinja::Type> RVA() {
     using namespace BinaryNinja;
@@ -39,9 +40,8 @@ class TypeBuilder : public analysis_plugin::TypeBuilder {
       return type;
     }
 
-    bv_.DefineType(
-        BinaryNinja::Type::GenerateAutoTypeId(default_type_src(), name),
-          name, Type::IntegerType(/*width=*/4, /*sign=*/false, "RVA"));
+    bv_.DefineType(BinaryNinja::Type::GenerateAutoTypeId(default_type_src(), name),
+                   name, Type::IntegerType(/*width=*/4, /*sign=*/false, "RVA"));
 
     return bv_.GetTypeByName(name);
   }

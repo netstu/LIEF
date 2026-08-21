@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2018 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ struct IntOrNone : public nanobind::object {
   static constexpr auto Name = nanobind::detail::const_name("Optional[int]");
 
   NB_OBJECT_DEFAULT_NONAME(IntOrNone, object, check)
-  static bool check(handle h) {
+  static bool check(handle /*h*/) {
     return true;
   }
 };

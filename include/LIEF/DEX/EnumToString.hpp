@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,21 +15,20 @@
  */
 #ifndef LIEF_DEX_ENUM_TO_STRING_H
 #define LIEF_DEX_ENUM_TO_STRING_H
-#include "LIEF/visibility.h"
-#include "LIEF/DEX/enums.hpp"
 #include "LIEF/DEX/MapItem.hpp"
 #include "LIEF/DEX/Type.hpp"
+#include "LIEF/DEX/enums.hpp"
+#include "LIEF/visibility.h"
 
-namespace LIEF {
-namespace DEX {
+
+namespace LIEF::DEX {
 
 LIEF_API const char* to_string(MapItem::TYPES e);
 LIEF_API const char* to_string(ACCESS_FLAGS e);
 LIEF_API const char* to_string(Type::TYPES e);
 LIEF_API const char* to_string(Type::PRIMITIVES e);
 
-} // namespace DEX
-} // namespace LIEF
+}
+
 
 #endif
-

@@ -5,9 +5,8 @@
 #include <nanobind/stl/string.h>
 #include <nanobind/stl/vector.h>
 #include <nanobind/stl/unique_ptr.h>
-#include <nanobind/make_iterator.h>
 
-#include <nanobind/extra/stl/lief_optional.h>
+#include <nanobind/stl/optional.h>
 
 namespace LIEF::pdb::py {
 template<>
@@ -120,7 +119,7 @@ void create<pdb::BuildMetadata>(nb::module_& m) {
     .def_rw("major", &version_t::major, "Major version"_doc)
     .def_rw("minor", &version_t::minor, "Minor version"_doc)
     .def_rw("build", &version_t::build, "Build version"_doc)
-    .def_rw("qfe", &version_t::qfe, "Quick Fix Engineeringa version"_doc);
+    .def_rw("qfe", &version_t::qfe, "Quick Fix Engineering version"_doc);
 
 
   using build_info_t = BuildMetadata::build_info_t;

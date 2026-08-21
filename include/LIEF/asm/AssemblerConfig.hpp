@@ -1,4 +1,4 @@
-/* Copyright 2022 - 2025 R. Thomas
+/* Copyright 2022 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,13 @@
 #define LIEF_ASM_ASSEMBLER_CONFIG_H
 
 #include "LIEF/visibility.h"
-#include "LIEF/optional.hpp"
+#include <cstdint>
+#include <optional>
 
 #include <string>
 
-namespace LIEF {
 
-namespace assembly {
+namespace LIEF::assembly {
 
 /// This class exposes the different elements that can be configured to assemble
 /// code.
@@ -30,11 +30,11 @@ class LIEF_API AssemblerConfig {
   public:
   AssemblerConfig() = default;
 
-  AssemblerConfig(const AssemblerConfig &) = default;
-  AssemblerConfig &operator=(const AssemblerConfig &) = default;
+  AssemblerConfig(const AssemblerConfig&) = default;
+  AssemblerConfig& operator=(const AssemblerConfig&) = default;
 
-  AssemblerConfig(AssemblerConfig &&) = default;
-  AssemblerConfig &operator=(AssemblerConfig &&) = default;
+  AssemblerConfig(AssemblerConfig&&) = default;
+  AssemblerConfig& operator=(AssemblerConfig&&) = default;
 
   /// The different supported dialects
   enum class DIALECT {
@@ -65,27 +65,27 @@ class LIEF_API AssemblerConfig {
   /// 0x1003: call _my_function
   /// ```
   ///
-  /// The function `_my_function` will remain undefined unless we return its address
-  /// in `resolve_symbol()`:
+  /// The function `_my_function` will remain undefined unless we return its
+  /// address in `resolve_symbol()`:
   ///
   /// ```cpp
   /// class MyConfig : public AssemblerConfig {
   ///   public:
-  ///   optional<uint64_t> resolve_symbol(const std::string& name) {
+  ///   std::optional<uint64_t> resolve_symbol(const std::string& name) {
   ///     if (name == "_my_function") {
   ///       return 0x4000;
   ///     }
-  ///     return nullopt(); // or AssemblerConfig::resolve_symbol(name)
+  ///     return std::nullopt; // or AssemblerConfig::resolve_symbol(name)
   ///   }
   /// };
   /// ```
-  virtual optional<uint64_t> resolve_symbol(const std::string& /*name*/) {
-    return nullopt();
+  virtual std::optional<uint64_t> resolve_symbol(const std::string& /*name*/) {
+    return std::nullopt;
   }
 
   virtual ~AssemblerConfig() = default;
 };
 }
-}
+
 
 #endif

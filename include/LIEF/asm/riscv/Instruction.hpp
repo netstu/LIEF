@@ -1,4 +1,4 @@
-/* Copyright 2022 - 2025 R. Thomas
+/* Copyright 2022 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,24 +14,29 @@
  */
 #ifndef LIEF_ASM_RISCV_INST_H
 #define LIEF_ASM_RISCV_INST_H
+#include "LIEF/compiler_attributes.hpp"
 #include "LIEF/visibility.h"
 
 #include "LIEF/asm/Instruction.hpp"
+#include "LIEF/asm/riscv/Operand.hpp"
 #include "LIEF/asm/riscv/opcodes.hpp"
 
-namespace LIEF {
-namespace assembly {
 
 /// RISC-V architecture-related namespace
-namespace riscv {
+namespace LIEF::assembly::riscv {
 
 /// This class represents a RISC-V (32 or 64 bit) instruction
 class LIEF_API Instruction : public assembly::Instruction {
   public:
   using assembly::Instruction::Instruction;
 
+  using operands_it = iterator_range<Operand::Iterator>;
+
   /// The instruction opcode as defined in LLVM
   OPCODE opcode() const;
+
+  /// Iterator over the operands of the current instruction
+  operands_it operands() const LIEF_LIFETIMEBOUND;
 
   /// True if `inst` is an **effective** instance of riscv::Instruction
   static bool classof(const assembly::Instruction* inst);
@@ -39,6 +44,6 @@ class LIEF_API Instruction : public assembly::Instruction {
   ~Instruction() override = default;
 };
 }
-}
-}
+
+
 #endif

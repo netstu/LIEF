@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,29 +15,30 @@
  */
 #include "LIEF/ELF/hash.hpp"
 
-#include "LIEF/ELF/SymbolVersionAuxRequirement.hpp"
 #include "ELF/Structures.hpp"
+#include "LIEF/ELF/SymbolVersionAuxRequirement.hpp"
 
-namespace LIEF {
-namespace ELF {
 
-SymbolVersionAuxRequirement::SymbolVersionAuxRequirement(const details::Elf64_Vernaux& header) :
+namespace LIEF::ELF {
+
+SymbolVersionAuxRequirement::SymbolVersionAuxRequirement(
+    const details::Elf64_Vernaux& header
+) :
   hash_{header.vna_hash},
   flags_{header.vna_flags},
-  other_{header.vna_other}
-{}
+  other_{header.vna_other} {}
 
 
-SymbolVersionAuxRequirement::SymbolVersionAuxRequirement(const details::Elf32_Vernaux& header) :
+SymbolVersionAuxRequirement::SymbolVersionAuxRequirement(
+    const details::Elf32_Vernaux& header
+) :
   hash_{header.vna_hash},
   flags_{header.vna_flags},
-  other_{header.vna_other}
-{}
+  other_{header.vna_other} {}
 
 void SymbolVersionAuxRequirement::accept(Visitor& visitor) const {
   visitor.visit(*this);
 }
 
 
-}
 }

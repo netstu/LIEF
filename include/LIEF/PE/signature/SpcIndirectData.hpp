@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,18 +15,20 @@
  */
 #ifndef LIEF_PE_SPC_INDIRECT_DATA_H
 #define LIEF_PE_SPC_INDIRECT_DATA_H
+#include <string_view>
+#include <cstdint>
 #include <ostream>
 #include <string>
 #include <vector>
-#include <cstdint>
 
-#include "LIEF/visibility.h"
+#include "LIEF/compiler_attributes.hpp"
 #include "LIEF/span.hpp"
+#include "LIEF/visibility.h"
 
 #include "LIEF/PE/signature/ContentInfo.hpp"
 
-namespace LIEF {
-namespace PE {
+
+namespace LIEF::PE {
 class LIEF_API SpcIndirectData : public ContentInfo::Content {
   friend class SignatureParser;
 
@@ -34,8 +36,7 @@ class LIEF_API SpcIndirectData : public ContentInfo::Content {
   static constexpr auto SPC_INDIRECT_DATA_OBJID = "1.3.6.1.4.1.311.2.1.4";
 
   SpcIndirectData() :
-    ContentInfo::Content(SPC_INDIRECT_DATA_OBJID)
-  {}
+    ContentInfo::Content(SPC_INDIRECT_DATA_OBJID) {}
   SpcIndirectData(const SpcIndirectData&) = default;
   SpcIndirectData& operator=(const SpcIndirectData&) = default;
 
@@ -53,15 +54,15 @@ class LIEF_API SpcIndirectData : public ContentInfo::Content {
   /// PE's authentihash
   ///
   /// @see LIEF::PE::Binary::authentihash
-  span<const uint8_t> digest() const {
+  span<const uint8_t> digest() const LIEF_LIFETIMEBOUND {
     return digest_;
   }
 
-  const std::string& file() const {
+  std::string_view file() const LIEF_LIFETIMEBOUND {
     return file_;
   }
 
-  const std::string& url() const {
+  std::string_view url() const LIEF_LIFETIMEBOUND {
     return url_;
   }
 
@@ -69,7 +70,8 @@ class LIEF_API SpcIndirectData : public ContentInfo::Content {
 
   void accept(Visitor& visitor) const override;
 
-  LIEF_API friend std::ostream& operator<<(std::ostream& os, const SpcIndirectData& content) {
+  LIEF_API friend std::ostream& operator<<(std::ostream& os,
+                                           const SpcIndirectData& content) {
     content.print(os);
     return os;
   }
@@ -88,5 +90,5 @@ class LIEF_API SpcIndirectData : public ContentInfo::Content {
   std::vector<uint8_t> digest_;
 };
 }
-}
+
 #endif

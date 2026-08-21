@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,7 +55,7 @@ void create<SymbolVersionDefinition>(nb::module_& m) {
         "Hash value of the symbol's name (using ELF hash function)"_doc)
 
     .def_prop_ro("ndx", &SymbolVersionDefinition::ndx,
-                 "Numeric value used as an index in the :class`~.ELF.SymbolVersion` table"_doc)
+                 "Numeric value used as an index in the :class:`~.ELF.SymbolVersion` table"_doc)
 
     .def_prop_ro("auxiliary_symbols",
         nb::overload_cast<>(&SymbolVersionDefinition::symbols_aux),

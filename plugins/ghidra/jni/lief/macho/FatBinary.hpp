@@ -1,4 +1,4 @@
-/* Copyright 2022 - 2025 R. Thomas
+/* Copyright 2022 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,9 +14,9 @@
  */
 #pragma once
 
-#include <jni_bind.h>
-#include "jni/mirror.hpp"
 #include "jni/iterator.hpp"
+#include "jni/mirror.hpp"
+#include <jni_bind.h>
 
 #include "jni/lief/macho/Binary.hpp"
 
@@ -25,27 +25,26 @@
 
 namespace lief_jni::macho {
 
-class FatBinary : public JNI<
-  FatBinary, std::unique_ptr<LIEF::MachO::FatBinary>>
-{
+class FatBinary : public JNI<FatBinary, std::unique_ptr<LIEF::MachO::FatBinary>> {
   public:
   using JNI::JNI;
-  static constexpr jni::Class kClass {
-    "lief/macho/FatBinary",
-    jni::Constructor{ jlong{} },
-    jni::Field { "impl", jlong{}, }
-  };
+  static constexpr jni::Class kClass{"lief/macho/FatBinary",
+                                     jni::Constructor{jlong{}},
+                                     jni::Field{
+                                         "impl",
+                                         jlong{},
+                                     }};
 
-  class Iterator : public lief_jni::Iterator<
-    Iterator, LIEF::MachO::FatBinary::it_binaries, lief_jni::macho::Binary
-  >
-  {
+  class Iterator
+    : public lief_jni::Iterator<Iterator, LIEF::MachO::FatBinary::it_binaries,
+                                lief_jni::macho::Binary> {
     public:
-    static constexpr jni::Class kClass {
-      "lief/macho/FatBinary$Iterator",
-      jni::Constructor{ jlong{} },
-      jni::Field { "impl", jlong{}, }
-    };
+    static constexpr jni::Class kClass{"lief/macho/FatBinary$Iterator",
+                                       jni::Constructor{jlong{}},
+                                       jni::Field{
+                                           "impl",
+                                           jlong{},
+                                       }};
 
     static void jni_destroy(JNIEnv* env, jobject thiz) {
       destroy(thiz);
@@ -60,9 +59,7 @@ class FatBinary : public JNI<
     jni::ThreadGuard TG;
     jni::LocalString jpath = path;
     return FatBinary::create(
-      LIEF::MachO::Parser::parse(
-        std::string(jpath.Pin().ToString())
-      )
+        LIEF::MachO::Parser::parse(std::string(jpath.Pin().ToString()))
     );
   }
 

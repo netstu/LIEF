@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -73,6 +73,7 @@ void create<Section>(nb::module_& m) {
     ENTRY(MIPS_ADDR)
     ENTRY(MIPS_STRING)
     ENTRY(ARM_PURECODE)
+    ENTRY(AARCH64_PURECODE)
   ;
   #undef ENTRY
 
@@ -158,6 +159,11 @@ void create<Section>(nb::module_& m) {
     ENTRY(MIPS_XHASH)
 
     ENTRY(RISCV_ATTRIBUTES)
+
+    ENTRY(AARCH64_ATTRIBUTES)
+    ENTRY(AARCH64_AUTH_RELR)
+    ENTRY(AARCH64_MEMTAG_GLOBALS_STATIC)
+    ENTRY(AARCH64_MEMTAG_GLOBALS_DYNAMIC)
   ;
   #undef ENTRY
 
@@ -200,7 +206,7 @@ void create<Section>(nb::module_& m) {
         Original size of the section's data.
 
         This value is used by the :class:`~lief.ELF.Builder` to determine if it needs
-        to be relocated to avoid an override of the data
+        to be relocated to avoid an overwrite of the data
         )delim"_doc)
 
     .def_prop_rw("alignment",

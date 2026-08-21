@@ -1,4 +1,4 @@
-/* Copyright 2024 - 2025 R. Thomas
+/* Copyright 2024 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,13 @@ class PE_RichEntry : private Mirror<LIEF::PE::RichEntry> {
   using lief_t = LIEF::PE::RichEntry;
   using Mirror::Mirror;
 
-  uint16_t id() const { return get().id(); }
-  uint16_t build_id() const { return get().build_id(); }
-  uint32_t count() const { return get().count(); }
+  uint16_t id() const {
+    return get().id();
+  }
+  uint16_t build_id() const {
+    return get().build_id();
+  }
+  uint32_t count() const {
+    return get().count();
+  }
 };

@@ -1,4 +1,4 @@
-/* Copyright 2024 - 2025 R. Thomas
+/* Copyright 2024 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,38 +16,43 @@
 #include <cstdint>
 
 #include "LIEF/COFF/Symbol.hpp"
-#include "LIEF/rust/COFF/AuxiliarySymbol.hpp"
-#include "LIEF/rust/helpers.hpp"
-#include "LIEF/rust/Iterator.hpp"
 #include "LIEF/rust/Abstract/Symbol.hpp"
+#include "LIEF/rust/COFF/AuxiliarySymbol.hpp"
+#include "LIEF/rust/Iterator.hpp"
+#include "LIEF/rust/helpers.hpp"
 
 class COFF_Section;
 
 class COFF_Symbol : public AbstractSymbol {
   public:
   using lief_t = LIEF::COFF::Symbol;
-  COFF_Symbol(const lief_t& obj) : AbstractSymbol(obj) {}
+  COFF_Symbol(const lief_t& obj) :
+    AbstractSymbol(obj) {}
 
-  class it_auxiliary_symbols :
-      public Iterator<COFF_AuxiliarySymbol, LIEF::COFF::Symbol::it_const_auxiliary_symbols_t>
-  {
+  class it_auxiliary_symbols
+    : public Iterator<COFF_AuxiliarySymbol,
+                      LIEF::COFF::Symbol::it_const_auxiliary_symbols_t> {
     public:
-    it_auxiliary_symbols(const COFF_Symbol::lief_t& src)
-      : Iterator(std::move(src.auxiliary_symbols())) { } // NOLINT(performance-move-const-arg)
-    auto next() { return Iterator::next(); }
-    auto size() const { return Iterator::size(); }
+    it_auxiliary_symbols(const COFF_Symbol::lief_t& src) :
+      Iterator(src.auxiliary_symbols()) {}
+    auto next() {
+      return Iterator::next();
+    }
+    auto size() const {
+      return Iterator::size();
+    }
   };
 
   auto storage_class() const {
-    return to_int(impl().storage_class());
+    return as_u32(impl().storage_class());
   }
 
   auto base_type() const {
-    return to_int(impl().base_type());
+    return as_u32(impl().base_type());
   }
 
   auto complex_type() const {
-    return to_int(impl().complex_type());
+    return as_u32(impl().complex_type());
   }
 
   auto section_idx() const {
@@ -91,13 +96,17 @@ class COFF_Symbol : public AbstractSymbol {
   }
 
   auto demangled_name() const {
-    return impl().demangled_name();
+    return to_unique_string(impl().demangled_name());
   }
 
   auto to_string() const {
-    return impl().to_string();
+    return to_unique_string(impl().to_string());
   }
 
   private:
-  const lief_t& impl() const { return as<lief_t>(this); }
+  const lief_t& impl() const {
+    return as<lief_t>(this);
+  }
 };
+
+using COFF_Symbol_it_auxiliary_symbols = COFF_Symbol::it_auxiliary_symbols;

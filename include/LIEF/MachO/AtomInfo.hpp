@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,15 +15,17 @@
  */
 #ifndef LIEF_MACHO_ATOM_INFO_COMMAND_H
 #define LIEF_MACHO_ATOM_INFO_COMMAND_H
+#include <memory>
 #include <ostream>
 
+#include "LIEF/compiler_attributes.hpp"
 #include "LIEF/visibility.h"
 
-#include "LIEF/span.hpp"
 #include "LIEF/MachO/LoadCommand.hpp"
+#include "LIEF/span.hpp"
 
-namespace LIEF {
-namespace MachO {
+
+namespace LIEF::MachO {
 class BinaryParser;
 class LinkEdit;
 
@@ -44,7 +46,7 @@ class LIEF_API AtomInfo : public LoadCommand {
   AtomInfo(const AtomInfo& copy) = default;
 
   std::unique_ptr<LoadCommand> clone() const override {
-    return std::unique_ptr<AtomInfo>(new AtomInfo(*this));
+    return std::make_unique<AtomInfo>(*this);
   }
 
   /// Offset in the `__LINKEDIT` SegmentCommand where the payload starts
@@ -64,11 +66,11 @@ class LIEF_API AtomInfo : public LoadCommand {
     data_size_ = size;
   }
 
-  span<const uint8_t> content() const {
+  span<const uint8_t> content() const LIEF_LIFETIMEBOUND {
     return content_;
   }
 
-  span<uint8_t> content() {
+  span<uint8_t> content() LIEF_LIFETIMEBOUND {
     return content_;
   }
 
@@ -89,5 +91,5 @@ class LIEF_API AtomInfo : public LoadCommand {
 };
 
 }
-}
+
 #endif

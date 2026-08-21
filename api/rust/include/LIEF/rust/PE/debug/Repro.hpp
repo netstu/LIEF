@@ -1,4 +1,4 @@
-/* Copyright 2024 - 2025 R. Thomas
+/* Copyright 2024 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,24 +15,27 @@
 #pragma once
 #include <LIEF/PE/debug/Debug.hpp>
 
+#include "LIEF/PE/debug/Repro.hpp"
 #include "LIEF/rust/PE/debug/Debug.hpp"
 #include "LIEF/rust/Span.hpp"
-#include "LIEF/PE/debug/Repro.hpp"
 
 
 class PE_Repro : public PE_Debug {
   public:
   using lief_t = LIEF::PE::Repro;
-  PE_Repro(const lief_t& obj) : PE_Debug(obj) {}
+  PE_Repro(const lief_t& obj) :
+    PE_Debug(obj) {}
 
   auto hash() const {
     return make_span(impl().hash());
   }
 
-  static bool classof(const PE_Debug& entry) {
+  static auto classof(const PE_Debug& entry) {
     return lief_t::classof(&entry.get());
   }
 
   private:
-  const lief_t& impl() const { return as<lief_t>(this); }
+  const lief_t& impl() const {
+    return as<lief_t>(this);
+  }
 };

@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,20 +16,21 @@
 #ifndef LIEF_PE_UTILS_LIBRARY_TABLE_H
 #define LIEF_PE_UTILS_LIBRARY_TABLE_H
 
-#include "kernel32_dll_lookup.hpp"
-#include "ntdll_dll_lookup.hpp"
+// IWYU pragma: begin_exports
 #include "advapi32_dll_lookup.hpp"
-#include "user32_dll_lookup.hpp"
 #include "comctl32_dll_lookup.hpp"
-#include "ws2_32_dll_lookup.hpp"
-#include "shcore_dll_lookup.hpp"
-#include "oleaut32_dll_lookup.hpp"
-#include "msvcrt_dll_lookup.hpp"
-#include "ole32_dll_lookup.hpp"
-#include "mfc42u_dll_lookup.hpp"
-#include "shlwapi_dll_lookup.hpp"
 #include "gdi32_dll_lookup.hpp"
+#include "kernel32_dll_lookup.hpp"
+#include "mfc42u_dll_lookup.hpp"
+#include "msvcrt_dll_lookup.hpp"
+#include "ntdll_dll_lookup.hpp"
+#include "ole32_dll_lookup.hpp"
+#include "oleaut32_dll_lookup.hpp"
+#include "shcore_dll_lookup.hpp"
 #include "shell32_dll_lookup.hpp"
+#include "shlwapi_dll_lookup.hpp"
+#include "user32_dll_lookup.hpp"
+#include "ws2_32_dll_lookup.hpp"
 
 #include "msvcp110_dll_lookup.hpp"
 #include "msvcp120_dll_lookup.hpp"
@@ -37,6 +38,7 @@
 #include "msvcr100_dll_lookup.hpp"
 #include "msvcr110_dll_lookup.hpp"
 #include "msvcr120_dll_lookup.hpp"
+// IWYU pragma: end_exports
 
 
 #endif

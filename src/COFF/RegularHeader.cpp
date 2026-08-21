@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@
 
 #include "COFF/structures.hpp"
 
-#include "logging.hpp"
 
 #include <spdlog/fmt/fmt.h>
 #include <sstream>
@@ -47,13 +46,13 @@ std::unique_ptr<RegularHeader> RegularHeader::create(BinaryStream& stream) {
 }
 
 std::string RegularHeader::to_string() const {
-  using namespace fmt;
   std::ostringstream oss;
 
   static constexpr auto WIDTH = 16;
   oss << Header::to_string() << '\n';
-  oss << format("{:>{}} Size of optional header\n", sizeof_optionalheader(), WIDTH);
-  oss << format("{:>#{}x} Characteristics", characteristics(), WIDTH);
+  oss << fmt::format("{:>{}} Size of optional header\n", sizeof_optionalheader(),
+                     WIDTH);
+  oss << fmt::format("{:>#{}x} Characteristics", characteristics(), WIDTH);
   return oss.str();
 }
 

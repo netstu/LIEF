@@ -1,5 +1,5 @@
 
-/* Copyright 2024 - 2025 R. Thomas
+/* Copyright 2024 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,11 +22,18 @@
 class AbstractFunction : public AbstractSymbol {
   public:
   using lief_t = LIEF::Function;
-  AbstractFunction(const lief_t& obj) : AbstractSymbol(obj) {}
+  AbstractFunction(const lief_t& obj) :
+    AbstractSymbol(obj) {}
 
-  auto address() const { return impl().address(); }
-  auto flags() const { return to_int(impl().flags()); }
+  auto address() const {
+    return impl().address();
+  }
+  auto flags() const {
+    return to_int(impl().flags());
+  }
 
   private:
-  const lief_t& impl() const { return as<lief_t>(this); }
+  const lief_t& impl() const {
+    return as<lief_t>(this);
+  }
 };

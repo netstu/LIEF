@@ -1,6 +1,6 @@
 import enum
 import os
-from typing import Iterator, Optional, Union
+from typing import Iterator, Optional, Union, overload
 
 from . import types as types
 import lief
@@ -259,6 +259,14 @@ class Type:
     @property
     def kind(self) -> Type.KIND: ...
 
+    @property
+    def name(self) -> str | None: ...
+
+    @property
+    def size(self) -> int | None: ...
+
+    def to_decl(self, opt: lief.DeclOpt | None = None) -> str: ...
+
 class DebugInfo(lief.DebugInfo):
     @property
     def age(self) -> int: ...
@@ -269,7 +277,11 @@ class DebugInfo(lief.DebugInfo):
     @staticmethod
     def from_file(filepath: Union[str | os.PathLike]) -> Optional[DebugInfo]: ...
 
+    @overload
     def find_type(self, name: str) -> Optional[Type]: ...
+
+    @overload
+    def find_type(self, index: int) -> Optional[Type]: ...
 
     def find_public_symbol(self, name: str) -> Optional[PublicSymbol]: ...
 
@@ -315,6 +327,8 @@ class CompilationUnit:
     @property
     def build_metadata(self) -> Optional[BuildMetadata]: ...
 
+    def to_decl(self, opt: lief.DeclOpt | None = None) -> str: ...
+
     def __str__(self) -> str: ...
 
 class Function:
@@ -332,5 +346,7 @@ class Function:
 
     @property
     def debug_location(self) -> lief.debug_location_t: ...
+
+    def to_decl(self, opt: lief.DeclOpt | None = None) -> str: ...
 
     def __str__(self) -> str: ...

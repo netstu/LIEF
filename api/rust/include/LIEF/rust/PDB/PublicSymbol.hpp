@@ -1,4 +1,4 @@
-/* Copyright 2022 - 2025 R. Thomas
+/* Copyright 2022 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,18 +14,29 @@
  */
 #pragma once
 
-#include "LIEF/rust/Mirror.hpp"
 #include "LIEF/PDB/PublicSymbol.hpp"
+#include "LIEF/rust/Mirror.hpp"
+#include "LIEF/rust/helpers.hpp"
 
 class PDB_PublicSymbol : private Mirror<LIEF::pdb::PublicSymbol> {
   public:
   using Mirror::Mirror;
   using lief_t = LIEF::pdb::PublicSymbol;
 
-  auto name() const { return get().name(); }
-  auto demangled_name() const { return get().demangled_name(); }
-  auto section_name() const { return get().section_name(); }
-  auto RVA() const { return get().RVA(); }
+  auto name() const {
+    return to_unique_string(get().name());
+  }
+  auto demangled_name() const {
+    return to_unique_string(get().demangled_name());
+  }
+  auto section_name() const {
+    return to_unique_string(get().section_name());
+  }
+  auto RVA() const {
+    return get().RVA();
+  }
 
-  auto to_string() const { return get().to_string(); }
+  auto to_string() const {
+    return to_unique_string(get().to_string());
+  }
 };

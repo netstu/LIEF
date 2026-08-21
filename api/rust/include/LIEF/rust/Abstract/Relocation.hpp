@@ -1,4 +1,4 @@
-/* Copyright 2024 - 2025 R. Thomas
+/* Copyright 2024 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,10 @@ class AbstractRelocation : public Mirror<LIEF::Relocation> {
   public:
   using Mirror::Mirror;
 
-  uint64_t size() const { return get().size(); }
-  uint64_t address() const { return get().address(); }
+  uint64_t size() const {
+    return get().size();
+  }
+  uint64_t address() const {
+    return get().address();
+  }
 };

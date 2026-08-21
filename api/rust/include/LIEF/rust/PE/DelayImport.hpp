@@ -1,4 +1,4 @@
-/* Copyright 2024 - 2025 R. Thomas
+/* Copyright 2024 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,10 @@
 #pragma once
 
 #include "LIEF/PE/DelayImport.hpp"
-#include "LIEF/rust/PE/DelayImportEntry.hpp"
-#include "LIEF/rust/Mirror.hpp"
 #include "LIEF/rust/Iterator.hpp"
+#include "LIEF/rust/Mirror.hpp"
+#include "LIEF/rust/PE/DelayImportEntry.hpp"
+#include "LIEF/rust/helpers.hpp"
 
 #include <memory>
 
@@ -26,26 +27,47 @@ class PE_DelayImport : private Mirror<LIEF::PE::DelayImport> {
   using lief_t = LIEF::PE::DelayImport;
   using Mirror::Mirror;
 
-  class it_entries :
-      public Iterator<PE_DelayImportEntry, LIEF::PE::DelayImport::it_const_entries>
-  {
+  class it_entries : public Iterator<PE_DelayImportEntry,
+                                     LIEF::PE::DelayImport::it_const_entries> {
     public:
-    it_entries(const PE_DelayImport::lief_t& src)
-      : Iterator(std::move(src.entries())) { }
-    auto next() { return Iterator::next(); }
-    auto size() const { return Iterator::size(); }
+    it_entries(const PE_DelayImport::lief_t& src) :
+      Iterator(src.entries()) {}
+    auto next() {
+      return Iterator::next();
+    }
+    auto size() const {
+      return Iterator::size();
+    }
   };
 
-  uint32_t attribute() const { return get().attribute(); }
-  std::string name() const { return get().name(); }
-  uint32_t handle() const { return get().handle(); }
-  uint32_t iat() const { return get().iat(); }
-  uint32_t names_table() const { return get().names_table(); }
-  uint32_t biat() const { return get().biat(); }
-  uint32_t uiat() const { return get().uiat(); }
-  uint32_t timestamp() const { return get().timestamp(); }
+  uint32_t attribute() const {
+    return get().attribute();
+  }
+  auto name() const {
+    return to_unique_string(get().name());
+  }
+  uint32_t handle() const {
+    return get().handle();
+  }
+  uint32_t iat() const {
+    return get().iat();
+  }
+  uint32_t names_table() const {
+    return get().names_table();
+  }
+  uint32_t biat() const {
+    return get().biat();
+  }
+  uint32_t uiat() const {
+    return get().uiat();
+  }
+  uint32_t timestamp() const {
+    return get().timestamp();
+  }
 
   auto entries() const {
     return std::make_unique<it_entries>(get());
   }
 };
+
+using PE_DelayImport_it_entries = PE_DelayImport::it_entries;

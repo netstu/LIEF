@@ -1,4 +1,4 @@
-/* Copyright 2025 R. Thomas
+/* Copyright 2025 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,15 +12,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "log.hpp"
 #include "binaryninja/analysis/PE/TypeBuilder.hpp"
 #include "binaryninja/lief_utils.hpp"
+#include "log.hpp"
 
 #include "LIEF/PE/Binary.hpp"
-#include "LIEF/PE/exceptions_info/RuntimeFunctionX64.hpp"
-#include "LIEF/PE/exceptions_info/RuntimeFunctionAArch64.hpp"
-#include "LIEF/PE/exceptions_info/AArch64/UnpackedFunction.hpp"
 #include "LIEF/PE/exceptions_info/AArch64/PackedFunction.hpp"
+#include "LIEF/PE/exceptions_info/AArch64/UnpackedFunction.hpp"
+#include "LIEF/PE/exceptions_info/RuntimeFunctionAArch64.hpp"
+#include "LIEF/PE/exceptions_info/RuntimeFunctionX64.hpp"
 #include "binaryninja/analysis/PE/analyzers/RuntimeFunctions.hpp"
 
 #include <binaryninja/binaryninjaapi.h>
@@ -31,7 +31,8 @@ using namespace BinaryNinja;
 
 namespace analysis_plugin::pe::analyzers {
 
-bool RuntimeFunctions::can_run(BinaryNinja::BinaryView& bv, LIEF::PE::Binary& pe) {
+bool RuntimeFunctions::can_run(BinaryNinja::BinaryView& /*bv*/,
+                               LIEF::PE::Binary& pe) {
   return !pe.exceptions().empty();
 }
 
@@ -52,49 +53,56 @@ void RuntimeFunctions::process(const LIEF::PE::RuntimeFunctionX64& x64) {
 }
 
 void RuntimeFunctions::process(const LIEF::PE::RuntimeFunctionAArch64& arm64) {
-  bv_.CreateUserFunction(windows_arm64(), translate_addr(get_va(arm64.rva_start())));
+  bv_.CreateUserFunction(windows_arm64(),
+                         translate_addr(get_va(arm64.rva_start())));
 
   if (auto rva = pe_.offset_to_virtual_address(arm64.offset())) {
     uint64_t addr = translate_addr(get_va(*rva));
 
-    if (const auto* packed = arm64.as<PE::unwind_aarch64::PackedFunction>()) {
+    if (arm64.as<PE::unwind_aarch64::PackedFunction>() != nullptr) {
       // Packed version
-      define_struct_at(addr,
-          type_builder_.get_or_create("IMAGE_ARM64_RUNTIME_FUNCTION_ENTRY"),
-          "__arm64_runtime_function_entry");
-    }
-    else if (const auto* unpacked = arm64.as<PE::unwind_aarch64::UnpackedFunction>()) {
+      define_struct_at(
+          addr, type_builder_.get_or_create("IMAGE_ARM64_RUNTIME_FUNCTION_ENTRY"),
+          "__arm64_runtime_function_entry"
+      );
+    } else if (const auto* unpacked =
+                   arm64.as<PE::unwind_aarch64::UnpackedFunction>())
+    {
       // Unpacked version
-      define_struct_at(addr,
-          type_builder_.get_or_create("IMAGE_ARM64_RUNTIME_FUNCTION_ENTRY"),
-          "__arm64_runtime_function_entry");
+      define_struct_at(
+          addr, type_builder_.get_or_create("IMAGE_ARM64_RUNTIME_FUNCTION_ENTRY"),
+          "__arm64_runtime_function_entry"
+      );
 
       uint64_t xdata_addr = translate_addr(get_va(unpacked->xdata_rva()));
 
       if (unpacked->is_extended()) {
         define_struct_at(xdata_addr,
-            type_builder_.get_or_create("IMAGE_ARM64_RUNTIME_FUNCTION_EXTENDED_ENTRY"),
-            "__arm64_runtime_function_entry_xdata_extended");
+                         type_builder_.get_or_create(
+                             "IMAGE_ARM64_RUNTIME_FUNCTION_EXTENDED_ENTRY"
+                         ),
+                         "__arm64_runtime_function_entry_xdata_extended");
       } else {
         define_struct_at(xdata_addr,
-            type_builder_.get_or_create("IMAGE_ARM64_RUNTIME_FUNCTION_ENTRY_XDATA"),
-            "__arm64_runtime_function_entry_xdata");
+                         type_builder_.get_or_create(
+                             "IMAGE_ARM64_RUNTIME_FUNCTION_ENTRY_XDATA"
+                         ),
+                         "__arm64_runtime_function_entry_xdata");
       }
 
       if (auto offset = unpacked->epilog_scopes_offset(); offset > 0) {
-        define_array_at(xdata_addr + offset,
-            type_builder_.u32(), unpacked->epilog_scopes().size(),
-            "__arm64_epilog_scopes");
+        define_array_at(xdata_addr + offset, type_builder_.u32(),
+                        unpacked->epilog_scopes().size(), "__arm64_epilog_scopes");
       }
 
       if (auto offset = unpacked->unwind_code_offset(); offset > 0) {
         define_blob(xdata_addr + unpacked->unwind_code_offset(),
-            unpacked->unwind_code().size(), "__arm64_unwind_code");
+                    unpacked->unwind_code().size(), "__arm64_unwind_code");
       }
 
       if (auto offset = unpacked->exception_handler_offset(); offset > 0) {
         define_type_at(xdata_addr + offset, type_builder_.RVA(),
-            "__arm64_runtime_function_exception_handler");
+                       "__arm64_runtime_function_exception_handler");
       }
     }
   }

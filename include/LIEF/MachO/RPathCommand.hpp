@@ -1,5 +1,5 @@
 /* Copyright 2017 - 2021 J. Rieck (based on R. Thomas's work)
- * Copyright 2017 - 2025 Quarkslab
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,15 +15,17 @@
  */
 #ifndef LIEF_MACHO_RPATH_COMMAND_H
 #define LIEF_MACHO_RPATH_COMMAND_H
-#include <string>
+#include <string_view>
+#include <memory>
 #include <ostream>
+#include <string>
 
 #include "LIEF/visibility.h"
 
 #include "LIEF/MachO/LoadCommand.hpp"
 
-namespace LIEF {
-namespace MachO {
+
+namespace LIEF::MachO {
 
 namespace details {
 struct rpath_command;
@@ -43,18 +45,18 @@ class LIEF_API RPathCommand : public LoadCommand {
   RPathCommand(const RPathCommand& copy) = default;
 
   std::unique_ptr<LoadCommand> clone() const override {
-    return std::unique_ptr<RPathCommand>(new RPathCommand(*this));
+    return std::make_unique<RPathCommand>(*this);
   }
 
   /// Create a new RPath command for the provided `path`
   static std::unique_ptr<RPathCommand> create(std::string path) {
-    return std::unique_ptr<RPathCommand>(new RPathCommand(std::move(path)));
+    return std::make_unique<RPathCommand>(std::move(path));
   }
 
   ~RPathCommand() override = default;
 
   /// The rpath value as a string
-  const std::string& path() const {
+  std::string_view path() const LIEF_LIFETIMEBOUND {
     return path_;
   }
 
@@ -81,5 +83,5 @@ class LIEF_API RPathCommand : public LoadCommand {
 };
 
 }
-}
+
 #endif

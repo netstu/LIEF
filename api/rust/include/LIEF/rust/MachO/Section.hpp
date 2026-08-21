@@ -1,4 +1,4 @@
-/* Copyright 2024 - 2025 R. Thomas
+/* Copyright 2024 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 #include "LIEF/MachO/Section.hpp"
 #include "LIEF/rust/Abstract/Section.hpp"
 #include "LIEF/rust/Iterator.hpp"
+#include "LIEF/rust/helpers.hpp"
 
 class MachO_SegmentCommand;
 class MachO_Relocation;
@@ -24,34 +25,76 @@ class MachO_Relocation;
 class MachO_Section : public AbstractSection {
   public:
   using lief_t = LIEF::MachO::Section;
-  MachO_Section(const lief_t& sec) : AbstractSection(sec) {}
+  MachO_Section(const lief_t& sec) :
+    AbstractSection(sec) {}
 
-  class it_relocations :
-      public Iterator<MachO_Relocation, LIEF::MachO::Section::it_const_relocations>
-  {
+  class it_relocations
+    : public Iterator<MachO_Relocation,
+                      LIEF::MachO::Section::it_const_relocations> {
     public:
-    it_relocations(const MachO_Section::lief_t& src)
-      : Iterator(std::move(src.relocations())) { }
-    auto next() { return Iterator::next(); }
-    auto size() const { return Iterator::size(); }
+    it_relocations(const MachO_Section::lief_t& src) :
+      Iterator(src.relocations()) {}
+    auto next() {
+      return Iterator::next();
+    }
+    auto size() const {
+      return Iterator::size();
+    }
   };
 
-  std::string segment_name() const { return impl().segment_name(); }
-  auto address() const { return impl().address(); }
-  auto alignment() const { return impl().alignment(); }
-  auto relocation_offset() const { return impl().relocation_offset(); }
-  auto numberof_relocations() const { return impl().numberof_relocations(); }
-  auto flags() const { return to_int(impl().flags()); }
-  auto section_type() const { return to_int(impl().type()); }
-  auto reserved1() const { return impl().reserved1(); }
-  auto reserved2() const { return impl().reserved2(); }
-  auto reserved3() const { return impl().reserved3(); }
+  auto segment_name() const {
+    return to_unique_string(impl().segment_name());
+  }
+  auto address() const {
+    return impl().address();
+  }
+  auto alignment() const {
+    return impl().alignment();
+  }
+  auto relocation_offset() const {
+    return impl().relocation_offset();
+  }
+  auto numberof_relocations() const {
+    return impl().numberof_relocations();
+  }
+  auto flags() const {
+    return as_u64(impl().flags());
+  }
+  auto section_type() const {
+    return as_u64(impl().type());
+  }
+  auto reserved1() const {
+    return impl().reserved1();
+  }
+  auto reserved2() const {
+    return impl().reserved2();
+  }
+  auto reserved3() const {
+    return impl().reserved3();
+  }
 
-  auto raw_flags() const { return impl().raw_flags(); }
+  auto raw_flags() const {
+    return impl().raw_flags();
+  }
 
-  auto segment() const { return details::try_unique<MachO_SegmentCommand>(impl().segment()); }
-  auto relocations() const { return std::make_unique<it_relocations>(impl()); }
+  auto segment() const {
+    return details::try_unique<MachO_SegmentCommand>(impl().segment());
+  }
+  auto relocations() const {
+    return std::make_unique<it_relocations>(impl());
+  }
+
+  auto has_segment() const {
+    return impl().has_segment();
+  }
 
   private:
-  const lief_t& impl() const { return as<lief_t>(this); }
+  const lief_t& impl() const {
+    return as<lief_t>(this);
+  }
+  lief_t& impl() {
+    return as<lief_t>(this);
+  }
 };
+
+using MachO_Section_it_relocations = MachO_Section::it_relocations;

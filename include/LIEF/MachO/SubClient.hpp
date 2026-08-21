@@ -1,4 +1,4 @@
-/* Copyright 2017 - 2025 R. Thomas
+/* Copyright 2017 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,15 +14,18 @@
  */
 #ifndef LIEF_MACHO_SUB_CLIENT_H
 #define LIEF_MACHO_SUB_CLIENT_H
-#include <string>
+#include <string_view>
+#include <memory>
 #include <ostream>
+#include <string>
 
+#include "LIEF/compiler_attributes.hpp"
 #include "LIEF/visibility.h"
 
 #include "LIEF/MachO/LoadCommand.hpp"
 
-namespace LIEF {
-namespace MachO {
+
+namespace LIEF::MachO {
 
 class BinaryParser;
 
@@ -31,7 +34,7 @@ struct sub_client_command;
 }
 
 /// Class that represents the SubClient command.
-/// Accodring to the Mach-O `loader.h` documentation:
+/// According to the Mach-O `loader.h` documentation:
 ///
 /// > For dynamically linked shared libraries that are subframework of an umbrella
 /// > framework they can allow clients other than the umbrella framework or other
@@ -42,6 +45,7 @@ struct sub_client_command;
 /// > where the bundle is built with "-client_name client_name".
 class LIEF_API SubClient : public LoadCommand {
   friend class BinaryParser;
+
   public:
   SubClient() = default;
   SubClient(const details::sub_client_command& cmd);
@@ -50,11 +54,11 @@ class LIEF_API SubClient : public LoadCommand {
   SubClient(const SubClient& copy) = default;
 
   std::unique_ptr<LoadCommand> clone() const override {
-    return std::unique_ptr<SubClient>(new SubClient(*this));
+    return std::make_unique<SubClient>(*this);
   }
 
   /// Name of the client
-  const std::string& client() const {
+  std::string_view client() const LIEF_LIFETIMEBOUND {
     return client_;
   }
 
@@ -77,5 +81,5 @@ class LIEF_API SubClient : public LoadCommand {
 };
 
 }
-}
+
 #endif

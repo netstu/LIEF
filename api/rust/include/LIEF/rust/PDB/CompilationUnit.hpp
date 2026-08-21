@@ -1,4 +1,4 @@
-/* Copyright 2022 - 2025 R. Thomas
+/* Copyright 2022 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,46 +14,52 @@
  */
 #pragma once
 
-#include "LIEF/rust/Mirror.hpp"
-#include "LIEF/rust/Iterator.hpp"
-#include "LIEF/rust/PDB/Function.hpp"
-#include "LIEF/rust/PDB/BuildMetadata.hpp"
 #include "LIEF/PDB/CompilationUnit.hpp"
+#include "LIEF/rust/DebugDeclOpt.hpp"
+#include "LIEF/rust/Iterator.hpp"
+#include "LIEF/rust/Mirror.hpp"
+#include "LIEF/rust/PDB/BuildMetadata.hpp"
+#include "LIEF/rust/PDB/Function.hpp"
+#include "LIEF/rust/helpers.hpp"
 
 class PDB_CompilationUnit : private Mirror<LIEF::pdb::CompilationUnit> {
   public:
   using Mirror::Mirror;
   using lief_t = LIEF::pdb::CompilationUnit;
 
-  class it_sources :
-      public ForwardIterator<std::string, std::vector<std::string>::const_iterator>
-  {
+  class it_sources
+    : public ForwardIterator<std::string,
+                             std::vector<std::string>::const_iterator> {
     public:
-    it_sources(const PDB_CompilationUnit::lief_t& src)
-      : ForwardIterator(src.sources()) { }
-    std::string next() {
-      auto next_string = ForwardIterator::next();
-      if (next_string == nullptr) {
-        // Not ideal but autocxx is not able to deal with
-        // std::unique_ptr<std::string>:
-        // "Type std::unique_ptr was parameterized over something complex which we don't yet support"
-        return "[LIEF_STOP]";
-      }
-      return *next_string;
+    it_sources(const PDB_CompilationUnit::lief_t& src) :
+      ForwardIterator(src.sources()) {}
+    auto next() {
+      return ForwardIterator::next();
+    }
+    auto size() const {
+      return ForwardIterator::size();
     }
   };
 
-  class it_functions :
-      public ForwardIterator<PDB_Function, LIEF::pdb::Function::Iterator>
-  {
+  class it_functions
+    : public ForwardIterator<PDB_Function, LIEF::pdb::Function::Iterator> {
     public:
-    it_functions(const PDB_CompilationUnit::lief_t& src)
-      : ForwardIterator(src.functions()) { }
-    auto next() { return ForwardIterator::next(); }
+    it_functions(const PDB_CompilationUnit::lief_t& src) :
+      ForwardIterator(src.functions()) {}
+    auto next() {
+      return ForwardIterator::next();
+    }
+    auto size() const {
+      return ForwardIterator::size();
+    }
   };
 
-  auto module_name() const { return get().module_name(); }
-  auto object_filename() const { return get().object_filename(); }
+  auto module_name() const {
+    return to_unique_string(get().module_name());
+  }
+  auto object_filename() const {
+    return to_unique_string(get().object_filename());
+  }
 
   auto sources() const {
     return std::make_unique<it_sources>(get());
@@ -67,5 +73,18 @@ class PDB_CompilationUnit : private Mirror<LIEF::pdb::CompilationUnit> {
     return details::try_unique<PDB_BuildMetadata>(get().build_metadata());
   }
 
-  auto to_string() const { return get().to_string(); }
+  auto to_string() const {
+    return to_unique_string(get().to_string());
+  }
+
+  auto to_decl() const {
+    return to_unique_string(get().to_decl());
+  }
+
+  auto to_decl_with_opt(const LIEF_DeclOpt& opt) const {
+    return to_unique_string(get().to_decl(opt.conf()));
+  }
 };
+
+using PDB_CompilationUnit_it_sources = PDB_CompilationUnit::it_sources;
+using PDB_CompilationUnit_it_functions = PDB_CompilationUnit::it_functions;

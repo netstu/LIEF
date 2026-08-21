@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,13 +17,13 @@
 #define LIEF_PE_SIGNATURE_TYPES_H
 #include <string>
 
-namespace LIEF {
-namespace PE {
+
+namespace LIEF::PE {
 
 using oid_t = std::string;
 
 
 }
-}
+
 
 #endif

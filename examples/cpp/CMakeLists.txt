@@ -3,12 +3,17 @@ set(LIEF_CPP_EXAMPLES
   disassembler.cpp
   abstract_reader.cpp
   benchmark.cpp
-  dwarf_inspect.cpp
-  pdb_inspect.cpp
-  objc_inspect.cpp
-  dyld_shared_cache_reader.cpp
-  dwarf_editor.cpp
 )
+
+if (LIEF_ELF AND LIEF_PE AND LIEF_MACHO)
+  list(APPEND LIEF_CPP_EXAMPLES
+    dwarf_inspect.cpp
+    pdb_inspect.cpp
+    objc_inspect.cpp
+    dyld_shared_cache_reader.cpp
+    dwarf_editor.cpp
+  )
+endif()
 
 if (LIEF_ELF)
   list(APPEND LIEF_CPP_EXAMPLES
@@ -60,6 +65,32 @@ if (LIEF_DEX)
   )
 endif()
 
+if (LIEF_RUNTIME)
+  if (LIEF_RUNTIME_PLATFORM_LINUX)
+    list(APPEND LIEF_CPP_EXAMPLES
+      runtime_linux.cpp
+    )
+  endif()
+
+  if (LIEF_RUNTIME_PLATFORM_WINDOWS)
+    list(APPEND LIEF_CPP_EXAMPLES
+      runtime_windows.cpp
+    )
+  endif()
+
+  if (LIEF_RUNTIME_PLATFORM_OSX)
+    list(APPEND LIEF_CPP_EXAMPLES
+      runtime_osx.cpp
+    )
+  endif()
+
+  if (LIEF_RUNTIME_PLATFORM_ANDROID)
+    list(APPEND LIEF_CPP_EXAMPLES
+      runtime_android.cpp
+    )
+  endif()
+endif()
+
 if(APPLE)
   list(APPEND LIEF_CPP_EXAMPLES
     macho_from_memory.cpp
@@ -78,10 +109,24 @@ foreach(example ${LIEF_CPP_EXAMPLES})
   set_target_properties(
     ${output_name}
     PROPERTIES POSITION_INDEPENDENT_CODE ON
-               CXX_STANDARD              11
-               CXX_STANDARD_REQUIRED     ON)
+               CXX_STANDARD_REQUIRED     ON
+               INCLUDE_DIRECTORIES       "")
+
+  if (${output_name} MATCHES "^runtime_")
+    set_target_properties(${output_name} PROPERTIES CXX_STANDARD 23)
+  else()
+    set_target_properties(${output_name} PROPERTIES CXX_STANDARD 17)
+  endif()
 
   target_link_libraries(${output_name} PUBLIC LIB_LIEF)
+
+  if (LIEF_ASAN)
+    target_link_libraries(${output_name} INTERFACE libclang_rt.asan.a)
+  endif()
+
+  if (LIEF_TSAN)
+    target_link_libraries(${output_name} INTERFACE libclang_rt.tsan.a)
+  endif()
 
   if (CMAKE_BUILD_TYPE MATCHES "Release")
     if (UNIX AND NOT APPLE)

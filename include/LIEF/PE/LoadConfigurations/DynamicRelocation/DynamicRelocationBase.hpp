@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,15 +16,15 @@
 #ifndef LIEF_PE_LOAD_CONFIGURATION_DYNAMIC_RELOCATION_H
 #define LIEF_PE_LOAD_CONFIGURATION_DYNAMIC_RELOCATION_H
 
-#include <ostream>
 #include <cstdint>
 #include <memory>
+#include <ostream>
 #include <string>
 
 #include "LIEF/visibility.h"
 
-namespace LIEF {
-namespace PE {
+
+namespace LIEF::PE {
 class DynamicFixup;
 
 /// This is the base class for any `IMAGE_DYNAMIC_RELOCATION32`,
@@ -83,28 +83,28 @@ class LIEF_API DynamicRelocation {
     return symbol_;
   }
 
-  const DynamicFixup* fixups() const {
+  const DynamicFixup* fixups() const LIEF_LIFETIMEBOUND {
     return fixups_.get();
   }
 
   /// Return fixups information, where the interpretation may depend on the
   /// symbol's value
-  DynamicFixup* fixups() {
+  DynamicFixup* fixups() LIEF_LIFETIMEBOUND {
     return fixups_.get();
   }
 
-  DynamicRelocation& symbol(uint64_t value) {
+  DynamicRelocation& symbol(uint64_t value) LIEF_LIFETIMEBOUND {
     symbol_ = value;
     return *this;
   }
 
-  DynamicRelocation& fixups(std::unique_ptr<DynamicFixup> F);
+  DynamicRelocation& fixups(std::unique_ptr<DynamicFixup> F) LIEF_LIFETIMEBOUND;
 
   virtual std::string to_string() const = 0;
 
   template<class T>
   T* as() {
-    static_assert(std::is_base_of<DynamicRelocation, T>::value,
+    static_assert(std::is_base_of_v<DynamicRelocation, T>,
                   "Require DynamicRelocation inheritance");
     if (T::classof(this)) {
       return static_cast<T*>(this);
@@ -117,9 +117,8 @@ class LIEF_API DynamicRelocation {
     return const_cast<DynamicRelocation*>(this)->as<T>();
   }
 
-  LIEF_API friend
-    std::ostream& operator<<(std::ostream& os, const DynamicRelocation& reloc)
-  {
+  LIEF_API friend std::ostream& operator<<(std::ostream& os,
+                                           const DynamicRelocation& reloc) {
     os << reloc.to_string();
     return os;
   }
@@ -135,6 +134,6 @@ class LIEF_API DynamicRelocation {
 LIEF_API const char* to_string(DynamicRelocation::IMAGE_DYNAMIC_RELOCATION e);
 
 }
-}
+
 
 #endif

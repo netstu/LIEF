@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,8 @@
  */
 #ifndef LIEF_OBJECT_H
 #define LIEF_OBJECT_H
-#include <type_traits>
 #include "LIEF/visibility.h"
+#include <type_traits>
 
 namespace LIEF {
 
@@ -25,13 +25,13 @@ class Visitor;
 class LIEF_API Object {
 
   template<class T>
-  using add_pointer_t = typename std::add_pointer<T>::type;
+  using add_pointer_t = std::add_pointer_t<T>;
 
   template<class T>
-  using decay_t = typename std::decay<T>::type;
+  using decay_t = std::decay_t<T>;
 
   template<class T>
-  using add_const_t = typename std::add_const<T>::type;
+  using add_const_t = std::add_const_t<T>;
 
   public:
   template<class T>

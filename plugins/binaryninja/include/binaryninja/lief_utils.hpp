@@ -1,4 +1,4 @@
-/* Copyright 2025 R. Thomas
+/* Copyright 2025 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,9 @@
 #include <memory>
 #include <optional>
 
-#include <LIEF/PE/ParserConfig.hpp>
 #include <LIEF/ELF/ParserConfig.hpp>
 #include <LIEF/MachO/ParserConfig.hpp>
+#include <LIEF/PE/ParserConfig.hpp>
 
 namespace LIEF {
 class Binary;
@@ -34,7 +34,11 @@ namespace binaryninja {
 
 enum class FileFormat {
   Unknown = 0,
-  ELF, PE, MachO, COFF, DSC
+  ELF,
+  PE,
+  MachO,
+  COFF,
+  DSC,
 };
 
 FileFormat get_file_format(BinaryNinja::BinaryView& bv);

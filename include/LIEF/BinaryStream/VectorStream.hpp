@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,28 +16,27 @@
 #ifndef LIEF_VECTOR_STREAM_H
 #define LIEF_VECTOR_STREAM_H
 
-#include <vector>
-#include <string>
 #include <memory>
+#include <string>
+#include <vector>
 
+#include "LIEF/BinaryStream/BinaryStream.hpp"
 #include "LIEF/errors.hpp"
 #include "LIEF/visibility.h"
-#include "LIEF/BinaryStream/BinaryStream.hpp"
 
 namespace LIEF {
 class SpanStream;
 class LIEF_API VectorStream : public BinaryStream {
   public:
-  using BinaryStream::p;
   using BinaryStream::end;
+  using BinaryStream::p;
   using BinaryStream::start;
 
   static result<VectorStream> from_file(const std::string& file);
   VectorStream(std::vector<uint8_t> data) :
     BinaryStream(BinaryStream::STREAM_TYPE::VECTOR),
     binary_(std::move(data)),
-    size_(binary_.size())
-  {}
+    size_(binary_.size()) {}
 
   VectorStream() = delete;
 
@@ -82,9 +81,10 @@ class LIEF_API VectorStream : public BinaryStream {
   }
 
   protected:
-  result<const void*> read_at(uint64_t offset, uint64_t size, uint64_t /*va*/) const override {
+  result<const void*> read_at(uint64_t offset, uint64_t size,
+                              uint64_t /*va*/) const override {
     const uint64_t stream_size = this->size();
-    if (offset > stream_size || (offset + size) > stream_size) {
+    if (offset > stream_size || size > stream_size - offset) {
       return make_error_code(lief_errors::read_error);
     }
     return binary_.data() + offset;

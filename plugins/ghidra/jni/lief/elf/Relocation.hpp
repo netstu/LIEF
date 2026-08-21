@@ -1,4 +1,4 @@
-/* Copyright 2022 - 2025 R. Thomas
+/* Copyright 2022 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,8 +14,8 @@
  */
 #pragma once
 
-#include <jni_bind.h>
 #include "jni/lief/generic/Relocation.hpp"
+#include <jni_bind.h>
 
 #include <LIEF/ELF/Relocation.hpp>
 
@@ -24,9 +24,9 @@ namespace lief_jni::elf {
 class Relocation : public generic::Relocation {
   public:
   using generic::Relocation::Relocation;
-  static constexpr jni::Class kClass {
-    "lief/elf/Relocation",
-    jni::Constructor{ jlong{} },
+  static constexpr jni::Class kClass{
+      "lief/elf/Relocation",
+      jni::Constructor{jlong{}},
   };
 
   static int register_natives(JNIEnv* env);

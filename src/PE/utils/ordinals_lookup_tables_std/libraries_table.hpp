@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,8 @@
 #ifndef LIEF_PE_UTILS_LIBRARY_TABLE_STD_H
 #define LIEF_PE_UTILS_LIBRARY_TABLE_STD_H
 
-#include "ws2_32_dll_lookup.hpp"
+// IWYU pragma: begin_exports
 #include "oleauth32_dll_lookup.hpp"
-
+#include "ws2_32_dll_lookup.hpp"
+// IWYU pragma: end_exports
 #endif

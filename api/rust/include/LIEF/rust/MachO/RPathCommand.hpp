@@ -1,4 +1,4 @@
-/* Copyright 2024 - 2025 R. Thomas
+/* Copyright 2024 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,19 +17,40 @@
 
 #include "LIEF/MachO/RPathCommand.hpp"
 #include "LIEF/rust/MachO/LoadCommand.hpp"
+#include "LIEF/rust/helpers.hpp"
 
 class MachO_RPathCommand : public MachO_Command {
   public:
   using lief_t = LIEF::MachO::RPathCommand;
-  MachO_RPathCommand(const lief_t& base) : MachO_Command(base) {}
-  std::string path() const { return impl().path(); };
+  MachO_RPathCommand(const lief_t& base) :
+    MachO_Command(base) {}
+  MachO_RPathCommand(std::unique_ptr<lief_t> impl) :
+    MachO_Command(std::move(impl)) {}
 
-  auto path_offset() const { return impl().path_offset(); }
+  static auto create(const std::string& path) {
+    return std::make_unique<MachO_RPathCommand>(std::make_unique<lief_t>(path));
+  }
 
-  static bool classof(const MachO_Command& cmd) {
+  auto path() const {
+    return to_unique_string(impl().path());
+  }
+  auto path_offset() const {
+    return impl().path_offset();
+  }
+
+  auto set_path(const std::string& path) {
+    impl().path(path);
+  }
+
+  static auto classof(const MachO_Command& cmd) {
     return lief_t::classof(&cmd.get());
   }
 
   private:
-  const lief_t& impl() const { return as<lief_t>(this); }
+  const lief_t& impl() const {
+    return as<lief_t>(this);
+  }
+  lief_t& impl() {
+    return as<lief_t>(this);
+  }
 };

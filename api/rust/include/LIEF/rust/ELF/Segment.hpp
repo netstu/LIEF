@@ -1,4 +1,4 @@
-/* Copyright 2024 - 2025 R. Thomas
+/* Copyright 2024 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,8 @@
 #pragma once
 #include "LIEF/ELF/Segment.hpp"
 #include "LIEF/rust/Mirror.hpp"
-#include "LIEF/rust/helpers.hpp"
 #include "LIEF/rust/Span.hpp"
+#include "LIEF/rust/helpers.hpp"
 
 class ELF_Segment : public Mirror<LIEF::ELF::Segment> {
   public:
@@ -27,14 +27,30 @@ class ELF_Segment : public Mirror<LIEF::ELF::Segment> {
     return std::make_unique<ELF_Segment>(std::make_unique<lief_t>());
   }
 
-  auto stype() const { return to_int(get().type()); }
-  auto flags() const { return to_int(get().flags()); }
-  auto file_offset() const { return get().file_offset(); }
-  auto virtual_address() const { return get().virtual_address(); }
-  auto physical_address() const { return get().physical_address(); }
-  auto physical_size() const { return get().physical_size(); }
-  auto virtual_size() const { return get().virtual_size(); }
-  auto alignment() const { return get().alignment(); }
+  auto stype() const {
+    return as_u64(get().type());
+  }
+  auto flags() const {
+    return as_u32(get().flags());
+  }
+  auto file_offset() const {
+    return get().file_offset();
+  }
+  auto virtual_address() const {
+    return get().virtual_address();
+  }
+  auto physical_address() const {
+    return get().physical_address();
+  }
+  auto physical_size() const {
+    return get().physical_size();
+  }
+  auto virtual_size() const {
+    return get().virtual_size();
+  }
+  auto alignment() const {
+    return get().alignment();
+  }
 
   auto set_flags(uint32_t value) {
     get().flags(value);
@@ -44,34 +60,42 @@ class ELF_Segment : public Mirror<LIEF::ELF::Segment> {
     get().type((lief_t::TYPE)ty);
   }
 
-  void set_file_offset(uint64_t value) {
+  auto set_file_offset(uint64_t value) {
     get().file_offset(value);
   }
 
-  void set_virtual_address(uint64_t value) {
+  auto set_virtual_address(uint64_t value) {
     get().virtual_address(value);
   }
 
-  void set_physical_address(uint64_t value) {
+  auto set_physical_address(uint64_t value) {
     get().physical_address(value);
   }
 
-  void set_virtual_size(uint64_t value) {
+  auto set_virtual_size(uint64_t value) {
     get().virtual_size(value);
   }
 
-  void set_alignment(uint64_t value) {
+  auto set_alignment(uint64_t value) {
     get().alignment(value);
   }
 
-  void set_content(const uint8_t* ptr, uint64_t size) {
+  auto set_content(const uint8_t* ptr, uint64_t size) {
     get().content({ptr, ptr + size});
   }
 
-  Span content() const { return make_span(get().content()); }
+  Span content() const {
+    return make_span(get().content());
+  }
 
-  void fill(char c) { get().fill(c); }
-  void clear() { get().clear(); }
+  auto fill(int8_t c) {
+    get().fill(c);
+  }
+  auto clear() {
+    get().clear();
+  }
 
-  std::string to_string() const { return details::to_string(get()); }
+  auto to_string() const {
+    return to_unique_string(details::to_string(get()));
+  }
 };

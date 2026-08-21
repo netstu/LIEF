@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,18 +16,19 @@
 #ifndef LIEF_DEX_CLASS_H
 #define LIEF_DEX_CLASS_H
 
+#include <string_view>
 #include <climits>
 #include <string>
 
-#include "LIEF/visibility.h"
 #include "LIEF/Object.hpp"
 #include "LIEF/iterators.hpp"
+#include "LIEF/visibility.h"
 
-#include "LIEF/DEX/enums.hpp"
 #include "LIEF/DEX/deopt.hpp"
+#include "LIEF/DEX/enums.hpp"
 
-namespace LIEF {
-namespace DEX {
+
+namespace LIEF::DEX {
 class Parser;
 class Field;
 class Method;
@@ -56,7 +57,8 @@ class LIEF_API Class : public Object {
   public:
   static std::string package_normalized(const std::string& pkg_name);
   static std::string fullname_normalized(const std::string& pkg_cls);
-  static std::string fullname_normalized(const std::string& pkg, const std::string& cls_name);
+  static std::string fullname_normalized(const std::string& pkg,
+                                         const std::string& cls_name);
 
   Class();
   Class(const Class&) = delete;
@@ -66,7 +68,7 @@ class LIEF_API Class : public Object {
         Class* parent = nullptr, std::string source_filename = "");
 
   /// Mangled class name (e.g. ``Lcom/example/android/MyActivity;``)
-  const std::string& fullname() const;
+  std::string_view fullname() const;
 
   /// Package Name
   std::string package_name() const;
@@ -84,7 +86,7 @@ class LIEF_API Class : public Object {
   access_flags_list_t access_flags() const;
 
   /// Filename associated with this class (if any)
-  const std::string& source_filename() const;
+  std::string_view source_filename() const;
 
   /// True if the current class extends another one
   bool has_parent() const;
@@ -124,15 +126,15 @@ class LIEF_API Class : public Object {
 
   private:
   std::string fullname_;
-  uint32_t    access_flags_ = ACCESS_FLAGS::ACC_UNKNOWN;
-  Class*      parent_ = nullptr;
-  methods_t   methods_;
-  fields_t    fields_;
+  uint32_t access_flags_ = ACCESS_FLAGS::ACC_UNKNOWN;
+  Class* parent_ = nullptr;
+  methods_t methods_;
+  fields_t fields_;
   std::string source_filename_;
 
   uint32_t original_index_ = UINT_MAX;
 };
 
 } // Namespace DEX
-} // Namespace LIEF
+// Namespace LIEF
 #endif

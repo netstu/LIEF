@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "LIEF/MachO/Binary.hpp"
 #include "LIEF/MachO/BindingInfoIterator.hpp"
-#include "LIEF/MachO/DyldInfo.hpp"
-#include "LIEF/MachO/DyldBindingInfo.hpp"
-#include "LIEF/MachO/ChainedBindingInfo.hpp"
-#include "LIEF/MachO/IndirectBindingInfo.hpp"
+#include "LIEF/MachO/Binary.hpp"
+#include "LIEF/MachO/ChainedBindingInfo.hpp" // IWYU pragma: keep
+#include "LIEF/MachO/DyldBindingInfo.hpp"    // IWYU pragma: keep
 #include "LIEF/MachO/DyldChainedFixups.hpp"
+#include "LIEF/MachO/DyldInfo.hpp"
+#include "LIEF/MachO/IndirectBindingInfo.hpp" // IWYU pragma: keep
 
 #include "logging.hpp"
 
@@ -27,12 +27,9 @@ namespace LIEF::MachO {
 
 const BindingInfo& BindingInfoIterator::operator*() const {
   switch (origin_) {
-    case ORIGIN::DYLD:
-      return *dyld_info_->binding_info_.at(pos_);
-    case ORIGIN::CHAINED_FIXUPS:
-      return *chained_fixups_->all_bindings_.at(pos_);
-    case ORIGIN::INDIRECT:
-      return *binary_->indirect_bindings_.at(pos_);
+    case ORIGIN::DYLD: return *dyld_info_->binding_info_.at(pos_);
+    case ORIGIN::CHAINED_FIXUPS: return *chained_fixups_->all_bindings_.at(pos_);
+    case ORIGIN::INDIRECT: return *binary_->indirect_bindings_.at(pos_);
     case ORIGIN::NONE:
       logging::fatal_error("Can't return a BindingInfo for a NONE iterator");
   }

@@ -1,4 +1,4 @@
-/* Copyright 2022 - 2025 R. Thomas
+/* Copyright 2022 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,10 +21,22 @@ class dsc_MappingInfo : private Mirror<LIEF::dsc::MappingInfo> {
   using lief_t = LIEF::dsc::MappingInfo;
   using Mirror::Mirror;
 
-  auto address() const { return get().address(); }
-  auto size() const { return get().size(); }
-  auto end_address() const { return get().end_address(); }
-  auto file_offset() const { return get().file_offset(); }
-  auto max_prot() const { return get().max_prot(); }
-  auto init_prot() const { return get().init_prot(); }
+  auto address() const {
+    return get().address();
+  }
+  auto size() const {
+    return get().size();
+  }
+  auto end_address() const {
+    return get().end_address();
+  }
+  auto file_offset() const {
+    return get().file_offset();
+  }
+  auto max_prot() const {
+    return get().max_prot();
+  }
+  auto init_prot() const {
+    return get().init_prot();
+  }
 };

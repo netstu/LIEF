@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -121,7 +121,7 @@ void create<Import>(nb::module_& m) {
         "function_name"_a)
 
     .def("add_entry",
-        nb::overload_cast<ImportEntry>(&Import::add_entry),
+        nb::overload_cast<const ImportEntry&>(&Import::add_entry),
         "Add an " RST_CLASS_REF(lief.PE.ImportEntry) " (function) to the current import"_doc,
         "entry"_a,
         nb::rv_policy::reference_internal)
@@ -147,7 +147,7 @@ void create<Import>(nb::module_& m) {
       R"doc(
       Remove the import entry with the given name.
 
-      Return true if the deletion succeed, false otherwise
+      Return True if the deletion succeeds, False otherwise
       )doc"_doc, "name"_a
     )
 
@@ -156,7 +156,7 @@ void create<Import>(nb::module_& m) {
       R"doc(
       Remove the import entry with the given ordinal number
 
-      Return True if the deletion succeed, false otherwise
+      Return True if the deletion succeeds, False otherwise
       )doc"_doc, "ord"_a
     )
 

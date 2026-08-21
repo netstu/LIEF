@@ -1,10 +1,10 @@
-#include "LIEF/ELF.hpp"
-#include "LIEF/PE.hpp"
-#include "LIEF/MachO.hpp"
-#include "LIEF/DEX.hpp"
-#include "LIEF/OAT.hpp"
-#include "LIEF/VDEX.hpp"
 #include "LIEF/ART.hpp"
+#include "LIEF/DEX.hpp"
+#include "LIEF/ELF.hpp"
+#include "LIEF/MachO.hpp"
+#include "LIEF/OAT.hpp"
+#include "LIEF/PE.hpp"
+#include "LIEF/VDEX.hpp"
 #include "LIEF/logging.hpp"
 #include <sstream>
 #include <string>
@@ -48,7 +48,8 @@ void check(std::unique_ptr<LIEF::MachO::FatBinary> bin) {
     ss << fit;
     {
       for (size_t i = 0; i < 5; ++i) {
-        LIEF::MachO::SegmentCommand seg("__LIEF_" + std::to_string(i), std::vector<uint8_t>(0x345, 1));
+        LIEF::MachO::SegmentCommand seg("__LIEF_" + std::to_string(i),
+                                        std::vector<uint8_t>(0x345, 1));
         fit.add(seg);
       }
       auto target = &fit;
@@ -94,7 +95,9 @@ void check(LIEF::ART::File& file) {
 void check(LIEF::OAT::Binary& bin) {
   std::stringstream ss;
   ss << bin;
-  for (auto& _ : bin.dex_files()) { ss << _; }
+  for (auto& _ : bin.dex_files()) {
+    ss << _;
+  }
   for (auto& oat_dex : bin.oat_dex_files()) {
     ss << oat_dex;
     check(*oat_dex.dex_file());
@@ -119,11 +122,11 @@ int main(int argc, char** argv) {
   using namespace std::literals::string_literals;
 
   if (argc < 2) {
-    LIEF::logging::log(LIEF::logging::LEVEL::ERR,
-        "Usage: "s + argv[0] + " <binary>");
+    LIEF::logging::log(LIEF::logging::Level::Err,
+                       "Usage: "s + argv[0] + " <binary>");
     return EXIT_FAILURE;
   }
-  LIEF::logging::set_level(LIEF::logging::LEVEL::ERR);
+  LIEF::logging::set_level(LIEF::logging::Level::Err);
   const std::string path = argv[1];
 
   if (LIEF::ELF::is_elf(path)) {

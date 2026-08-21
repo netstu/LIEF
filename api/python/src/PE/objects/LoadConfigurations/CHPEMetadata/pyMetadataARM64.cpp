@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,7 +56,7 @@ void create<CHPEMetadataARM64>(nb::module_& m) {
 
     range
       .def_rw("start_offset", &range_entry_t::start_offset,
-        "Raw data (include start RVA and type"_doc
+        "Raw data (includes start RVA and type)"_doc
       )
       .def_rw("length", &range_entry_t::length,
         "Range's length"_doc

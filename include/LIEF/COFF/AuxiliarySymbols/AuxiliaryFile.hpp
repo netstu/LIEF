@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,33 +16,34 @@
 #ifndef LIEF_PE_AUXILIARY_FILE_H
 #define LIEF_PE_AUXILIARY_FILE_H
 
+#include <string_view>
 #include <memory>
 
-#include "LIEF/visibility.h"
 #include "LIEF/COFF/AuxiliarySymbol.hpp"
+#include "LIEF/compiler_attributes.hpp"
+#include "LIEF/visibility.h"
 
-namespace LIEF {
-namespace COFF {
+
+namespace LIEF::COFF {
 
 /// This auxiliary symbol represents a filename (auxiliary format 4)
 ///
 /// The Symbol::name itself should start with `.file`, and this auxiliary record
 /// gives the name of a source-code file.
 ///
-/// Reference: https://learn.microsoft.com/en-us/windows/win32/debug/pe-format#auxiliary-format-4-files
+/// Reference:
+/// https://learn.microsoft.com/en-us/windows/win32/debug/pe-format#auxiliary-format-4-files
 class LIEF_API AuxiliaryFile : public AuxiliarySymbol {
   public:
   LIEF_LOCAL static std::unique_ptr<AuxiliaryFile>
-    parse(const std::vector<uint8_t>& payload);
+      parse(const std::vector<uint8_t>& payload);
 
   AuxiliaryFile() :
-    AuxiliarySymbol(AuxiliarySymbol::TYPE::FILE)
-  {}
+    AuxiliarySymbol(AuxiliarySymbol::TYPE::FILE) {}
 
   AuxiliaryFile(std::string file) :
     AuxiliarySymbol(AuxiliarySymbol::TYPE::FILE),
-    filename_(std::move(file))
-  {}
+    filename_(std::move(file)) {}
 
   AuxiliaryFile(const AuxiliaryFile&) = default;
   AuxiliaryFile& operator=(const AuxiliaryFile&) = default;
@@ -51,11 +52,11 @@ class LIEF_API AuxiliaryFile : public AuxiliarySymbol {
   AuxiliaryFile& operator=(AuxiliaryFile&&) = default;
 
   std::unique_ptr<AuxiliarySymbol> clone() const override {
-    return std::unique_ptr<AuxiliaryFile>(new AuxiliaryFile{*this});
+    return std::make_unique<AuxiliaryFile>(*this);
   }
 
   /// The associated filename
-  const std::string& filename() const {
+  std::string_view filename() const LIEF_LIFETIMEBOUND {
     return filename_;
   }
 
@@ -81,5 +82,5 @@ class LIEF_API AuxiliaryFile : public AuxiliarySymbol {
 };
 
 }
-}
+
 #endif

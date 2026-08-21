@@ -1,4 +1,4 @@
-/* Copyright 2024 - 2025 R. Thomas
+/* Copyright 2024 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,10 +29,11 @@
 #include "LIEF/rust/MachO/FatBinary.hpp"
 #include "LIEF/rust/MachO/Fileset.hpp"
 #include "LIEF/rust/MachO/FunctionStarts.hpp"
-#include "LIEF/rust/MachO/FunctionVariants.hpp"
 #include "LIEF/rust/MachO/FunctionVariantFixups.hpp"
+#include "LIEF/rust/MachO/FunctionVariants.hpp"
 #include "LIEF/rust/MachO/Header.hpp"
 #include "LIEF/rust/MachO/IndirectBindingInfo.hpp"
+#include "LIEF/rust/MachO/LazyLoadDylibInfo.hpp"
 #include "LIEF/rust/MachO/LoadCommand.hpp"
 #include "LIEF/rust/MachO/Main.hpp"
 #include "LIEF/rust/MachO/NoteCommand.hpp"
@@ -52,6 +53,7 @@
 #include "LIEF/rust/MachO/Symbol.hpp"
 #include "LIEF/rust/MachO/SymbolCommand.hpp"
 #include "LIEF/rust/MachO/ThreadCommand.hpp"
+#include "LIEF/rust/MachO/ThreadLocalVariables.hpp"
 #include "LIEF/rust/MachO/TwoLevelHints.hpp"
 #include "LIEF/rust/MachO/UUIDCommand.hpp"
 #include "LIEF/rust/MachO/UnknownCommand.hpp"

@@ -1,4 +1,4 @@
-/* Copyright 2024 - 2025 R. Thomas
+/* Copyright 2024 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,10 +13,10 @@
  * limitations under the License.
  */
 
-#include <cstdint>
-#include <vector>
 #include "LIEF/rust/Stream.hpp"
 #include "LIEF/BinaryStream/VectorStream.hpp"
+#include <cstdint>
+#include <vector>
 
 std::unique_ptr<RustStream> RustStream::from_rust(uint8_t* buffer, size_t size) {
   std::vector<uint8_t> vector{buffer, buffer + size};

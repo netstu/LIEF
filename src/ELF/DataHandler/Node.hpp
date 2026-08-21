@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,22 +16,23 @@
 #ifndef LIEF_ELF_DATA_HANDLER_NODE_H
 #define LIEF_ELF_DATA_HANDLER_NODE_H
 
-#include <cstdint>
 #include "LIEF/visibility.h"
+#include <cstdint>
 
 namespace LIEF::ELF::DataHandler {
 
 class LIEF_LOCAL Node {
   public:
   enum Type : uint8_t {
-    SECTION = 0,
-    SEGMENT = 1,
-    UNKNOWN = 2
+    UNKNOWN = 0,
+    SECTION,
+    SEGMENT,
   };
   Node() = default;
   Node(uint64_t offset, uint64_t size, Type type) :
-    size_{size}, offset_{offset}, type_{type}
-  {}
+    size_{size},
+    offset_{offset},
+    type_{type} {}
 
   Node& operator=(const Node&) = default;
   Node(const Node&) = default;
@@ -81,6 +82,6 @@ class LIEF_LOCAL Node {
   Type type_ = Type::UNKNOWN;
 };
 
-} // namespace LIEF::ELF::DataHandler
+}
 
 #endif

@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,7 +45,7 @@ void create<Builder>(nb::module_& m) {
     .def_rw("dynamic_section", &Builder::config_t::dynamic_section, "Rebuild the `PT_DYNAMIC` segment"_doc)
     .def_rw("fini_array",      &Builder::config_t::fini_array, "Rebuild :attr:`~lief.ELF.DynamicEntry.TAG.FINI_ARRAY`"_doc)
     .def_rw("init_array",      &Builder::config_t::init_array, "Rebuild :attr:`~lief.ELF.DynamicEntry.TAG.INIT_ARRAY`"_doc)
-    .def_rw("interpreter",     &Builder::config_t::interpreter, "Rebuild  the `PT_INTERP` segment"_doc)
+    .def_rw("interpreter",     &Builder::config_t::interpreter, "Rebuild the `PT_INTERP` segment"_doc)
     .def_rw("jmprel",          &Builder::config_t::jmprel, "Rebuild :attr:`~lief.ELF.DynamicEntry.TAG.JMPREL`"_doc)
     .def_rw("notes",           &Builder::config_t::notes, "Rebuild `PT_NOTES` segment(s)"_doc)
     .def_rw("preinit_array",   &Builder::config_t::preinit_array, "Rebuild :attr:`~lief.ELF.DynamicEntry.TAG.PREINIT_ARRAY`"_doc)
@@ -77,7 +77,8 @@ void create<Builder>(nb::module_& m) {
         [] (Builder& self) {
           return self.build();
         },
-        "Perform the build of the provided ELF binary"_doc)
+        "Perform the build of the provided ELF binary"_doc,
+        nb::lock_self())
 
     .def_prop_ro("config", &Builder::config,
         "Configuration of the builder"_doc,
@@ -86,11 +87,12 @@ void create<Builder>(nb::module_& m) {
      .def("write",
         nb::overload_cast<const std::string&>(&Builder::write, nb::const_),
         "Write the build result into the ``output`` file"_doc,
-        "output"_a)
+        "output"_a, nb::lock_self())
 
     .def("get_build",
         &Builder::get_build,
         "Return the build result as a ``list`` of bytes"_doc,
+        nb::lock_self(),
         nb::rv_policy::reference_internal);
 
 }

@@ -1,4 +1,4 @@
-/* Copyright 2024 - 2025 R. Thomas
+/* Copyright 2024 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@
 #pragma once
 #include "LIEF/MachO/Stub.hpp"
 
-#include "LIEF/rust/Span.hpp"
 #include "LIEF/rust/Mirror.hpp"
+#include "LIEF/rust/Span.hpp"
 #include "LIEF/rust/error.hpp"
 
 class MachO_Stub : public Mirror<LIEF::MachO::Stub> {
@@ -25,11 +25,14 @@ class MachO_Stub : public Mirror<LIEF::MachO::Stub> {
   using lief_t = LIEF::MachO::Stub;
   using Mirror::Mirror;
 
-  auto address() const { return get().address(); };
-  Span raw() const { return make_span(get().raw()); }
+  auto address() const {
+    return get().address();
+  }
+  Span raw() const {
+    return make_span(get().raw());
+  }
 
   uint64_t target(uint32_t& err) const {
     return details::make_error<uint64_t>(get().target(), err);
   }
-
 };

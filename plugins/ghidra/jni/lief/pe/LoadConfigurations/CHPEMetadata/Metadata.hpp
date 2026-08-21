@@ -1,4 +1,4 @@
-/* Copyright 2022 - 2025 R. Thomas
+/* Copyright 2022 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,24 +14,26 @@
  */
 #pragma once
 
-#include <jni_bind.h>
-#include "jni/mirror.hpp"
 #include "jni/canbe_unique.hpp"
+#include "jni/mirror.hpp"
+#include <jni_bind.h>
 
 #include <LIEF/PE/LoadConfigurations/CHPEMetadata/Metadata.hpp>
 
 namespace lief_jni::pe {
 
-class CHPEMetadata : public JNI<CHPEMetadata, canbe_unique<LIEF::PE::CHPEMetadata>> {
+class CHPEMetadata
+  : public JNI<CHPEMetadata, canbe_unique<LIEF::PE::CHPEMetadata>> {
   public:
   using JNI::JNI;
   using lief_t = LIEF::PE::CHPEMetadata;
 
-  static constexpr jni::Class kClass {
-    "lief/pe/CHPEMetadata",
-    jni::Constructor{ jlong{} },
-    jni::Field { "impl", jlong{}, }
-  };
+  static constexpr jni::Class kClass{"lief/pe/CHPEMetadata",
+                                     jni::Constructor{jlong{}},
+                                     jni::Field{
+                                         "impl",
+                                         jlong{},
+                                     }};
 
   static jobject create(lief_t& impl);
 

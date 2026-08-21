@@ -1,4 +1,4 @@
-/* Copyright 2025 R. Thomas
+/* Copyright 2025 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,10 +17,9 @@
 #include <binaryninja/binaryninjaapi.h>
 namespace binaryninja {
 
-inline BinaryNinja::QualifiedName operator ""_qn(const char* name, size_t) {
+inline BinaryNinja::QualifiedName operator""_qn(const char* name, size_t) {
   return BinaryNinja::QualifiedName(name);
 }
 
 
 }
-

@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,16 +15,16 @@
  */
 #ifndef LIEF_PE_OID_TO_STRING_H
 #define LIEF_PE_OID_TO_STRING_H
-#include "LIEF/visibility.h"
 #include "LIEF/PE/signature/types.hpp"
+#include "LIEF/visibility.h"
 
-namespace LIEF {
-namespace PE {
+
+namespace LIEF::PE {
 
 /// Convert an OID to a human-readable string
 LIEF_API const char* oid_to_string(const oid_t& oid);
 
 }
-}
+
 
 #endif

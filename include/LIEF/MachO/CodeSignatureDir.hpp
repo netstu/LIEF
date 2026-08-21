@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,15 +15,17 @@
  */
 #ifndef LIEF_MACHO_CODE_SIGNATURE_DIR_COMMAND_H
 #define LIEF_MACHO_CODE_SIGNATURE_DIR_COMMAND_H
+#include <memory>
 #include <ostream>
 
-#include "LIEF/visibility.h"
+#include "LIEF/compiler_attributes.hpp"
 #include "LIEF/span.hpp"
+#include "LIEF/visibility.h"
 
 #include "LIEF/MachO/LoadCommand.hpp"
 
-namespace LIEF {
-namespace MachO {
+
+namespace LIEF::MachO {
 
 class BinaryParser;
 class Builder;
@@ -46,7 +48,7 @@ class LIEF_API CodeSignatureDir : public LoadCommand {
   CodeSignatureDir(const CodeSignatureDir& copy) = default;
 
   std::unique_ptr<LoadCommand> clone() const override {
-    return std::unique_ptr<CodeSignatureDir>(new CodeSignatureDir(*this));
+    return std::make_unique<CodeSignatureDir>(*this);
   }
 
   /// Offset in the binary where the signature starts
@@ -67,11 +69,11 @@ class LIEF_API CodeSignatureDir : public LoadCommand {
     data_size_ = size;
   }
 
-  span<const uint8_t> content() const {
+  span<const uint8_t> content() const LIEF_LIFETIMEBOUND {
     return content_;
   }
 
-  span<uint8_t> content() {
+  span<uint8_t> content() LIEF_LIFETIMEBOUND {
     return content_;
   }
 
@@ -86,12 +88,11 @@ class LIEF_API CodeSignatureDir : public LoadCommand {
   }
 
   private:
-  uint32_t      data_offset_ = 0;
-  uint32_t      data_size_   = 0;
+  uint32_t data_offset_ = 0;
+  uint32_t data_size_ = 0;
   span<uint8_t> content_;
-
 };
 
 }
-}
+
 #endif

@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,12 @@
 #ifndef LIEF_ELF_NOTE_DETAILS_CORE_H
 #define LIEF_ELF_NOTE_DETAILS_CORE_H
 
+// IWYU pragma: begin_exports
+#include "LIEF/ELF/NoteDetails/core/CoreAuxv.hpp"
+#include "LIEF/ELF/NoteDetails/core/CoreFile.hpp"
 #include "LIEF/ELF/NoteDetails/core/CorePrPsInfo.hpp"
 #include "LIEF/ELF/NoteDetails/core/CorePrStatus.hpp"
-#include "LIEF/ELF/NoteDetails/core/CoreAuxv.hpp"
 #include "LIEF/ELF/NoteDetails/core/CoreSigInfo.hpp"
-#include "LIEF/ELF/NoteDetails/core/CoreFile.hpp"
+// IWYU pragma: end_exports
 
 #endif

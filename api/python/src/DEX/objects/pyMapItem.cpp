@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -64,7 +64,7 @@ void create<MapItem>(nb::module_& m) {
 
     .def_prop_ro("size",
         nb::overload_cast<>(&MapItem::size, nb::const_),
-        "count of the number of items to be found at the indicated offset"_doc)
+        "Count of the number of items to be found at the indicated offset"_doc)
 
     LIEF_DEFAULT_STR(MapItem);
 }

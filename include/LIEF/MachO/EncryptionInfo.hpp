@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,14 +15,15 @@
  */
 #ifndef LIEF_MACHO_ENCRYPTION_INFO_COMMAND_H
 #define LIEF_MACHO_ENCRYPTION_INFO_COMMAND_H
+#include <memory>
 #include <ostream>
 
 #include "LIEF/visibility.h"
 
 #include "LIEF/MachO/LoadCommand.hpp"
 
-namespace LIEF {
-namespace MachO {
+
+namespace LIEF::MachO {
 
 namespace details {
 struct encryption_info_command;
@@ -43,7 +44,7 @@ class LIEF_API EncryptionInfo : public LoadCommand {
   ~EncryptionInfo() override = default;
 
   std::unique_ptr<LoadCommand> clone() const override {
-    return std::unique_ptr<EncryptionInfo>(new EncryptionInfo(*this));
+    return std::make_unique<EncryptionInfo>(*this);
   }
 
   /// The beginning of the encrypted area
@@ -56,7 +57,7 @@ class LIEF_API EncryptionInfo : public LoadCommand {
     return csize_;
   }
 
-  /// The encryption system. 0 means no encrypted
+  /// The encryption system. 0 means not encrypted
   uint32_t crypt_id() const {
     return cid_;
   }
@@ -89,5 +90,5 @@ class LIEF_API EncryptionInfo : public LoadCommand {
 };
 
 }
-}
+
 #endif

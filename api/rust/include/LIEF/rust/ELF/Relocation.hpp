@@ -1,4 +1,4 @@
-/* Copyright 2024 - 2025 R. Thomas
+/* Copyright 2024 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,26 +13,43 @@
  * limitations under the License.
  */
 #pragma once
-#include "LIEF/rust/error.hpp"
 #include "LIEF/ELF/Relocation.hpp"
 #include "LIEF/rust/Abstract/Relocation.hpp"
-#include "LIEF/rust/ELF/Symbol.hpp"
 #include "LIEF/rust/ELF/Section.hpp"
+#include "LIEF/rust/ELF/Symbol.hpp"
+#include "LIEF/rust/error.hpp"
 
 class ELF_Relocation : public AbstractRelocation {
   public:
   using lief_t = LIEF::ELF::Relocation;
-  ELF_Relocation(const lief_t& reloc) : AbstractRelocation(reloc) {}
+  ELF_Relocation(const lief_t& reloc) :
+    AbstractRelocation(reloc) {}
 
-  int64_t addend() const { return impl().addend(); }
-  uint32_t get_type() const { return to_int(impl().type()); }
-  bool is_rela() const { return impl().is_rela(); }
-  bool is_rel() const { return impl().is_rel(); }
+  int64_t addend() const {
+    return impl().addend();
+  }
+  uint32_t get_type() const {
+    return to_int(impl().type());
+  }
+  auto is_rela() const {
+    return impl().is_rela();
+  }
+  auto is_rel() const {
+    return impl().is_rel();
+  }
 
-  uint32_t info() const { return impl().info(); }
-  uint32_t architecture() const { return to_int(impl().architecture()); }
-  uint32_t purpose() const { return to_int(impl().purpose()); }
-  uint32_t encoding() const { return to_int(impl().encoding()); }
+  uint32_t info() const {
+    return impl().info();
+  }
+  uint32_t architecture() const {
+    return to_int(impl().architecture());
+  }
+  uint32_t purpose() const {
+    return to_int(impl().purpose());
+  }
+  uint32_t encoding() const {
+    return to_int(impl().encoding());
+  }
 
   auto symbol() const {
     return details::try_unique<ELF_Symbol>(impl().symbol());
@@ -51,5 +68,7 @@ class ELF_Relocation : public AbstractRelocation {
   }
 
   private:
-  const lief_t& impl() const { return as<lief_t>(this); }
+  const lief_t& impl() const {
+    return as<lief_t>(this);
+  }
 };

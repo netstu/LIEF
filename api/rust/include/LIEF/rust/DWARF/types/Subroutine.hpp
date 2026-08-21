@@ -1,4 +1,4 @@
-/* Copyright 2022 - 2025 R. Thomas
+/* Copyright 2022 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,32 +14,38 @@
  */
 #pragma once
 #include "LIEF/DWARF/types/Subroutine.hpp"
-#include "LIEF/rust/DWARF/Type.hpp"
 #include "LIEF/rust/DWARF/Parameter.hpp"
+#include "LIEF/rust/DWARF/Type.hpp"
 #include "LIEF/rust/Iterator.hpp"
 
 class DWARF_types_Subroutine : public DWARF_Type {
   public:
-
-  class it_parameters :
-      public ContainerIterator<
-        DWARF_Parameter, std::vector<std::unique_ptr<LIEF::dwarf::Parameter>>>
-  {
+  class it_parameters
+    : public ContainerIterator<
+          DWARF_Parameter, std::vector<std::unique_ptr<LIEF::dwarf::Parameter>>
+      > {
     public:
     using container_t = std::vector<std::unique_ptr<LIEF::dwarf::Parameter>>;
-    it_parameters(container_t content)
-      : ContainerIterator(std::move(content)) { }
-    auto next() { return ContainerIterator::next(); }
+    it_parameters(container_t content) :
+      ContainerIterator(std::move(content)) {}
+    auto next() {
+      return ContainerIterator::next();
+    }
+    auto size() const {
+      return ContainerIterator::size();
+    }
   };
 
   using lief_t = LIEF::dwarf::types::Subroutine;
 
-  static bool classof(const DWARF_Type& type) {
+  static auto classof(const DWARF_Type& type) {
     return lief_t::classof(&type.get());
   }
 
   auto return_type() const {
-    return details::try_unique<DWARF_Type>(impl().return_type()); // NOLINT(clang-analyzer-cplusplus.NewDeleteLeaks)
+    return details::try_unique<DWARF_Type>(
+        impl().return_type()
+    ); // NOLINT(clang-analyzer-cplusplus.NewDeleteLeaks)
   }
 
   auto parameters() const {
@@ -47,5 +53,9 @@ class DWARF_types_Subroutine : public DWARF_Type {
   }
 
   private:
-  const lief_t& impl() const { return as<lief_t>(this); }
+  const lief_t& impl() const {
+    return as<lief_t>(this);
+  }
 };
+
+using DWARF_types_Subroutine_it_parameters = DWARF_types_Subroutine::it_parameters;

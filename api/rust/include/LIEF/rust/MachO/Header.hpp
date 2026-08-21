@@ -1,4 +1,4 @@
-/* Copyright 2024 - 2025 R. Thomas
+/* Copyright 2024 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,15 +23,35 @@ class MachO_Header : private Mirror<LIEF::MachO::Header> {
   using lief_t = LIEF::MachO::Header;
   using Mirror::Mirror;
 
-  auto magic() const { return to_int(get().magic()); }
-  int32_t cpu_type() const { return to_int(get().cpu_type()); }
-  auto cpu_subtype() const { return get().cpu_subtype(); }
-  auto file_type() const { return to_int(get().file_type()); }
-  auto nb_cmds() const { return get().nb_cmds(); }
-  auto sizeof_cmds() const { return get().sizeof_cmds(); }
-  auto flags() const { return get().flags(); }
-  auto reserved() const { return get().reserved(); }
+  auto magic() const {
+    return to_int(get().magic());
+  }
+  int32_t cpu_type() const {
+    return to_int(get().cpu_type());
+  }
+  auto cpu_subtype() const {
+    return get().cpu_subtype();
+  }
+  auto file_type() const {
+    return to_int(get().file_type());
+  }
+  auto nb_cmds() const {
+    return get().nb_cmds();
+  }
+  auto sizeof_cmds() const {
+    return get().sizeof_cmds();
+  }
+  auto flags() const {
+    return get().flags();
+  }
+  auto reserved() const {
+    return get().reserved();
+  }
 
-  bool is_32bit() const { return get().is_32bit(); }
-  bool is_64bit() const { return get().is_64bit(); }
+  auto is_32bit() const {
+    return get().is_32bit();
+  }
+  auto is_64bit() const {
+    return get().is_64bit();
+  }
 };

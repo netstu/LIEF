@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,11 +23,10 @@
 
 #include "LIEF/platforms/android.hpp"
 
-#include "LIEF/types.hpp"
 #include "LIEF/visibility.h"
 
-namespace LIEF {
-namespace ART {
+
+namespace LIEF::ART {
 
 /// Check if the given file is an ART one.
 LIEF_API bool is_art(const std::string& file);
@@ -44,7 +43,6 @@ LIEF_API art_version_t version(const std::vector<uint8_t>& raw);
 /// Return the ANDROID_VERSIONS associated with the given ART version
 LIEF_API LIEF::Android::ANDROID_VERSIONS android_version(art_version_t version);
 
-}
 }
 
 

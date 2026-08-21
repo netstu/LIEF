@@ -1,4 +1,4 @@
-/* Copyright 2021 - 2025 R. Thomas
+/* Copyright 2021 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,14 +15,13 @@
 #ifndef LIEF_ELF_LAYOUT_H
 #define LIEF_ELF_LAYOUT_H
 
-#include <cstdint>
-#include <unordered_map>
-#include <string>
-#include <vector>
 #include "LIEF/ELF/Builder.hpp"
+#include <unordered_map>
+#include <cstdint>
+#include <vector>
 
-namespace LIEF {
-namespace ELF {
+
+namespace LIEF::ELF {
 class Section;
 class Binary;
 class Layout {
@@ -30,14 +29,13 @@ class Layout {
   Layout(Binary& bin, bool should_swap, const Builder::config_t& config) :
     binary_(&bin),
     should_swap_(should_swap),
-    config_(&config)
-  {}
+    config_(&config) {}
 
-  virtual const std::unordered_map<std::string, size_t>& shstr_map() const {
+  virtual const std::unordered_map<std::string_view, size_t>& shstr_map() const {
     return shstr_name_map_;
   }
 
-  virtual const std::unordered_map<std::string, size_t>& strtab_map() const {
+  virtual const std::unordered_map<std::string_view, size_t>& strtab_map() const {
     return strtab_name_map_;
   }
 
@@ -71,8 +69,8 @@ class Layout {
   protected:
   Binary* binary_ = nullptr;
 
-  std::unordered_map<std::string, size_t> shstr_name_map_;
-  std::unordered_map<std::string, size_t> strtab_name_map_;
+  std::unordered_map<std::string_view, size_t> shstr_name_map_;
+  std::unordered_map<std::string_view, size_t> strtab_name_map_;
 
   std::vector<uint8_t> raw_shstrtab_;
   std::vector<uint8_t> raw_strtab_;
@@ -83,5 +81,5 @@ class Layout {
   const Builder::config_t* config_ = nullptr;
 };
 }
-}
+
 #endif

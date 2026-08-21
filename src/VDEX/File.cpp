@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,15 +15,15 @@
  */
 
 #include "LIEF/VDEX/File.hpp"
-#include "LIEF/VDEX/hash.hpp"
 #include "LIEF/DEX/File.hpp"
+#include "LIEF/VDEX/hash.hpp"
 
 #if defined(LIEF_JSON_SUPPORT)
-#include "visitors/json.hpp"
+  #include "visitors/json.hpp"
 #endif
 
-namespace LIEF {
-namespace VDEX {
+
+namespace LIEF::VDEX {
 
 File::~File() = default;
 File::File() = default;
@@ -61,7 +61,7 @@ std::string File::dex2dex_json_info() {
 
   for (const std::unique_ptr<DEX::File>& dex_file : dex_files_) {
     json dex2dex = json::parse(dex_file->dex2dex_json_info());
-    mapping[dex_file->name()] = dex2dex;
+    mapping[std::string(dex_file->name())] = dex2dex;
   }
 
   return mapping.dump();
@@ -73,9 +73,6 @@ std::string File::dex2dex_json_info() {
 void File::accept(Visitor& visitor) const {
   visitor.visit(*this);
 }
-
-
-
 
 
 std::ostream& operator<<(std::ostream& os, const File& vdex_file) {
@@ -96,5 +93,4 @@ std::ostream& operator<<(std::ostream& os, const File& vdex_file) {
   return os;
 }
 
-} // Namespace VDEX
-} // Namespace LIEF
+}

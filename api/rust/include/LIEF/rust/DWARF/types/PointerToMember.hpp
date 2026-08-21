@@ -1,4 +1,4 @@
-/* Copyright 2022 - 2025 R. Thomas
+/* Copyright 2022 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,18 +20,24 @@ class DWARF_types_PointerToMember : public DWARF_Type {
   public:
   using lief_t = LIEF::dwarf::types::PointerToMember;
 
-  static bool classof(const DWARF_Type& type) {
+  static auto classof(const DWARF_Type& type) {
     return lief_t::classof(&type.get());
   }
 
   auto underlying_type() const {
-    return details::try_unique<DWARF_Type>(impl().underlying_type()); // NOLINT(clang-analyzer-cplusplus.NewDeleteLeaks)
+    return details::try_unique<DWARF_Type>(
+        impl().underlying_type()
+    ); // NOLINT(clang-analyzer-cplusplus.NewDeleteLeaks)
   }
 
   auto containing_type() const {
-    return details::try_unique<DWARF_Type>(impl().containing_type()); // NOLINT(clang-analyzer-cplusplus.NewDeleteLeaks)
+    return details::try_unique<DWARF_Type>(
+        impl().containing_type()
+    ); // NOLINT(clang-analyzer-cplusplus.NewDeleteLeaks)
   }
 
   private:
-  const lief_t& impl() const { return as<lief_t>(this); }
+  const lief_t& impl() const {
+    return as<lief_t>(this);
+  }
 };

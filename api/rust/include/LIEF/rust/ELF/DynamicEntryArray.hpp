@@ -1,4 +1,4 @@
-/* Copyright 2024 - 2025 R. Thomas
+/* Copyright 2024 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,19 +13,23 @@
  * limitations under the License.
  */
 #pragma once
-#include "LIEF/rust/ELF/DynamicEntry.hpp"
 #include "LIEF/ELF/DynamicEntryArray.hpp"
+#include "LIEF/rust/ELF/DynamicEntry.hpp"
 
 class ELF_DynamicEntryArray : public ELF_DynamicEntry {
   public:
   using lief_t = LIEF::ELF::DynamicEntryArray;
 
-  std::vector<uint64_t> array() const { return impl().array(); }
+  auto array() const {
+    return make_unique_vector<uint64_t>(impl().array());
+  }
 
-  static bool classof(const ELF_DynamicEntry& entry) {
+  static auto classof(const ELF_DynamicEntry& entry) {
     return lief_t::classof(&entry.get());
   }
 
   private:
-  const lief_t& impl() const { return as<lief_t>(this); }
+  const lief_t& impl() const {
+    return as<lief_t>(this);
+  }
 };

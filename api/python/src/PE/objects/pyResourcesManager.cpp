@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -92,14 +92,14 @@ void create<ResourcesManager>(nb::module_& m) {
 
     .def_prop_ro("has_version",
         &ResourcesManager::has_version,
-        "``true`` if the resources contain a " RST_CLASS_REF(lief.PE.ResourceVersion) ""_doc)
+        "``True`` if the resources contain a " RST_CLASS_REF(lief.PE.ResourceVersion) ""_doc)
 
     .def_prop_ro("version", &ResourcesManager::version,
-                 "Return a list of verison info (``VS_VERSIONINFO``)."_doc)
+                 "Return a list of version info (``VS_VERSIONINFO``)."_doc)
 
     .def_prop_ro("has_icons",
         &ResourcesManager::has_icons,
-        "``true`` if the resources contain " RST_CLASS_REF(lief.PE.ResourceIcon) ""_doc)
+        "``True`` if the resources contain " RST_CLASS_REF(lief.PE.ResourceIcon) ""_doc)
 
     .def_prop_ro("icons", &ResourcesManager::icons,
       "Return the list of the " RST_CLASS_REF(lief.PE.ResourceIcon) " present in the resource"_doc,
@@ -112,7 +112,7 @@ void create<ResourcesManager>(nb::module_& m) {
 
     .def_prop_ro("has_dialogs",
         &ResourcesManager::has_dialogs,
-        "``true`` if the resources contain " RST_CLASS_REF(lief.PE.ResourceDialog) ""_doc)
+        "``True`` if the resources contain " RST_CLASS_REF(lief.PE.ResourceDialog) ""_doc)
 
     .def_prop_ro("dialogs",
       &ResourcesManager::dialogs,

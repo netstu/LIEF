@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,23 +16,25 @@
 #ifndef LIEF_ELF_SYMBOL_VERSION_AUX_H
 #define LIEF_ELF_SYMBOL_VERSION_AUX_H
 
-#include <string>
+#include <string_view>
 #include <ostream>
+#include <string>
 
 #include "LIEF/Object.hpp"
+#include "LIEF/compiler_attributes.hpp"
 #include "LIEF/visibility.h"
 
-namespace LIEF {
-namespace ELF {
+
+namespace LIEF::ELF {
 class Parser;
 
 /// Class which represents an Auxiliary Symbol version
 class LIEF_API SymbolVersionAux : public Object {
   friend class Parser;
+
   public:
   SymbolVersionAux(std::string name) :
-    name_(std::move(name))
-  {}
+    name_(std::move(name)) {}
   SymbolVersionAux() = default;
   ~SymbolVersionAux() override = default;
 
@@ -40,7 +42,7 @@ class LIEF_API SymbolVersionAux : public Object {
   SymbolVersionAux(const SymbolVersionAux&) = default;
 
   /// Symbol's aux name (e.g. ``GLIBC_2.2.5``)
-  const std::string& name() const {
+  std::string_view name() const LIEF_LIFETIMEBOUND {
     return name_;
   }
 
@@ -50,8 +52,8 @@ class LIEF_API SymbolVersionAux : public Object {
 
   void accept(Visitor& visitor) const override;
 
-  LIEF_API friend
-  std::ostream& operator<<(std::ostream& os, const SymbolVersionAux& aux) {
+  LIEF_API friend std::ostream& operator<<(std::ostream& os,
+                                           const SymbolVersionAux& aux) {
     os << aux.name();
     return os;
   }
@@ -61,5 +63,5 @@ class LIEF_API SymbolVersionAux : public Object {
 };
 
 }
-}
+
 #endif

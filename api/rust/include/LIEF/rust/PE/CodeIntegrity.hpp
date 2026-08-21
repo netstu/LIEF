@@ -1,4 +1,4 @@
-/* Copyright 2024 - 2025 R. Thomas
+/* Copyright 2024 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,8 +22,16 @@ class PE_CodeIntegrity : private Mirror<LIEF::PE::CodeIntegrity> {
   using lief_t = LIEF::PE::CodeIntegrity;
   using Mirror::Mirror;
 
-  auto flags() const { return get().flags(); }
-  auto catalog() const { return get().catalog(); }
-  auto catalog_offset() const { return get().catalog_offset(); }
-  auto reserved() const { return get().reserved(); }
+  auto flags() const {
+    return get().flags();
+  }
+  auto catalog() const {
+    return get().catalog();
+  }
+  auto catalog_offset() const {
+    return get().catalog_offset();
+  }
+  auto reserved() const {
+    return get().reserved();
+  }
 };

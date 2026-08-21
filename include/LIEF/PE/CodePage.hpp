@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,11 +15,13 @@
  */
 #ifndef LIEF_PE_CODE_PAGE
 #define LIEF_PE_CODE_PAGE
-#include <cstdint>
 #include "LIEF/visibility.h"
+#include <cstdint>
 
-namespace LIEF {
-namespace PE {
+
+namespace LIEF::PE {
+
+// clang-format off
 
 /// Code page from https://docs.microsoft.com/en-us/windows/win32/intl/code-page-identifiers
 enum class CODE_PAGES : uint32_t  {
@@ -168,5 +170,5 @@ enum class CODE_PAGES : uint32_t  {
 LIEF_API const char* to_string(CODE_PAGES e);
 
 }
-}
+
 #endif

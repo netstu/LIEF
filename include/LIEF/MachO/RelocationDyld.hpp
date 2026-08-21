@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,21 +15,22 @@
  */
 #ifndef LIEF_MACHO_RELOCATION_DYLD_COMMAND_H
 #define LIEF_MACHO_RELOCATION_DYLD_COMMAND_H
+#include <memory>
 #include <ostream>
 
 #include "LIEF/visibility.h"
 
 #include "LIEF/MachO/Relocation.hpp"
 
-namespace LIEF {
-namespace MachO {
+
+namespace LIEF::MachO {
 
 class BinaryParser;
 
 /// Class that represents a relocation found in the DyldInfo structure.
 ///
-/// While this class does not have an associated structure in the Mach-O format specification,
-/// it provides a convenient interface for the Dyld::rebase
+/// While this class does not have an associated structure in the Mach-O format
+/// specification, it provides a convenient interface for the Dyld::rebase
 class LIEF_API RelocationDyld : public Relocation {
 
   friend class BinaryParser;
@@ -48,14 +49,14 @@ class LIEF_API RelocationDyld : public Relocation {
   ~RelocationDyld() override = default;
 
   std::unique_ptr<Relocation> clone() const override {
-    return std::unique_ptr<RelocationDyld>(new RelocationDyld(*this));
+    return std::make_unique<RelocationDyld>(*this);
   }
 
   /// Indicates whether the item containing the address to be
   /// relocated is part of a CPU instruction that uses PC-relative addressing.
   ///
-  /// For addresses contained in PC-relative instructions, the CPU adds the address of
-  /// the instruction to the address contained in the instruction.
+  /// For addresses contained in PC-relative instructions, the CPU adds the address
+  /// of the instruction to the address contained in the instruction.
   bool is_pc_relative() const override;
 
   /// Origin of the relocation. For this concrete object, it
@@ -88,5 +89,5 @@ class LIEF_API RelocationDyld : public Relocation {
 };
 
 }
-}
+
 #endif

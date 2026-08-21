@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ void create<RelocationObject>(nb::module_& m) {
 
   nb::class_<RelocationObject, Relocation>(m, "RelocationObject",
       R"delim(
-      Class that represents a relocation presents in the MachO object
+      Class that represents a relocation present in the MachO object
       file (``.o``). Usually, this kind of relocation is found in the :class:`lief.MachO.Section`.
       )delim"_doc)
 

@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,9 @@
 #ifndef LIEF_MACHO_TRIE_NODE_H_
 #define LIEF_MACHO_TRIE_NODE_H_
 #include <cstdint>
+#include <memory>
 #include <string>
 #include <vector>
-#include <memory>
 
 #include "LIEF/visibility.h"
 
@@ -30,20 +30,19 @@ class ExportInfo;
 
 class LIEF_LOCAL TrieEdge {
   public:
-  static std::unique_ptr<TrieEdge> create(const std::string& str, TrieNode& node) {
+  static std::unique_ptr<TrieEdge> create(std::string_view str, TrieNode& node) {
     return std::make_unique<TrieEdge>(str, node);
   }
 
   TrieEdge() = delete;
-  TrieEdge(std::string str, TrieNode& node) :
-    substr(std::move(str)),
-    child(&node)
-  {}
+  TrieEdge(std::string_view str, TrieNode& node) :
+    substr(str),
+    child(&node) {}
 
   ~TrieEdge() = default;
 
   public:
-  std::string substr;
+  std::string_view substr;
   TrieNode* child = nullptr;
 };
 
@@ -60,13 +59,12 @@ class LIEF_LOCAL TrieNode {
   TrieNode() = delete;
 
   TrieNode(std::string str) :
-    cummulative_string_(std::move(str))
-  {}
+    cummulative_string_(std::move(str)) {}
 
   ~TrieNode() = default;
 
-  TrieNode& add_symbol(const ExportInfo& info, node_list_t& nodes);
-  TrieNode& add_ordered_nodes(const ExportInfo& info, std::vector<TrieNode*>& nodes);
+  node_list_t add_symbol(const ExportInfo& info);
+  std::vector<TrieNode*> add_ordered_nodes(const ExportInfo& info);
   bool update_offset(uint32_t& offset);
 
   TrieNode& write(vector_iostream& buffer);

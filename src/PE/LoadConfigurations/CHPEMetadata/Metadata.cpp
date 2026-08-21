@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,18 +14,19 @@
  * limitations under the License.
  */
 #include "LIEF/PE/LoadConfigurations/CHPEMetadata/Metadata.hpp"
+#include "LIEF/PE/Binary.hpp"
+#include "LIEF/PE/Header.hpp"
 #include "LIEF/PE/LoadConfigurations/CHPEMetadata/MetadataARM64.hpp"
 #include "LIEF/PE/LoadConfigurations/CHPEMetadata/MetadataX86.hpp"
-#include "LIEF/PE/Header.hpp"
 #include "LIEF/PE/Parser.hpp"
-#include "LIEF/PE/Binary.hpp"
 
 #include "LIEF/BinaryStream/BinaryStream.hpp"
 
 #include "logging.hpp"
 
 namespace LIEF::PE {
-std::unique_ptr<CHPEMetadata> CHPEMetadata::parse(Parser& ctx, BinaryStream& stream) {
+std::unique_ptr<CHPEMetadata> CHPEMetadata::parse(Parser& ctx,
+                                                  BinaryStream& stream) {
   LIEF_DEBUG("Parsing CHPEMetadata");
   auto version = stream.read<uint32_t>();
   if (!version) {

@@ -1,4 +1,4 @@
-/* Copyright 2022 - 2025 R. Thomas
+/* Copyright 2022 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,11 +15,12 @@
 #pragma once
 #include "LIEF/ObjC/Protocol.hpp"
 
-#include "LIEF/rust/Mirror.hpp"
 #include "LIEF/rust/Iterator.hpp"
+#include "LIEF/rust/Mirror.hpp"
+#include "LIEF/rust/helpers.hpp"
 
-#include "LIEF/rust/ObjC/Method.hpp"
 #include "LIEF/rust/ObjC/DeclOpt.hpp"
+#include "LIEF/rust/ObjC/Method.hpp"
 #include "LIEF/rust/ObjC/Property.hpp"
 
 class ObjC_Protocol : private Mirror<LIEF::objc::Protocol> {
@@ -27,34 +28,65 @@ class ObjC_Protocol : private Mirror<LIEF::objc::Protocol> {
   using lief_t = LIEF::objc::Protocol;
   using Mirror::Mirror;
 
-  class it_opt_methods :
-      public ForwardIterator<ObjC_Method, LIEF::objc::Method::Iterator>
-  {
+  class it_protocols
+    : public ForwardIterator<ObjC_Protocol, LIEF::objc::Protocol::Iterator> {
     public:
-    it_opt_methods(const ObjC_Protocol::lief_t& src)
-      : ForwardIterator(src.optional_methods()) { }
-    auto next() { return ForwardIterator::next(); }
+    it_protocols(const ObjC_Protocol::lief_t& src) :
+      ForwardIterator(src.protocols()) {}
+    auto next() {
+      return ForwardIterator::next();
+    }
+    auto size() const {
+      return ForwardIterator::size();
+    }
   };
 
-  class it_req_methods :
-      public ForwardIterator<ObjC_Method, LIEF::objc::Method::Iterator>
-  {
+  class it_opt_methods
+    : public ForwardIterator<ObjC_Method, LIEF::objc::Method::Iterator> {
     public:
-    it_req_methods(const ObjC_Protocol::lief_t& src)
-      : ForwardIterator(src.required_methods()) { }
-    auto next() { return ForwardIterator::next(); }
+    it_opt_methods(const ObjC_Protocol::lief_t& src) :
+      ForwardIterator(src.optional_methods()) {}
+    auto next() {
+      return ForwardIterator::next();
+    }
+    auto size() const {
+      return ForwardIterator::size();
+    }
   };
 
-  class it_properties :
-      public ForwardIterator<ObjC_Property, LIEF::objc::Property::Iterator>
-  {
+  class it_req_methods
+    : public ForwardIterator<ObjC_Method, LIEF::objc::Method::Iterator> {
     public:
-    it_properties(const ObjC_Protocol::lief_t& src)
-      : ForwardIterator(src.properties()) { }
-    auto next() { return ForwardIterator::next(); }
+    it_req_methods(const ObjC_Protocol::lief_t& src) :
+      ForwardIterator(src.required_methods()) {}
+    auto next() {
+      return ForwardIterator::next();
+    }
+    auto size() const {
+      return ForwardIterator::size();
+    }
   };
 
-  auto mangled_name() const { return get().mangled_name(); }
+  class it_properties
+    : public ForwardIterator<ObjC_Property, LIEF::objc::Property::Iterator> {
+    public:
+    it_properties(const ObjC_Protocol::lief_t& src) :
+      ForwardIterator(src.properties()) {}
+    auto next() {
+      return ForwardIterator::next();
+    }
+    auto size() const {
+      return ForwardIterator::size();
+    }
+  };
+
+  auto mangled_name() const {
+    return to_unique_string(get().mangled_name());
+  }
+
+  auto protocols() const {
+    return std::make_unique<it_protocols>(get());
+  }
 
   auto optional_methods() const {
     return std::make_unique<it_opt_methods>(get());
@@ -69,10 +101,15 @@ class ObjC_Protocol : private Mirror<LIEF::objc::Protocol> {
   }
 
   auto to_decl() const {
-    return get().to_decl();
+    return to_unique_string(get().to_decl());
   }
 
-  auto to_decl_with_opt(ObjC_DeclOpt opt) const {
-    return get().to_decl(from_rust_declopt(opt));
+  auto to_decl_with_opt(const ObjC_DeclOpt& opt) const {
+    return to_unique_string(get().to_decl(from_rust_declopt(opt)));
   }
 };
+
+using ObjC_Protocol_it_protocols = ObjC_Protocol::it_protocols;
+using ObjC_Protocol_it_opt_methods = ObjC_Protocol::it_opt_methods;
+using ObjC_Protocol_it_req_methods = ObjC_Protocol::it_req_methods;
+using ObjC_Protocol_it_properties = ObjC_Protocol::it_properties;

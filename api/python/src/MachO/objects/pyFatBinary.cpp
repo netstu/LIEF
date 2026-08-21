@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@
 #include <nanobind/stl/string.h>
 #include <nanobind/stl/vector.h>
 #include <nanobind/stl/unique_ptr.h>
+#include "nanobind/extra/stl/pathlike.h"
 
 #include "LIEF/MachO/FatBinary.hpp"
 #include "LIEF/MachO/Binary.hpp"
@@ -33,15 +34,29 @@ void create<FatBinary>(nb::module_& m) {
 
   nb::class_<FatBinary> fat(m, "FatBinary",
       R"delim(
-      Class which represent a Mach-O (fat) binary
+      Class which represents a Mach-O (fat) binary
       This object is also used for representing Mach-O binaries that are **NOT FAT**
       )delim"_doc);
 
     init_ref_iterator<FatBinary::it_binaries>(fat, "it_binaries");
 
   fat
+    .def_static("create",
+        [] (FatBinary::binaries_t binaries) {
+          return FatBinary::create(std::move(binaries));
+        },
+        R"delim(
+        Create a :class:`~lief.MachO.FatBinary` from the provided list of
+        :class:`~lief.MachO.Binary` objects.
+
+        The binaries **must** target different architectures (i.e. unique
+        cpu_type / cpu_subtype pairs). If a duplicate architecture is detected,
+        this function returns None.
+        )delim"_doc,
+        "binaries"_a)
+
     .def_prop_ro("size", &FatBinary::size,
-      "Number of " RST_CLASS_REF(lief.MachO.Binary) " registred"_doc)
+      "Number of " RST_CLASS_REF(lief.MachO.Binary) " registered"_doc)
 
     .def("at",
       nb::overload_cast<size_t>(&FatBinary::at),
@@ -55,17 +70,26 @@ void create<FatBinary>(nb::module_& m) {
         "given " RST_CLASS_REF(lief.MachO.Header.CPU_TYPE) ""_doc,
         "cpu"_a, nb::rv_policy::take_ownership)
 
-    .def("write", &FatBinary::write,
+    .def("write", [] (FatBinary& fat, nb::PathLike path) { fat.write(path); },
         "Build a Mach-O universal binary"_doc,
-        "filename"_a)
+        "filename"_a, nb::lock_self())
 
     .def("raw", &FatBinary::raw,
-        "Build a Mach-O universal binary and return its bytes"_doc)
+        "Build a Mach-O universal binary and return its bytes"_doc,
+        nb::lock_self())
+
+    .def("get", nb::overload_cast<Header::CPU_TYPE>(&FatBinary::get),
+        "Gets the :class:`~.Binary` that matches the given architecture"_doc,
+        nb::rv_policy::reference_internal)
 
     .def("__len__", &FatBinary::size)
 
     .def("__getitem__",
         nb::overload_cast<size_t>(&FatBinary::operator[]),
+        nb::rv_policy::reference_internal)
+
+    .def("__getitem__",
+        nb::overload_cast<Header::CPU_TYPE>(&FatBinary::operator[]),
         nb::rv_policy::reference_internal)
 
     .def("__iter__",

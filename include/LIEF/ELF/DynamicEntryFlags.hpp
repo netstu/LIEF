@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,20 +16,22 @@
 #ifndef LIEF_ELF_DYNAMIC_ENTRY_FLAGS_H
 #define LIEF_ELF_DYNAMIC_ENTRY_FLAGS_H
 
-#include <vector>
-#include <ostream>
+#include <memory>
 #include <numeric>
+#include <ostream>
+#include <vector>
 
-#include "LIEF/visibility.h"
 #include "LIEF/ELF/DynamicEntry.hpp"
+#include "LIEF/visibility.h"
 
-namespace LIEF {
-namespace ELF {
+
+namespace LIEF::ELF {
 
 class LIEF_API DynamicEntryFlags : public DynamicEntry {
   public:
   static constexpr uint64_t BASE = 0x100000000;
 
+  // clang-format off
   enum class FLAG : uint64_t {
     ORIGIN        = 0x00000001, /**< The object may reference $ORIGIN. */
     SYMBOLIC      = 0x00000002, /**< Search the shared lib before searching the exe. */
@@ -49,7 +51,7 @@ class LIEF_API DynamicEntryFlags : public DynamicEntry {
     TRANS         = BASE + 0x000000200,
     INTERPOSE     = BASE + 0x000000400, /**< Object is used to interpose. */
     NODEFLIB      = BASE + 0x000000800, /**< Ignore default lib search path. */
-    NODUMP        = BASE + 0x000001000, /**< Object can't be dldump'ed. */
+    NODUMP        = BASE + 0x000001000, /**< Object can't be dumped with dldump(). */
     CONFALT       = BASE + 0x000002000, /**< Configuration alternative created. */
     ENDFILTEE     = BASE + 0x000004000, /**< Filtee terminates filters search. */
     DISPRELDNE    = BASE + 0x000008000, /**< Disp reloc applied at build time. */
@@ -68,6 +70,7 @@ class LIEF_API DynamicEntryFlags : public DynamicEntry {
     WEAKFILTER    = BASE + 0x020000000,
     NOCOMMON      = BASE + 0x040000000,
   };
+  // clang-format on
 
   using flags_list_t = std::vector<FLAG>;
 
@@ -76,18 +79,18 @@ class LIEF_API DynamicEntryFlags : public DynamicEntry {
   DynamicEntryFlags() = delete;
 
   static DynamicEntryFlags create_dt_flag(uint64_t value) {
-    return DynamicEntryFlags(DynamicEntry::TAG::FLAGS, value);
+    return {DynamicEntry::TAG::FLAGS, value};
   }
 
   static DynamicEntryFlags create_dt_flag_1(uint64_t value) {
-    return DynamicEntryFlags(DynamicEntry::TAG::FLAGS_1, value);
+    return {DynamicEntry::TAG::FLAGS_1, value};
   }
 
   DynamicEntryFlags& operator=(const DynamicEntryFlags&) = default;
   DynamicEntryFlags(const DynamicEntryFlags&) = default;
 
   std::unique_ptr<DynamicEntry> clone() const override {
-    return std::unique_ptr<DynamicEntryFlags>(new DynamicEntryFlags(*this));
+    return std::make_unique<DynamicEntryFlags>(*this);
   }
 
   /// If the current entry has the given FLAG
@@ -99,10 +102,9 @@ class LIEF_API DynamicEntryFlags : public DynamicEntry {
   uint64_t raw_flags() const {
     flags_list_t flags = this->flags();
     return std::accumulate(flags.begin(), flags.end(), uint64_t(0),
-      [] (uint64_t value, FLAG f) {
-        return value + (uint64_t)f;
-      }
-    );
+                           [](uint64_t value, FLAG f) {
+                             return value + (uint64_t)f;
+                           });
   }
 
   /// Add the given FLAG
@@ -128,18 +130,18 @@ class LIEF_API DynamicEntryFlags : public DynamicEntry {
            entry->tag() == DynamicEntry::TAG::FLAGS_1;
   }
 
-  ~DynamicEntryFlags() = default;
+  ~DynamicEntryFlags() override = default;
 
   std::ostream& print(std::ostream& os) const override;
+
   private:
   DynamicEntryFlags(DynamicEntry::TAG tag, uint64_t flags) :
-    DynamicEntry(tag, flags)
-  {}
+    DynamicEntry(tag, flags) {}
 };
 
 LIEF_API const char* to_string(DynamicEntryFlags::FLAG e);
 
 }
-}
+
 
 #endif

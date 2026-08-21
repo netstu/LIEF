@@ -1,4 +1,4 @@
-/* Copyright 2022 - 2025 R. Thomas
+/* Copyright 2022 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,10 +20,28 @@ class PDB_types_Simple : public PDB_Type {
   public:
   using lief_t = LIEF::pdb::types::Simple;
 
-  static bool classof(const PDB_Type& type) {
+  auto get_type() const {
+    return as_u32(impl().type());
+  }
+
+  auto modes() const {
+    return to_int(impl().modes());
+  }
+
+  auto is_pointer() const {
+    return impl().is_pointer();
+  }
+
+  auto is_signed() const {
+    return impl().is_signed();
+  }
+
+  static auto classof(const PDB_Type& type) {
     return lief_t::classof(&type.get());
   }
 
   private:
-  const lief_t& impl() const { return as<lief_t>(this); }
+  const lief_t& impl() const {
+    return as<lief_t>(this);
+  }
 };

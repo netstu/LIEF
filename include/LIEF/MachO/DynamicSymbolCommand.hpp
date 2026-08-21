@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,15 +15,16 @@
  */
 #ifndef LIEF_MACHO_DYNAMIC_SYMBOL_COMMAND_H
 #define LIEF_MACHO_DYNAMIC_SYMBOL_COMMAND_H
+#include <memory>
 #include <ostream>
 
-#include "LIEF/visibility.h"
 #include "LIEF/iterators.hpp"
+#include "LIEF/visibility.h"
 
 #include "LIEF/MachO/LoadCommand.hpp"
 
-namespace LIEF {
-namespace MachO {
+
+namespace LIEF::MachO {
 class Symbol;
 class BinaryParser;
 class Builder;
@@ -58,7 +59,7 @@ class LIEF_API DynamicSymbolCommand : public LoadCommand {
   DynamicSymbolCommand(const DynamicSymbolCommand& copy) = default;
 
   std::unique_ptr<LoadCommand> clone() const override {
-    return std::unique_ptr<DynamicSymbolCommand>(new DynamicSymbolCommand(*this));
+    return std::make_unique<DynamicSymbolCommand>(*this);
   }
 
   ~DynamicSymbolCommand() override = default;
@@ -142,8 +143,8 @@ class LIEF_API DynamicSymbolCommand : public LoadCommand {
 
   /// Byte offset from the start of the file to the indirect symbol table data.
   ///
-  /// Indirect symbol table is used by the loader to speed-up symbol resolution during
-  /// the *lazy binding* process
+  /// Indirect symbol table is used by the loader to speed-up symbol resolution
+  /// during the *lazy binding* process
   ///
   /// References:
   ///   * dyld-519.2.1/src/ImageLoaderMachOCompressed.cpp
@@ -252,11 +253,11 @@ class LIEF_API DynamicSymbolCommand : public LoadCommand {
   }
 
   /// Iterator over the indirect symbols indexed by this command
-  it_indirect_symbols indirect_symbols() {
+  it_indirect_symbols indirect_symbols() LIEF_LIFETIMEBOUND {
     return indirect_symbols_;
   }
 
-  it_const_indirect_symbols indirect_symbols() const {
+  it_const_indirect_symbols indirect_symbols() const LIEF_LIFETIMEBOUND {
     return indirect_symbols_;
   }
 
@@ -296,5 +297,5 @@ class LIEF_API DynamicSymbolCommand : public LoadCommand {
 };
 
 }
-}
+
 #endif

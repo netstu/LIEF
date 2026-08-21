@@ -1,4 +1,4 @@
-/* Copyright 2024 - 2025 R. Thomas
+/* Copyright 2024 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,25 +14,101 @@
  */
 
 #pragma once
-#include <string>
-#include <memory>
-#include <LIEF/MachO.hpp>
+#include "LIEF/MachO.hpp"
 #include "LIEF/rust/MachO/Binary.hpp"
 #include "LIEF/rust/Mirror.hpp"
+#include <memory>
+#include <string>
 
-class MachO_FatBinary : private Mirror<LIEF::MachO::FatBinary> {
+class MachO_ParserConfig {
+  public:
+  static auto create() {
+    return std::make_unique<MachO_ParserConfig>();
+  }
+
+  const LIEF::MachO::ParserConfig& conf() const {
+    return config_;
+  }
+
+  auto set_parse_dyld_exports(bool value) {
+    config_.parse_dyld_exports = value;
+  }
+
+  auto set_parse_dyld_bindings(bool value) {
+    config_.parse_dyld_bindings = value;
+  }
+
+  auto set_parse_dyld_rebases(bool value) {
+    config_.parse_dyld_rebases = value;
+  }
+
+  auto set_parse_overlay(bool value) {
+    config_.parse_overlay = value;
+  }
+
+  auto set_fix_from_memory(bool value) {
+    config_.fix_from_memory = value;
+  }
+
+  auto set_from_dyld_shared_cache(bool value) {
+    config_.from_dyld_shared_cache = value;
+  }
+
+  private:
+  LIEF::MachO::ParserConfig config_ = LIEF::MachO::ParserConfig::deep();
+};
+
+class MachO_FatBinary : public Mirror<LIEF::MachO::FatBinary> {
   public:
   using Mirror::Mirror;
-  static auto parse(std::string path) {
+  static auto parse(const std::string& path) {
     return details::try_unique<MachO_FatBinary>(LIEF::MachO::Parser::parse(path));
   }
 
-  uint32_t size() const { return get().size(); }
+  static auto parse_with_config(const std::string& path,
+                                const MachO_ParserConfig& config) {
+    return details::try_unique<MachO_FatBinary>(
+        LIEF::MachO::Parser::parse(path, config.conf())
+    );
+  }
+
+  static auto parse_from_dump(const std::string& path, uint64_t addr) {
+    return details::try_unique<MachO_FatBinary>(
+        LIEF::MachO::Parser::parse_from_dump(path, addr)
+    );
+  }
+
+  static auto parse_from_dump_with_config(const std::string& path, uint64_t addr,
+                                          const MachO_ParserConfig& config) {
+    return details::try_unique<MachO_FatBinary>(
+        LIEF::MachO::Parser::parse_from_dump(path, addr, config.conf())
+    );
+  }
+
+  uint32_t size() const {
+    return get().size();
+  }
 
   std::unique_ptr<MachO_Binary> binary_at(uint32_t index) const {
     if (auto* bin = get().at(index)) {
       return std::make_unique<MachO_Binary>(*bin);
     }
     return nullptr;
+  }
+
+  std::unique_ptr<MachO_Binary> binary_from_arch(int32_t cpu) const {
+    if (auto* bin = get().get((LIEF::MachO::Header::CPU_TYPE)cpu)) {
+      return std::make_unique<MachO_Binary>(*bin);
+    }
+    return nullptr;
+  }
+
+  auto write(const std::string& output) {
+    impl().write(output);
+  }
+
+  private:
+  LIEF::MachO::FatBinary& impl() {
+    return const_cast<LIEF::MachO::FatBinary&>(get());
   }
 };

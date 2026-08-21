@@ -1,4 +1,4 @@
-/* Copyright 2022 - 2025 R. Thomas
+/* Copyright 2022 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,11 +15,12 @@
 #ifndef LIEF_DWARF_THROWN_TYPE_H
 #define LIEF_DWARF_THROWN_TYPE_H
 
-#include "LIEF/visibility.h"
 #include "LIEF/DWARF/Type.hpp"
+#include "LIEF/compiler_attributes.hpp"
+#include "LIEF/visibility.h"
 
-namespace LIEF {
-namespace dwarf {
+
+namespace LIEF::dwarf {
 class Parameter;
 
 namespace types {
@@ -27,16 +28,25 @@ namespace types {
 /// This class represents a `DW_TAG_thrown_type`
 class LIEF_API Thrown : public Type {
   public:
-  using Type::Type;
+  template<typename... Args,
+           typename = std::enable_if_t<std::is_constructible_v<Type, Args&&...>>>
+  Thrown(Args&&... args) :
+    Type(std::forward<Args>(args)...) {}
+
+  Thrown(const Thrown&) = delete;
+  Thrown& operator=(const Thrown&) = delete;
+
+  Thrown(Thrown&&) noexcept = default;
+  Thrown& operator=(Thrown&&) noexcept = default;
 
   /// The underlying type being thrown
-  const Type* underlying_type() const;
+  const Type* underlying_type() const LIEF_LIFETIMEBOUND;
 
-  const Type* operator->() const {
+  const Type* operator->() const LIEF_LIFETIMEBOUND {
     return underlying_type();
   }
 
-  const Type& operator*() const {
+  const Type& operator*() const LIEF_LIFETIMEBOUND {
     return *underlying_type();
   }
 
@@ -52,5 +62,5 @@ class LIEF_API Thrown : public Type {
 
 }
 }
-}
+
 #endif

@@ -1,4 +1,4 @@
-/* Copyright 2024 - 2025 R. Thomas
+/* Copyright 2024 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,35 +15,71 @@
 #pragma once
 #include <LIEF/asm/x86/Instruction.hpp>
 
+#include "LIEF/rust/Iterator.hpp"
 #include "LIEF/rust/asm/Instruction.hpp"
 #include "LIEF/rust/asm/x86/Operand.hpp"
 #include "LIEF/rust/helpers.hpp"
-#include "LIEF/rust/Iterator.hpp"
 
 class asm_x86_Instruction : public asm_Instruction {
   public:
   using lief_t = LIEF::assembly::x86::Instruction;
+  using asm_Instruction::asm_Instruction;
 
-  class it_operands :
-      public ForwardIterator<asm_x86_Operand, LIEF::assembly::x86::Operand::Iterator>
-  {
+  class it_operands
+    : public ForwardIterator<asm_x86_Operand,
+                             LIEF::assembly::x86::Operand::Iterator> {
     public:
-    it_operands(const asm_x86_Instruction::lief_t& src)
-      : ForwardIterator(src.operands()) { }
+    it_operands(const asm_x86_Instruction::lief_t& src) :
+      ForwardIterator(src.operands()) {}
 
-    auto next() { return ForwardIterator::next(); }
+    auto next() {
+      return ForwardIterator::next();
+    }
+    auto size() const {
+      return ForwardIterator::size();
+    }
   };
 
-  uint64_t opcode() const { return to_int(impl().opcode()); }
+  uint64_t opcode() const {
+    return to_int(impl().opcode());
+  }
 
   auto operands() const {
     return std::make_unique<it_operands>(impl());
   }
 
-  static bool classof(const asm_Instruction& inst) {
+  auto has_lock_prefix() const {
+    return impl().has_lock_prefix();
+  }
+
+  auto is_lockable() const {
+    return impl().is_lockable();
+  }
+
+  auto is_atomic() const {
+    return impl().is_atomic();
+  }
+
+  auto lock() const {
+    return details::try_unique<asm_x86_Instruction>(
+        impl().lock()
+    ); // NOLINT(clang-analyzer-cplusplus.NewDeleteLeaks)
+  }
+
+  auto unlock() const {
+    return details::try_unique<asm_x86_Instruction>(
+        impl().unlock()
+    ); // NOLINT(clang-analyzer-cplusplus.NewDeleteLeaks)
+  }
+
+  static auto classof(const asm_Instruction& inst) {
     return lief_t::classof(&inst.get());
   }
 
   private:
-  const lief_t& impl() const { return as<lief_t>(this); }
+  const lief_t& impl() const {
+    return as<lief_t>(this);
+  }
 };
+
+using asm_x86_Instruction_it_operands = asm_x86_Instruction::it_operands;

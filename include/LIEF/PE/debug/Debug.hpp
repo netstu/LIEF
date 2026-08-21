@@ -1,6 +1,6 @@
 
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,15 +17,15 @@
 #ifndef LIEF_PE_DEBUG_H
 #define LIEF_PE_DEBUG_H
 #include <cstdint>
-#include <ostream>
 #include <memory>
+#include <ostream>
 
 #include "LIEF/Object.hpp"
-#include "LIEF/visibility.h"
 #include "LIEF/span.hpp"
+#include "LIEF/visibility.h"
 
-namespace LIEF {
-namespace PE {
+
+namespace LIEF::PE {
 class Parser;
 class Builder;
 class Section;
@@ -36,7 +36,7 @@ struct pe_debug;
 
 /// This class represents a generic entry in the debug data directory.
 /// For known types, this class is extended to provide a dedicated API
-/// (see: CodeCodeView)
+/// (see: CodeView)
 class LIEF_API Debug : public Object {
   friend class Parser;
   friend class Builder;
@@ -100,12 +100,11 @@ class LIEF_API Debug : public Object {
     EX_DLLCHARACTERISTICS = 20,
   };
   Debug() = default;
-  Debug(TYPES type) {
-    type_ = type;
-  }
+  Debug(TYPES type) :
+    type_(type) {}
 
-  static span<uint8_t> get_payload(Section& section, uint32_t rva,
-                                   uint32_t offset, uint32_t size);
+  static span<uint8_t> get_payload(Section& section, uint32_t rva, uint32_t offset,
+                                   uint32_t size);
   static span<uint8_t> get_payload(Section& section, const details::pe_debug& hdr);
   static span<uint8_t> get_payload(Section& section, const Debug& dbg) {
     return get_payload(section, dbg.addressof_rawdata(), dbg.pointerto_rawdata(),
@@ -123,7 +122,7 @@ class LIEF_API Debug : public Object {
   ~Debug() override = default;
 
   virtual std::unique_ptr<Debug> clone() const {
-    return std::unique_ptr<Debug>(new Debug(*this));
+    return std::make_unique<Debug>(*this);
   }
 
   /// Reserved should be 0
@@ -167,18 +166,18 @@ class LIEF_API Debug : public Object {
   }
 
   /// The section where debug data is located
-  const Section* section() const {
+  const Section* section() const LIEF_LIFETIMEBOUND {
     return section_;
   }
 
-  Section* section() {
+  Section* section() LIEF_LIFETIMEBOUND {
     return section_;
   }
 
   /// Debug data associated with this entry
-  span<uint8_t> payload();
+  span<uint8_t> payload() LIEF_LIFETIMEBOUND;
 
-  span<const uint8_t> payload() const {
+  span<const uint8_t> payload() const LIEF_LIFETIMEBOUND {
     return const_cast<Debug*>(this)->payload();
   }
 
@@ -212,7 +211,7 @@ class LIEF_API Debug : public Object {
 
   template<class T>
   const T* as() const {
-    static_assert(std::is_base_of<Debug, T>::value, "Require Debug inheritance");
+    static_assert(std::is_base_of_v<Debug, T>, "Require Debug inheritance");
     if (T::classof(this)) {
       return static_cast<const T*>(this);
     }
@@ -228,9 +227,7 @@ class LIEF_API Debug : public Object {
 
   virtual std::string to_string() const;
 
-  LIEF_API friend
-    std::ostream& operator<<(std::ostream& os, const Debug& entry)
-  {
+  LIEF_API friend std::ostream& operator<<(std::ostream& os, const Debug& entry) {
     os << entry.to_string();
     return os;
   }
@@ -251,5 +248,5 @@ class LIEF_API Debug : public Object {
 LIEF_API const char* to_string(Debug::TYPES e);
 
 }
-}
+
 #endif

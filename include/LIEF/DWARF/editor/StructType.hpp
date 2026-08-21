@@ -1,4 +1,4 @@
-/* Copyright 2022 - 2025 R. Thomas
+/* Copyright 2022 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,12 +18,12 @@
 #include <cstdint>
 #include <string>
 
-#include "LIEF/visibility.h"
 #include "LIEF/DWARF/editor/Type.hpp"
+#include "LIEF/compiler_attributes.hpp"
+#include "LIEF/visibility.h"
 
-namespace LIEF {
-namespace dwarf {
-namespace editor {
+
+namespace LIEF::dwarf::editor {
 
 namespace details {
 class StructMember;
@@ -36,12 +36,15 @@ class StructMember;
 /// - `DW_TAG_union_type`
 class LIEF_API StructType : public Type {
   public:
-  using Type::Type;
+  template<typename... Args,
+           typename = std::enable_if_t<std::is_constructible_v<Type, Args&&...>>>
+  StructType(Args&&... args) :
+    Type(std::forward<Args>(args)...) {}
 
   enum class TYPE : uint32_t {
-    CLASS, /// Discriminant for `DW_TAG_class_type`
+    CLASS,  /// Discriminant for `DW_TAG_class_type`
     STRUCT, /// Discriminant for `DW_TAG_structure_type`
-    UNION, /// Discriminant for `DW_TAG_union_type`
+    UNION,  /// Discriminant for `DW_TAG_union_type`
   };
 
   /// This class represents a member of the struct-like
@@ -51,6 +54,7 @@ class LIEF_API StructType : public Type {
     Member(std::unique_ptr<details::StructMember> impl);
 
     ~Member();
+
     private:
     std::unique_ptr<details::StructMember> impl_;
   };
@@ -59,15 +63,16 @@ class LIEF_API StructType : public Type {
   /// type.
   ///
   /// This function defines the `DW_AT_byte_size` attribute
-  StructType& set_size(uint64_t size);
+  StructType& set_size(uint64_t size) LIEF_LIFETIMEBOUND;
 
   /// Adds a member to the current struct-like
   std::unique_ptr<Member> add_member(const std::string& name, const Type& type,
-                                     int64_t offset = -1);
+                                     int64_t offset = -1) LIEF_LIFETIMEBOUND;
 
   /// Adds a bitfield member to the current structure.
   std::unique_ptr<Member> add_bitfield(const std::string& name, const Type& type,
-                                       uint64_t bitsize, int64_t bitoffset = -1);
+                                       uint64_t bitsize,
+                                       int64_t bitoffset = -1) LIEF_LIFETIMEBOUND;
 
   static bool classof(const Type* type);
 
@@ -75,6 +80,6 @@ class LIEF_API StructType : public Type {
 };
 
 }
-}
-}
+
+
 #endif

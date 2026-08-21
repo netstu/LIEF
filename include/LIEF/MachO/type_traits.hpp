@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,15 +15,15 @@
  */
 #ifndef LIEF_MACHO_TYPE_TRAITS_H
 #define LIEF_MACHO_TYPE_TRAITS_H
-#include <vector>
 #include <cstdint>
+#include <vector>
 
-namespace LIEF {
-namespace MachO {
+
+namespace LIEF::MachO {
 
 using buffer_t = std::vector<uint8_t>;
 
 }
-}
+
 
 #endif

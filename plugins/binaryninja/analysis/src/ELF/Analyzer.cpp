@@ -1,4 +1,4 @@
-/* Copyright 2025 R. Thomas
+/* Copyright 2025 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,24 +13,24 @@
  * limitations under the License.
  */
 #include "binaryninja/analysis/ELF/Analyzer.hpp"
-#include "log.hpp"
 #include "binaryninja/analysis/ELF/TypeBuilder.hpp"
+#include "log.hpp"
 
 #include <binaryninja/binaryninjaapi.h>
 #include <binaryninja/binaryninjacore.h>
 
-#include "binaryninja/analysis/ELF/analyzers/AndroidPackedRelocations.hpp"
-#include "binaryninja/analysis/ELF/analyzers/Relocations.hpp"
-#include "binaryninja/analysis/ELF/analyzers/RelativeRelocations.hpp"
 #include "binaryninja/analysis/ELF/analyzers/AndroidJNI.hpp"
+#include "binaryninja/analysis/ELF/analyzers/AndroidPackedRelocations.hpp"
+#include "binaryninja/analysis/ELF/analyzers/RelativeRelocations.hpp"
+#include "binaryninja/analysis/ELF/analyzers/Relocations.hpp"
 
 using namespace LIEF;
 
 namespace analysis_plugin::elf {
-Analyzer::Analyzer(std::unique_ptr<LIEF::ELF::Binary> impl, BinaryNinja::BinaryView& bv) :
+Analyzer::Analyzer(std::unique_ptr<LIEF::ELF::Binary> impl,
+                   BinaryNinja::BinaryView& bv) :
   analysis_plugin::Analyzer(bv, std::make_unique<TypeBuilder>(bv)),
-  elf_(std::move(impl))
-{
+  elf_(std::move(impl)) {
   using namespace analyzers;
 
   if (Relocations::can_run(*bv_, *elf_)) {

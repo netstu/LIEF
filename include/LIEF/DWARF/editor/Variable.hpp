@@ -1,4 +1,4 @@
-/* Copyright 2022 - 2025 R. Thomas
+/* Copyright 2022 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,11 +18,11 @@
 #include <memory>
 #include <string>
 
+#include "LIEF/compiler_attributes.hpp"
 #include "LIEF/visibility.h"
 
-namespace LIEF {
-namespace dwarf {
-namespace editor {
+
+namespace LIEF::dwarf::editor {
 class Type;
 
 namespace details {
@@ -40,23 +40,23 @@ class LIEF_API Variable {
   /// relevant in the case of a static global variable. For stack variable, you
   /// should use set_stack_offset.
   ///
-  /// This function set the `DW_AT_location` attribute
-  Variable& set_addr(uint64_t address);
+  /// This function sets the `DW_AT_location` attribute
+  Variable& set_addr(uint64_t address) LIEF_LIFETIMEBOUND;
 
   /// Set the stack offset of this variable.
   ///
-  /// This function set the `DW_AT_location` attribute
-  Variable& set_stack_offset(uint64_t offset);
+  /// This function sets the `DW_AT_location` attribute
+  Variable& set_stack_offset(uint64_t offset) LIEF_LIFETIMEBOUND;
 
   /// Mark this variable as **imported**
-  Variable& set_external();
+  Variable& set_external() LIEF_LIFETIMEBOUND;
 
   /// Set the type of the current variable
-  Variable& set_type(const Type& type);
+  Variable& set_type(const Type& type) LIEF_LIFETIMEBOUND;
 
   /// Create a `DW_AT_description` entry with the description
   /// provided in parameter.
-  Variable& add_description(const std::string& description);
+  Variable& add_description(const std::string& description) LIEF_LIFETIMEBOUND;
 
   ~Variable();
 
@@ -65,6 +65,6 @@ class LIEF_API Variable {
 };
 
 }
-}
-}
+
+
 #endif

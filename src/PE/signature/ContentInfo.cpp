@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,29 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "LIEF/Visitor.hpp"
 #include "LIEF/PE/signature/ContentInfo.hpp"
-#include "LIEF/PE/signature/GenericContent.hpp"
 #include "LIEF/PE/EnumToString.hpp"
+#include "LIEF/PE/signature/GenericContent.hpp"
 #include "LIEF/PE/signature/SpcIndirectData.hpp"
+#include "LIEF/Visitor.hpp"
 
 #include "Object.tcc"
 #include "internal_utils.hpp"
 
 #include <ostream>
 
-namespace LIEF {
-namespace PE {
+
+namespace LIEF::PE {
 
 
 ContentInfo::ContentInfo() :
-  value_(std::make_unique<GenericContent>())
-{}
+  value_(std::make_unique<GenericContent>()) {}
 
 ContentInfo::ContentInfo(const ContentInfo& other) :
   Object::Object(other),
-  value_{other.value_->clone()}
-{}
+  value_{other.value_->clone()} {}
 
 ContentInfo& ContentInfo::operator=(ContentInfo other) {
   swap(other);
@@ -69,5 +67,4 @@ std::ostream& operator<<(std::ostream& os, const ContentInfo& content_info) {
   return os;
 }
 
-}
 }

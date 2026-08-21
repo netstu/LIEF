@@ -1,6 +1,6 @@
 
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,7 +40,7 @@ void create<ResourceNode>(nb::module_& m) {
       R"delim(
       Class which represents a Node in the resource tree.
 
-      It is extended by :class:`lief.PE.ResourceData` and :class:`lief.PE.ResourceNode`
+      It is extended by :class:`lief.PE.ResourceData` and :class:`lief.PE.ResourceDirectory`
       )delim"_doc);
 
   init_ref_iterator<ResourceNode::it_childs>(res_node, "it_childs");

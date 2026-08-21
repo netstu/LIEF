@@ -1,4 +1,4 @@
-/* Copyright 2024 - 2025 R. Thomas
+/* Copyright 2024 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,9 +14,9 @@
  */
 #pragma once
 #include <LIEF/Abstract/Section.hpp>
-#include <LIEF/rust/helpers.hpp>
-#include <LIEF/rust/Span.hpp>
 #include <LIEF/rust/Mirror.hpp>
+#include <LIEF/rust/Span.hpp>
+#include <LIEF/rust/helpers.hpp>
 
 #include <string>
 
@@ -24,9 +24,31 @@ class AbstractSection : public Mirror<LIEF::Section> {
   public:
   using Mirror::Mirror;
 
-  std::string name() const { return get().name(); }
-  uint64_t size() const { return get().size(); }
-  uint64_t offset() const { return get().offset(); }
-  uint64_t virtual_address() const { return get().virtual_address(); }
-  Span content() const { return make_span(get().content()); }
+  auto name() const {
+    return to_unique_string(get().name());
+  }
+  uint64_t size() const {
+    return get().size();
+  }
+  uint64_t offset() const {
+    return get().offset();
+  }
+  uint64_t virtual_address() const {
+    return get().virtual_address();
+  }
+  Span content() const {
+    return make_span(get().content());
+  }
+
+  auto set_name(const std::string& name) {
+    get().name(name);
+  }
+
+  auto set_content(const uint8_t* buffer, size_t size) {
+    get().content({buffer, buffer + size});
+  }
+
+  auto set_size(uint64_t size) {
+    get().size(size);
+  }
 };

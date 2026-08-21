@@ -1,4 +1,4 @@
-/* Copyright 2022 - 2025 R. Thomas
+/* Copyright 2022 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,23 +14,19 @@
  */
 #include <array>
 
+#include "jni/jni_utils.hpp"
 #include "jni/lief/dwarf/editor/StructType.hpp"
 #include "jni/log.hpp"
-#include "jni/jni_utils.hpp"
 
 namespace lief_jni::dwarf::editor {
 
 int StructType::Member::register_natives(JNIEnv* env) {
-  static constexpr std::array NATIVE_METHODS {
-    make_destroy(
-      &jni_destroy
-    ),
+  static const std::array NATIVE_METHODS{
+      make_destroy(&jni_destroy),
   };
 
-  env->RegisterNatives(
-    jni::StaticRef<kClass>{}.GetJClass(),
-    NATIVE_METHODS.data(), NATIVE_METHODS.size()
-  );
+  env->RegisterNatives(jni::StaticRef<kClass>{}.GetJClass(), NATIVE_METHODS.data(),
+                       NATIVE_METHODS.size());
 
   GHIDRA_DEBUG("'{}' registered", kClass.name_);
 
@@ -39,26 +35,17 @@ int StructType::Member::register_natives(JNIEnv* env) {
 
 
 int StructType::register_natives(JNIEnv* env) {
-  static constexpr std::array NATIVE_METHODS {
-    make(
-      "setSize",
-      "(I)Llief/dwarf/editor/StructType;",
-      &jni_set_size
-    ),
-    make(
-      "addMember",
-      "(Ljava/lang/String;Llief/dwarf/editor/Type;J)Llief/dwarf/editor/StructType$Member;",
-      &jni_add_member
-    ),
-    make_destroy(
-      (void*)&jni_destroy
-    ),
+  static const std::array NATIVE_METHODS{
+      make("setSize", "(I)Llief/dwarf/editor/StructType;", &jni_set_size),
+      make("addMember",
+           "(Ljava/lang/String;Llief/dwarf/editor/Type;J)Llief/dwarf/editor/"
+           "StructType$Member;",
+           &jni_add_member),
+      make_destroy((void*)&jni_destroy),
   };
 
-  env->RegisterNatives(
-    jni::StaticRef<kClass>{}.GetJClass(),
-    NATIVE_METHODS.data(), NATIVE_METHODS.size()
-  );
+  env->RegisterNatives(jni::StaticRef<kClass>{}.GetJClass(), NATIVE_METHODS.data(),
+                       NATIVE_METHODS.size());
 
   GHIDRA_DEBUG("'{}' registered", kClass.name_);
 

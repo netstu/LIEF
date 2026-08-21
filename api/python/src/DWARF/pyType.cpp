@@ -152,6 +152,14 @@ void create<dw::Type>(nb::module_& m) {
       Scope in which this type is defined
       )doc"_doc
     )
+
+    .def("to_decl",
+      [] (const dw::Type& self, const DeclOpt* opt) {
+        return opt ? self.to_decl(*opt) : self.to_decl();
+      },
+      "Generates a C/C++ definition for this type"_doc,
+      "opt"_a.none() = nb::none()
+    );
   ;
 
   create<dw::types::ClassLike>(types);

@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ template<>
 void create<DosHeader>(nb::module_& m) {
   nb::class_<DosHeader, LIEF::Object>(m, "DosHeader",
       R"delim(
-      Class which represents the DosHeader, the **first** structure presents at the beginning of a PE file.
+      Class which represents the DosHeader, the **first** structure present at the beginning of a PE file.
 
       Most of the attributes of this structures are not relevant, except :attr:`~lief.PE.DosHeader.addressof_new_exeheader`
       )delim"_doc)

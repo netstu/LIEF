@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,11 +20,12 @@
 #include <vector>
 
 #include "LIEF/Object.hpp"
-#include "LIEF/visibility.h"
+#include "LIEF/compiler_attributes.hpp"
 #include "LIEF/span.hpp"
+#include "LIEF/visibility.h"
 
-namespace LIEF {
-namespace MachO {
+
+namespace LIEF::MachO {
 class Builder;
 class BinaryParser;
 class Binary;
@@ -33,15 +34,17 @@ namespace details {
 struct load_command;
 }
 
-/// Based class for the Mach-O load commands
+/// Base class for the Mach-O load commands
 class LIEF_API LoadCommand : public Object {
   friend class Builder;
   friend class BinaryParser;
   friend class Binary;
+
   public:
   using raw_t = std::vector<uint8_t>;
 
-  enum class TYPE: uint64_t {
+  // clang-format off
+  enum class TYPE : uint64_t {
     UNKNOWN                  = 0,
     SEGMENT                  = 0x00000001u,
     SYMTAB                   = 0x00000002u,
@@ -101,17 +104,18 @@ class LIEF_API LoadCommand : public Object {
     FUNCTION_VARIANTS        = 0x00000037u,
     FUNCTION_VARIANT_FIXUPS  = 0x00000038u,
     TARGET_TRIPLE            = 0x00000039u,
+    LAZY_LOAD_DYLIB_INFO     = 0x0000003Au,
 
-    LIEF_UNKNOWN             = 0xffee0001u
+    LIEF_UNKNOWN             = 0xffee0001u,
   };
+  // clang-format on
 
   public:
   LoadCommand() = default;
   LoadCommand(const details::load_command& command);
   LoadCommand(LoadCommand::TYPE type, uint32_t size) :
     command_(type),
-    size_(size)
-  {}
+    size_(size) {}
 
   LoadCommand& operator=(const LoadCommand& copy) = default;
   LoadCommand(const LoadCommand& copy) = default;
@@ -119,7 +123,7 @@ class LIEF_API LoadCommand : public Object {
   void swap(LoadCommand& other) noexcept;
 
   virtual std::unique_ptr<LoadCommand> clone() const {
-    return std::unique_ptr<LoadCommand>(new LoadCommand(*this));
+    return std::make_unique<LoadCommand>(*this);
   }
 
   ~LoadCommand() override = default;
@@ -129,13 +133,13 @@ class LIEF_API LoadCommand : public Object {
     return command_;
   }
 
-  /// Size of the command (should be greather than ``sizeof(load_command)``)
+  /// Size of the command (should be greater than ``sizeof(load_command)``)
   uint32_t size() const {
     return size_;
   }
 
   /// Raw command
-  span<const uint8_t> data() const {
+  span<const uint8_t> data() const LIEF_LIFETIMEBOUND {
     return original_data_;
   }
 
@@ -168,7 +172,7 @@ class LIEF_API LoadCommand : public Object {
 
   template<class T>
   const T* cast() const {
-    static_assert(std::is_base_of<LoadCommand, T>::value,
+    static_assert(std::is_base_of_v<LoadCommand, T>,
                   "Require LoadCommand inheritance");
     if (T::classof(this)) {
       return static_cast<const T*>(this);
@@ -182,8 +186,8 @@ class LIEF_API LoadCommand : public Object {
   }
 
 
-  LIEF_API friend
-  std::ostream& operator<<(std::ostream& os, const LoadCommand& cmd) {
+  LIEF_API friend std::ostream& operator<<(std::ostream& os,
+                                           const LoadCommand& cmd) {
     return cmd.print(os);
   }
 
@@ -197,5 +201,5 @@ class LIEF_API LoadCommand : public Object {
 LIEF_API const char* to_string(LoadCommand::TYPE type);
 
 }
-}
+
 #endif

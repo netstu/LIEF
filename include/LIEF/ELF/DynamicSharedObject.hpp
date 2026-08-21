@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,40 +16,41 @@
 #ifndef LIEF_ELF_DYNAMIC_SHARED_OBJECT_H
 #define LIEF_ELF_DYNAMIC_SHARED_OBJECT_H
 
+#include <string_view>
+#include <memory>
 #include <string>
 
-#include "LIEF/visibility.h"
 #include "LIEF/ELF/DynamicEntry.hpp"
+#include "LIEF/compiler_attributes.hpp"
+#include "LIEF/visibility.h"
 
-namespace LIEF {
-namespace ELF {
+
+namespace LIEF::ELF {
 
 /// Class which represents a ``DT_SONAME`` entry in the dynamic table
 /// This kind of entry is usually used to name the original library.
 ///
-/// This entry is not present for executable.
+/// This entry is not present for executables.
 class LIEF_API DynamicSharedObject : public DynamicEntry {
 
   public:
   using DynamicEntry::DynamicEntry;
   DynamicSharedObject() :
-    DynamicEntry(DynamicEntry::TAG::SONAME, 0)
-  {}
+    DynamicEntry(DynamicEntry::TAG::SONAME, 0) {}
 
   DynamicSharedObject(std::string name) :
     DynamicEntry(DynamicEntry::TAG::SONAME, 0),
-    name_(std::move(name))
-  {}
+    name_(std::move(name)) {}
 
   DynamicSharedObject& operator=(const DynamicSharedObject&) = default;
   DynamicSharedObject(const DynamicSharedObject&) = default;
 
   std::unique_ptr<DynamicEntry> clone() const override {
-    return std::unique_ptr<DynamicSharedObject>(new DynamicSharedObject(*this));
+    return std::make_unique<DynamicSharedObject>(*this);
   }
 
   /// The actual name (e.g. ``libMyLib.so``)
-  const std::string& name() const {
+  std::string_view name() const LIEF_LIFETIMEBOUND {
     return name_;
   }
 
@@ -71,5 +72,5 @@ class LIEF_API DynamicSharedObject : public DynamicEntry {
   std::string name_;
 };
 }
-}
+
 #endif

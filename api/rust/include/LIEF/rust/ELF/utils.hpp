@@ -1,4 +1,4 @@
-/* Copyright 2024 - 2025 R. Thomas
+/* Copyright 2024 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,19 @@
  */
 
 #pragma once
-#include <string>
 #include "LIEF/ELF/utils.hpp"
+#include "LIEF/rust/ELF/Binary.hpp"
+#include <string>
 
 class ELF_Utils {
   public:
-  static bool is_elf(std::string file)  {
+  static auto is_elf(const std::string& file) {
     return LIEF::ELF::is_elf(file);
+  }
+
+  static auto check_layout(const ELF_Binary& bin, std::string* error) {
+    return LIEF::ELF::check_layout(
+        static_cast<const LIEF::ELF::Binary&>(bin.get()), error
+    );
   }
 };

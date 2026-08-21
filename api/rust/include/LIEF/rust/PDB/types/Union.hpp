@@ -1,4 +1,4 @@
-/* Copyright 2022 - 2025 R. Thomas
+/* Copyright 2022 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,10 +20,12 @@ class PDB_types_Union : public PDB_types_ClassLike {
   public:
   using lief_t = LIEF::pdb::types::Union;
 
-  static bool classof(const PDB_Type& type) {
+  static auto classof(const PDB_Type& type) {
     return lief_t::classof(&type.get());
   }
 
   private:
-  const lief_t& impl() const { return as<lief_t>(this); }
+  const lief_t& impl() const {
+    return as<lief_t>(this);
+  }
 };

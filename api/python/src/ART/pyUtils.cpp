@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ void init_utils(nb::module_& m) {
 
   lief_mod->def("is_art",
       nb::overload_cast<const std::vector<uint8_t>&>(&is_art),
-      "Check if the **raw data** given in parameter is a ART"_doc,
+      "Check if the **raw data** given in parameter is an ART"_doc,
       "raw"_a);
 
   m.def("version",

@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
 #include "pyLIEF.hpp"
 
 namespace LIEF::py {
-safe_string_t safe_string(const std::string& str) {
-  nb::bytes str_bytes(str.c_str(), str.size());
+safe_string_t safe_string(std::string_view str) {
+  nb::bytes str_bytes(str.data(), str.size());
   try {
     return nb::str(str_bytes.attr("decode")("utf8"));
   } catch (const std::exception& e) {

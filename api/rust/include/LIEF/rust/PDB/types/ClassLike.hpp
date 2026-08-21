@@ -1,4 +1,4 @@
-/* Copyright 2022 - 2025 R. Thomas
+/* Copyright 2022 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,32 +19,42 @@
 #include "LIEF/rust/PDB/Type.hpp"
 #include "LIEF/rust/PDB/types/Attribute.hpp"
 #include "LIEF/rust/PDB/types/Method.hpp"
+#include "LIEF/rust/helpers.hpp"
 
 class PDB_types_ClassLike : public PDB_Type {
   public:
   using lief_t = LIEF::pdb::types::ClassLike;
 
-  class it_attributes :
-      public ForwardIterator<PDB_types_Attribute, LIEF::pdb::types::Attribute::Iterator>
-  {
+  class it_attributes
+    : public ForwardIterator<PDB_types_Attribute,
+                             LIEF::pdb::types::Attribute::Iterator> {
     public:
-    it_attributes(const PDB_types_ClassLike::lief_t& src)
-      : ForwardIterator(src.attributes()) { }
-    auto next() { return ForwardIterator::next(); }
+    it_attributes(const PDB_types_ClassLike::lief_t& src) :
+      ForwardIterator(src.attributes()) {}
+    auto next() {
+      return ForwardIterator::next();
+    }
+    auto size() const {
+      return ForwardIterator::size();
+    }
   };
 
-  class it_methods :
-      public ForwardIterator<PDB_types_Method, LIEF::pdb::types::Method::Iterator>
-  {
+  class it_methods : public ForwardIterator<PDB_types_Method,
+                                            LIEF::pdb::types::Method::Iterator> {
     public:
-    it_methods(const PDB_types_ClassLike::lief_t& src)
-      : ForwardIterator(src.methods()) { }
-    auto next() { return ForwardIterator::next(); }
+    it_methods(const PDB_types_ClassLike::lief_t& src) :
+      ForwardIterator(src.methods()) {}
+    auto next() {
+      return ForwardIterator::next();
+    }
+    auto size() const {
+      return ForwardIterator::size();
+    }
   };
 
-  auto name() const { return impl().name(); }
-  auto unique_name() const { return impl().unique_name(); }
-  auto size() const { return impl().size(); }
+  auto unique_name() const {
+    return to_unique_string(impl().unique_name());
+  }
 
   auto attributes() const {
     return std::make_unique<it_attributes>(impl());
@@ -55,15 +65,20 @@ class PDB_types_ClassLike : public PDB_Type {
   }
 
   private:
-  const lief_t& impl() const { return as<lief_t>(this); }
+  const lief_t& impl() const {
+    return as<lief_t>(this);
+  }
 };
+
+using PDB_types_ClassLike_it_attributes = PDB_types_ClassLike::it_attributes;
+using PDB_types_ClassLike_it_methods = PDB_types_ClassLike::it_methods;
 
 
 class PDB_types_Class : public PDB_types_ClassLike {
   public:
   using lief_t = LIEF::pdb::types::Class;
 
-  static bool classof(const PDB_Type& type) {
+  static auto classof(const PDB_Type& type) {
     return lief_t::classof(&type.get());
   }
 };
@@ -72,7 +87,7 @@ class PDB_types_Structure : public PDB_types_ClassLike {
   public:
   using lief_t = LIEF::pdb::types::Structure;
 
-  static bool classof(const PDB_Type& type) {
+  static auto classof(const PDB_Type& type) {
     return lief_t::classof(&type.get());
   }
 };
@@ -81,7 +96,7 @@ class PDB_types_Interface : public PDB_types_ClassLike {
   public:
   using lief_t = LIEF::pdb::types::Interface;
 
-  static bool classof(const PDB_Type& type) {
+  static auto classof(const PDB_Type& type) {
     return lief_t::classof(&type.get());
   }
 };

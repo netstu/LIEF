@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,10 @@
  */
 #ifndef LIEF_ASM_EBPF_H
 #define LIEF_ASM_EBPF_H
-#include <LIEF/asm/ebpf/Instruction.hpp>
-#include <LIEF/asm/ebpf/opcodes.hpp>
-#include <LIEF/asm/ebpf/registers.hpp>
+// IWYU pragma: begin_exports
+#include "LIEF/asm/ebpf/Instruction.hpp"
+#include "LIEF/asm/ebpf/opcodes.hpp"
+#include "LIEF/asm/ebpf/operands.hpp"
+#include "LIEF/asm/ebpf/registers.hpp"
+// IWYU pragma: end_exports
 #endif

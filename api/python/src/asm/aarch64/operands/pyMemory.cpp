@@ -9,7 +9,7 @@ struct type_caster<LIEF::assembly::aarch64::operands::Memory::offset_t> {
   NB_TYPE_CASTER(LIEF::assembly::aarch64::operands::Memory::offset_t,
                  const_name("Optional[Union[lief.assembly.aarch64.REG, int]]"));
 
-  bool from_python(handle src, uint8_t, cleanup_list *) noexcept {
+  bool from_python(handle, uint8_t, cleanup_list *) noexcept {
     return false;
   }
 
@@ -68,6 +68,8 @@ void create<aarch64::operands::Memory>(nb::module_& m) {
     .def_ro("type", &operands::Memory::shift_info_t::type)
     .def_ro("value", &operands::Memory::shift_info_t::value)
   ;
+
+  obj.attr("__match_args__") = nb::make_tuple("base", "offset", "shift");
 
   obj
     .def_prop_ro("base", &operands::Memory::base,

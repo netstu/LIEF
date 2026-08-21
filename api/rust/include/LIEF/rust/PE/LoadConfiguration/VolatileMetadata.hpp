@@ -1,4 +1,4 @@
-/* Copyright 2024 - 2025 R. Thomas
+/* Copyright 2024 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,18 +13,26 @@
  * limitations under the License.
  */
 #pragma once
-#include "LIEF/rust/Mirror.hpp"
-#include "LIEF/rust/Iterator.hpp"
 #include "LIEF/PE/LoadConfigurations/VolatileMetadata.hpp"
+#include "LIEF/rust/Iterator.hpp"
+#include "LIEF/rust/Mirror.hpp"
+#include "LIEF/rust/helpers.hpp"
 
-class PE_VolatileMetadata_range_t : public Mirror<LIEF::PE::VolatileMetadata::range_t> {
+class PE_VolatileMetadata_range_t
+  : public Mirror<LIEF::PE::VolatileMetadata::range_t> {
   public:
   using lief_t = LIEF::PE::VolatileMetadata::range_t;
   using Mirror::Mirror;
 
-  auto start() const { return get().start; }
-  auto size() const { return get().size; }
-  auto end() const { return get().end(); }
+  auto start() const {
+    return get().start;
+  }
+  auto size() const {
+    return get().size;
+  }
+  auto end() const {
+    return get().end();
+  }
 };
 
 class PE_VolatileMetadata : public Mirror<LIEF::PE::VolatileMetadata> {
@@ -32,32 +40,54 @@ class PE_VolatileMetadata : public Mirror<LIEF::PE::VolatileMetadata> {
   using lief_t = LIEF::PE::VolatileMetadata;
   using Mirror::Mirror;
 
-  class it_ranges :
-      public Iterator<PE_VolatileMetadata_range_t, LIEF::PE::VolatileMetadata::it_const_info_ranges_t>
-  {
+  class it_ranges
+    : public Iterator<PE_VolatileMetadata_range_t,
+                      LIEF::PE::VolatileMetadata::it_const_info_ranges_t> {
     public:
-    it_ranges(const PE_VolatileMetadata::lief_t& src)
-      : Iterator(std::move(src.info_ranges())) { }
-    auto next() { return Iterator::next(); }
-    auto size() const { return Iterator::size(); }
+    it_ranges(const PE_VolatileMetadata::lief_t& src) :
+      Iterator(src.info_ranges()) {}
+    auto next() {
+      return Iterator::next();
+    }
+    auto size() const {
+      return Iterator::size();
+    }
   };
 
-  auto size() const { return get().size(); }
-  auto min_version() const { return get().min_version(); }
-  auto max_version() const { return get().max_version(); }
-  auto access_table_rva() const { return get().access_table_rva(); }
-  auto access_table_size() const { return get().access_table_size(); }
-  auto info_range_rva() const { return get().info_range_rva(); }
-  auto info_ranges_size() const { return get().info_ranges_size(); }
+  auto size() const {
+    return get().size();
+  }
+  auto min_version() const {
+    return get().min_version();
+  }
+  auto max_version() const {
+    return get().max_version();
+  }
+  auto access_table_rva() const {
+    return get().access_table_rva();
+  }
+  auto access_table_size() const {
+    return get().access_table_size();
+  }
+  auto info_range_rva() const {
+    return get().info_range_rva();
+  }
+  auto info_ranges_size() const {
+    return get().info_ranges_size();
+  }
 
-  const auto& access_table() const { return get().access_table(); }
+  const auto& access_table() const {
+    return get().access_table();
+  }
 
-  auto info_ranges() const  {
+  auto info_ranges() const {
     return std::make_unique<it_ranges>(get());
   }
 
 
-  std::string to_string() const { return get().to_string(); }
+  auto to_string() const {
+    return to_unique_string(get().to_string());
+  }
 };
 
-
+using PE_VolatileMetadata_it_ranges = PE_VolatileMetadata::it_ranges;

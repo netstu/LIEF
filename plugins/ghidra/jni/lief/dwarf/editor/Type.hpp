@@ -1,4 +1,4 @@
-/* Copyright 2022 - 2025 R. Thomas
+/* Copyright 2022 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,23 +14,22 @@
  */
 #pragma once
 
-#include <jni_bind.h>
 #include "jni/mirror.hpp"
+#include <jni_bind.h>
 
 #include <LIEF/DWARF/editor/Type.hpp>
 
 namespace lief_jni::dwarf::editor {
 
-class Type : public JNI<
-  Type, std::unique_ptr<LIEF::dwarf::editor::Type>>
-{
+class Type : public JNI<Type, std::unique_ptr<LIEF::dwarf::editor::Type>> {
   public:
   using JNI::JNI;
-  static constexpr jni::Class kClass {
-    "lief/dwarf/editor/Type",
-    jni::Constructor{ jlong{} },
-    jni::Field { "impl", jlong{}, }
-  };
+  static constexpr jni::Class kClass{"lief/dwarf/editor/Type",
+                                     jni::Constructor{jlong{}},
+                                     jni::Field{
+                                         "impl",
+                                         jlong{},
+                                     }};
 
   static int register_natives(JNIEnv* env);
 

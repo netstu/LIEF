@@ -1,4 +1,4 @@
-/* Copyright 2024 - 2025 R. Thomas
+/* Copyright 2024 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,8 +20,8 @@
 
 class asm_aarch64_operands_Register_reg_t {
   public:
-  uint64_t reg;
-  uint32_t enum_type;
+  uint64_t reg = 0;
+  uint32_t enum_type = 0;
 };
 
 class asm_aarch64_operands_Register : public asm_aarch64_Operand {
@@ -31,15 +31,17 @@ class asm_aarch64_operands_Register : public asm_aarch64_Operand {
   asm_aarch64_operands_Register_reg_t value() const {
     lief_t::reg_t info = impl().value();
     return {
-      /*.reg =*/(uint64_t)to_int(info.reg),
-      /*.enum_type =*/(uint32_t)to_int(info.type),
+        /*.reg =*/(uint64_t)to_int(info.reg),
+        /*.enum_type =*/(uint32_t)to_int(info.type),
     };
   }
 
-  static bool classof(const asm_aarch64_Operand& inst) {
+  static auto classof(const asm_aarch64_Operand& inst) {
     return lief_t::classof(&inst.get());
   }
 
   private:
-  const lief_t& impl() const { return as<lief_t>(this); }
+  const lief_t& impl() const {
+    return as<lief_t>(this);
+  }
 };

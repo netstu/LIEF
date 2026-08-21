@@ -1,4 +1,4 @@
-/* Copyright 2022 - 2025 R. Thomas
+/* Copyright 2022 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,14 @@
  */
 #ifndef LIEF_DWARF_EDITOR_TYPE_H
 #define LIEF_DWARF_EDITOR_TYPE_H
-#include <memory>
 #include <cassert>
+#include <memory>
 
+#include "LIEF/compiler_attributes.hpp"
 #include "LIEF/visibility.h"
 
-namespace LIEF {
-namespace dwarf {
-namespace editor {
+
+namespace LIEF::dwarf::editor {
 class PointerType;
 
 namespace details {
@@ -39,20 +39,20 @@ class LIEF_API Type {
   Type(std::unique_ptr<details::Type> impl);
 
   /// Create a pointer type pointing to this type
-  std::unique_ptr<PointerType> pointer_to() const;
+  std::unique_ptr<PointerType> pointer_to() const LIEF_LIFETIMEBOUND;
 
   virtual ~Type();
 
-  /// \private
+  /// @private
   static std::unique_ptr<Type> create(std::unique_ptr<details::Type> impl);
 
-  /// \private
-  details::Type& impl() {
+  /// @private
+  details::Type& impl() LIEF_LIFETIMEBOUND {
     assert(impl_ != nullptr);
     return *impl_;
   }
 
-  const details::Type& impl() const {
+  const details::Type& impl() const LIEF_LIFETIMEBOUND {
     assert(impl_ != nullptr);
     return *impl_;
   }
@@ -62,6 +62,6 @@ class LIEF_API Type {
 };
 
 }
-}
-}
+
+
 #endif

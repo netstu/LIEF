@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -125,7 +125,7 @@ void create<SignerInfo>(nb::module_& m) {
         Return the un-authenticated attribute matching the
         given :class:`lief.PE.SIG_ATTRIBUTE_TYPES`
         It returns **the first** entry that matches the given type. If it can't be
-        found, it returns a nullptr
+        found, it returns None
         )delim"_doc,
         "type"_a, nb::rv_policy::reference_internal)
 

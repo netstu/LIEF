@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,9 @@
  */
 #ifndef LIEF_PE_LOAD_CONFIGURATION_CHPE_METADATA_H
 #define LIEF_PE_LOAD_CONFIGURATION_CHPE_METADATA_H
+#include <cstdint>
 #include <memory>
 #include <string>
-#include <cstdint>
 
 #include "LIEF/visibility.h"
 
@@ -31,17 +31,17 @@ class Parser;
 /// This class is inherited by architecture-specific implementation.
 class LIEF_API CHPEMetadata {
   public:
-
   /// Discriminator for the subclasses
   enum class KIND {
     UNKNOWN = 0,
-    ARM64, X86,
+    ARM64,
+    X86,
   };
 
   CHPEMetadata() = default;
   CHPEMetadata(KIND kind, uint32_t version) :
-    kind_(kind), version_(version)
-  {}
+    kind_(kind),
+    version_(version) {}
 
   CHPEMetadata(const CHPEMetadata&) = default;
   CHPEMetadata& operator=(const CHPEMetadata&) = default;
@@ -50,7 +50,7 @@ class LIEF_API CHPEMetadata {
   CHPEMetadata& operator=(CHPEMetadata&&) = default;
 
   virtual std::unique_ptr<CHPEMetadata> clone() const {
-    return std::unique_ptr<CHPEMetadata>(new CHPEMetadata(*this));
+    return std::make_unique<CHPEMetadata>(*this);
   }
 
   static std::unique_ptr<CHPEMetadata> parse(Parser& ctx, BinaryStream& stream);
@@ -71,7 +71,7 @@ class LIEF_API CHPEMetadata {
 
   template<class T>
   T* as() {
-    static_assert(std::is_base_of<CHPEMetadata, T>::value,
+    static_assert(std::is_base_of_v<CHPEMetadata, T>,
                   "Require CHPEMetadata inheritance");
     if (T::classof(this)) {
       return static_cast<T*>(this);
@@ -84,9 +84,8 @@ class LIEF_API CHPEMetadata {
     return const_cast<CHPEMetadata*>(this)->as<T>();
   }
 
-  LIEF_API friend
-    std::ostream& operator<<(std::ostream& os, const CHPEMetadata& meta)
-  {
+  LIEF_API friend std::ostream& operator<<(std::ostream& os,
+                                           const CHPEMetadata& meta) {
     os << meta.to_string();
     return os;
   }

@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,14 +15,13 @@
  */
 #ifndef LIEF_COFF_UTILS_H
 #define LIEF_COFF_UTILS_H
-#include "LIEF/visibility.h"
-#include "LIEF/COFF/Header.hpp"
-#include "LIEF/BinaryStream/FileStream.hpp"
 #include "LIEF/BinaryStream/SpanStream.hpp"
+#include "LIEF/COFF/Header.hpp"
+#include "LIEF/visibility.h"
 #include <string>
 
-namespace LIEF {
-namespace COFF {
+
+namespace LIEF::COFF {
 
 /// This function determines if the given stream wraps a COFF binary and if so,
 /// whether it's a regular or bigobj COFF.
@@ -59,5 +58,5 @@ LIEF_API inline bool is_regular(BinaryStream& stream) {
 }
 
 }
-}
+
 #endif

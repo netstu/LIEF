@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@
 #include <sstream>
 #include <string>
 #include <nanobind/stl/string.h>
+#include <nanobind/stl/string_view.h>
 
 namespace LIEF::COFF::py {
 
@@ -29,7 +30,7 @@ void create<String>(nb::module_& m) {
     R"doc(
     This class represents a string located in the COFF string table.
 
-    Some of these strings can be used for section's name where its lenght is greater than 8
+    Some of these strings can be used for section's name where its length is greater than 8
     bytes. See: :attr:`~.Section.coff_string`.
 
     Reference: https://learn.microsoft.com/en-us/windows/win32/debug/pe-format#coff-string-table
@@ -53,4 +54,3 @@ void create<String>(nb::module_& m) {
 }
 
 }
-

@@ -1,8 +1,8 @@
 use anyhow::{Context, Ok, Result};
-use clap::{value_parser, Arg, ArgAction, ArgMatches, Command};
-use clap_complete::aot::{generate, Generator, Shell};
+use clap::{Arg, ArgAction, ArgMatches, Command, value_parser};
+use clap_complete::aot::{Generator, Shell, generate};
 use indoc::indoc;
-use lief::elf::{dynamic, Segment};
+use lief::elf::{Segment, dynamic};
 use lief::generic::Symbol;
 use lief::{
     self,
@@ -14,6 +14,8 @@ use std::io::{self, BufRead, BufReader, Read};
 use std::path::Path;
 use std::path::PathBuf;
 use thiserror::Error;
+
+use common::version::get_lief_version;
 
 #[derive(Debug, Clone)]
 struct NeededLibrary {
@@ -60,7 +62,7 @@ impl PatchContext {
     pub fn process(&mut self) -> Result<()> {
         if self.options.get_flag("no-sort") {
             lief::logging::log(
-                lief::logging::Level::WARN,
+                lief::logging::Level::Warn,
                 "--no-sort is not supported by LIEF",
             )
         }
@@ -269,7 +271,7 @@ impl PatchContext {
                         .any(|e| path == e || path.starts_with(e.as_str()))
                 {
                     lief::logging::log(
-                        lief::logging::Level::DEBUG,
+                        lief::logging::Level::Debug,
                         &format!(
                             "removing directory '{path}' from RPATH because of non-allowed prefix"
                         ),
@@ -450,13 +452,11 @@ impl PatchContext {
         }
 
         if let Some(remove_deps) = self.options.get_many::<String>("remove-needed") {
-
             for deps in remove_deps {
                 self.modified = true;
                 self.elf.remove_library(deps);
                 self.elf.remove_version_requirement(deps);
             }
-
         }
 
         if let Some(remove_deps) = self.options.get_many::<String>("replace-needed") {
@@ -475,7 +475,7 @@ impl PatchContext {
                     self.modified = true;
                 } else {
                     lief::logging::log(
-                        lief::logging::Level::WARN,
+                        lief::logging::Level::Warn,
                         &format!("Library '{original}' not found"),
                     );
                 }
@@ -490,7 +490,7 @@ impl PatchContext {
             for symname in sym_clear {
                 if let Some(dynsym) = self.elf.dynamic_symbol_by_name(symname) {
                     lief::logging::log(
-                        lief::logging::Level::DEBUG,
+                        lief::logging::Level::Debug,
                         &format!("clearing symbol version for {symname}"),
                     );
                     if let Some(mut symver) = dynsym.symbol_version() {
@@ -498,7 +498,10 @@ impl PatchContext {
                         symver.as_global();
                     }
                 } else {
-                    lief::logging::log(lief::logging::Level::INFO, &format!("Symbol {symname} not found"));
+                    lief::logging::log(
+                        lief::logging::Level::Info,
+                        &format!("Symbol {symname} not found"),
+                    );
                 }
             }
         }
@@ -525,16 +528,18 @@ impl PatchContext {
                     if req.remove_aux_requirement_by_name(version) {
                         self.modified = true;
                     } else {
-                        lief::logging::log(lief::logging::Level::ERR,
-                            &format!("Can't remove {version} in {libname}"));
+                        lief::logging::log(
+                            lief::logging::Level::Err,
+                            &format!("Can't remove {version} in {libname}"),
+                        );
                     }
                 } else {
-                    lief::logging::log(lief::logging::Level::ERR,
-                        &format!("Can't find library {libname}"));
+                    lief::logging::log(
+                        lief::logging::Level::Err,
+                        &format!("Can't find library {libname}"),
+                    );
                 }
-
             }
-
         }
         Ok(())
     }
@@ -647,24 +652,6 @@ fn resolve_args(arg: &str) -> Result<String> {
     let mut output = String::new();
     reader.read_to_string(&mut output)?;
     Ok(output)
-}
-
-fn get_lief_version() -> &'static str {
-    // Command::version takes an "IntoResettable" string whose simplest form is
-    // a 'static str.
-    //
-    // Ideally we should use
-    //
-    // ```
-    // static LIEF_VERSION: LazyLock<String> = LazyLock::new(|| format!("{}", lief::version()));
-    // Command::new("...)
-    //     .version(&**LIEF_VERSION)
-    // ```
-    //
-    // but `LazyLock` requires a more recent version of `rustc` compared to the LIEF's min rust
-    // version. Therefore, we workaround with this leak.
-    //
-    Box::leak(format!("{}", lief::version()).into_boxed_str())
 }
 
 fn build_cli() -> Command {
@@ -1005,15 +992,15 @@ fn main() -> Result<()> {
 
     let filenames = filenames.collect::<Vec<_>>();
 
-    lief::logging::set_level(lief::logging::Level::WARN);
+    lief::logging::set_level(lief::logging::Level::Warn);
 
     if matches.get_flag("debug") {
-        lief::logging::set_level(lief::logging::Level::DEBUG);
+        lief::logging::set_level(lief::logging::Level::Debug);
     }
 
-    let mut parser_config = lief::elf::parser_config::Config::default();
+    let mut _parser_config = lief::elf::parser_config::Config::default();
     if let Some(pagesize) = matches.get_one::<u64>("page-size") {
-        parser_config.page_size = *pagesize;
+        _parser_config.page_size = *pagesize;
     }
 
     let opt_output = matches.get_one::<std::path::PathBuf>("output");

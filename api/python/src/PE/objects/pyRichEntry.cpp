@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ void create<RichEntry>(nb::module_& m) {
       )delim"_doc)
     .def(nb::init<>())
     .def(nb::init<uint16_t, uint16_t, uint32_t>(),
-        "Contructor from "
+        "Constructor from "
         ":attr:`~lief.PE.RichEntry.id`, "
         ":attr:`~lief.PE.RichEntry.build_id` and "
         ":attr:`~lief.PE.RichEntry.count`"_doc,

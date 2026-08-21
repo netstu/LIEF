@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 #include "LIEF/COFF/utils.hpp"
 #include "COFF/structures.hpp"
+#include "LIEF/BinaryStream/FileStream.hpp"
 
 namespace LIEF::COFF {
 
@@ -49,7 +50,8 @@ Header::KIND get_kind(BinaryStream& stream) {
   }
 
   return LIEF::PE::Header::is_known_machine(regular->machine) ?
-         Header::KIND::REGULAR : Header::KIND::UNKNOWN;
+             Header::KIND::REGULAR :
+             Header::KIND::UNKNOWN;
 }
 
 }

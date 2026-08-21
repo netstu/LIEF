@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ void create<MainCommand>(nb::module_& m) {
 
   nb::class_<MainCommand, LoadCommand>(m, "MainCommand",
       R"delim(
-      Class that represent the LC_MAIN command. This kind
+      Class that represents the LC_MAIN command. This kind
       of command can be used to determine the entrypoint of an executable
       )delim"_doc)
     .def(nb::init<uint64_t, uint64_t>())

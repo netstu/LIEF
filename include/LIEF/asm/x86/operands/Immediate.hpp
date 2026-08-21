@@ -1,4 +1,4 @@
-/* Copyright 2022 - 2025 R. Thomas
+/* Copyright 2022 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,9 @@
 #define LIEF_ASM_X86_OPERAND_IMM_H
 #include "LIEF/asm/x86/Operand.hpp"
 
-namespace LIEF {
-namespace assembly {
-namespace x86 {
+
 /// Namespace that wraps the different x86/x86-64 operands
-namespace operands {
+namespace LIEF::assembly::x86::operands {
 
 
 /// This class represents an immediate operand (i.e. a constant)
@@ -43,7 +41,6 @@ class LIEF_API Immediate : public Operand {
   ~Immediate() override = default;
 };
 }
-}
-}
-}
+
+
 #endif

@@ -1,4 +1,4 @@
-/* Copyright 2024 - 2025 R. Thomas
+/* Copyright 2024 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 #include "LIEF/PE/ExceptionInfo.hpp"
 #include "LIEF/rust/Mirror.hpp"
+#include "LIEF/rust/helpers.hpp"
 
 class PE_ExceptionInfo : public Mirror<LIEF::PE::ExceptionInfo> {
   public:
@@ -30,7 +31,7 @@ class PE_ExceptionInfo : public Mirror<LIEF::PE::ExceptionInfo> {
     return get().offset();
   }
 
-  std::string to_string() const {
-    return get().to_string();
+  auto to_string() const {
+    return to_unique_string(get().to_string());
   }
 };

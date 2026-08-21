@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@
 #include <sstream>
 #include <nanobind/stl/string.h>
 #include <nanobind/extra/stl/u16string.h>
-#include <nanobind/extra/stl/lief_optional.h>
+#include <nanobind/stl/optional.h>
 
 namespace LIEF::PE::py {
 
@@ -32,8 +32,8 @@ void create<ResourceStringTable>(nb::module_& m) {
   nb::class_<ResourceStringTable, LIEF::Object> obj(m, "ResourceStringTable",
     R"doc(
     This class represents the ``StringTable`` structure. This structure
-    can be seen as a dictionary of key, values with key and values defined a
-    utf-16 string.
+    can be seen as a dictionary of key, values with key and values defined as
+    utf-16 strings.
     )doc"_doc
   );
 

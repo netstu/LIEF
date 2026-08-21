@@ -1,4 +1,4 @@
-/* Copyright 2022 - 2025 R. Thomas
+/* Copyright 2022 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,20 +15,26 @@
 #pragma once
 #include "LIEF/DWARF/types/Array.hpp"
 #include "LIEF/rust/DWARF/Type.hpp"
+#include "LIEF/rust/helpers.hpp"
 
-class DWARF_types_array_size_info :
-  private Mirror<LIEF::dwarf::types::Array::size_info_t>
-{
+class DWARF_types_array_size_info
+  : private Mirror<LIEF::dwarf::types::Array::size_info_t> {
   public:
   using Mirror::Mirror;
   using lief_t = LIEF::dwarf::types::Array::size_info_t;
 
-  auto name() const { return get().name; }
+  auto name() const {
+    return to_unique_string(get().name);
+  }
 
-  uint64_t size() const { return get().size; }
+  uint64_t size() const {
+    return get().size;
+  }
 
   auto get_type() const {
-    return details::try_unique<DWARF_Type>(get().type.get()); // NOLINT(clang-analyzer-cplusplus.NewDeleteLeaks)
+    return details::try_unique<DWARF_Type>(
+        get().type.get()
+    ); // NOLINT(clang-analyzer-cplusplus.NewDeleteLeaks)
   }
 };
 
@@ -36,12 +42,14 @@ class DWARF_types_Array : public DWARF_Type {
   public:
   using lief_t = LIEF::dwarf::types::Array;
 
-  static bool classof(const DWARF_Type& type) {
+  static auto classof(const DWARF_Type& type) {
     return lief_t::classof(&type.get());
   }
 
   auto underlying_type() const {
-    return details::try_unique<DWARF_Type>(impl().underlying_type()); // NOLINT(clang-analyzer-cplusplus.NewDeleteLeaks)
+    return details::try_unique<DWARF_Type>(
+        impl().underlying_type()
+    ); // NOLINT(clang-analyzer-cplusplus.NewDeleteLeaks)
   }
 
   auto size_info() const {
@@ -49,5 +57,7 @@ class DWARF_types_Array : public DWARF_Type {
   }
 
   private:
-  const lief_t& impl() const { return as<lief_t>(this); }
+  const lief_t& impl() const {
+    return as<lief_t>(this);
+  }
 };

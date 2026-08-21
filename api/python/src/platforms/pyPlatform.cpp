@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ void init_platforms(nb::module_& m) {
     .value("OSX",     PLATFORMS::PLAT_OSX);
 
   m.def("current_platform", &current_platform,
-      "Return the current plaform (Linux, Windows, ...) as a :attr:`lief.PLATFORMS` enum"_doc);
+      "Return the current platform (Linux, Windows, ...) as a :attr:`lief.PLATFORMS` enum"_doc);
 
   LIEF::Android::py::init_module(m);
 }

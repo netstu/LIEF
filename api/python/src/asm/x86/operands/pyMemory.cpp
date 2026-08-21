@@ -24,6 +24,8 @@ void create<x86::operands::Memory>(nb::module_& m) {
     )doc"_doc
   );
 
+  obj.attr("__match_args__") = nb::make_tuple("base", "scaled_register", "segment_register", "scale", "displacement");
+
   obj
     .def_prop_ro("base", &x86::operands::Memory::base,
       R"doc(
@@ -45,7 +47,7 @@ void create<x86::operands::Memory>(nb::module_& m) {
       R"doc(
       The segment register associated with the memory operation.
 
-      For ``mov eax, dword ptr gs:[0]`` is would return ``gs``
+      For ``mov eax, dword ptr gs:[0]`` it would return ``gs``
       )doc"_doc
     )
 

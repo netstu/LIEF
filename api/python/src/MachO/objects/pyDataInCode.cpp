@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,7 +58,7 @@ void create<DataInCode>(nb::module_& m) {
         nb::rv_policy::reference_internal)
 
     .def("add", &DataInCode::add,
-        "Add an new " RST_CLASS_REF(lief.MachO.DataCodeEntry) ""_doc,
+        "Add a new " RST_CLASS_REF(lief.MachO.DataCodeEntry) ""_doc,
         "entry"_a)
 
     .def_prop_ro("content",

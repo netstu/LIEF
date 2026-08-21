@@ -1,4 +1,4 @@
-/* Copyright 2024 - 2025 R. Thomas
+/* Copyright 2024 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,8 +23,8 @@ class PE_ContentInfo_Content : public Mirror<LIEF::PE::ContentInfo::Content> {
   using lief_t = LIEF::PE::ContentInfo::Content;
   using Mirror::Mirror;
 
-  LIEF::PE::oid_t content_type() const {
-    return get().content_type();
+  auto content_type() const {
+    return to_unique_string(get().content_type());
   }
 };
 
@@ -33,8 +33,8 @@ class PE_ContentInfo : private Mirror<LIEF::PE::ContentInfo> {
   using lief_t = LIEF::PE::ContentInfo;
   using Mirror::Mirror;
 
-  LIEF::PE::oid_t content_type() const {
-    return get().content_type();
+  auto content_type() const {
+    return to_unique_string(get().content_type());
   }
 
   auto value() const {
@@ -42,10 +42,10 @@ class PE_ContentInfo : private Mirror<LIEF::PE::ContentInfo> {
   }
 
   auto digest_algorithm() const {
-    return to_int(get().digest_algorithm());
+    return as_u32(get().digest_algorithm());
   }
 
   auto digest() const {
-    return get().digest();
+    return make_unique_vector<uint8_t>(get().digest());
   }
 };

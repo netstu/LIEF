@@ -1,4 +1,4 @@
-/* Copyright 2024 - 2025 R. Thomas
+/* Copyright 2024 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,56 +16,94 @@
 #include <cstdint>
 
 #include "LIEF/PE/Export.hpp"
-#include "LIEF/rust/PE/ExportEntry.hpp"
 #include "LIEF/rust/Iterator.hpp"
+#include "LIEF/rust/PE/ExportEntry.hpp"
+#include "LIEF/rust/helpers.hpp"
 
 #include <memory>
 
-class PE_Export : public Mirror<LIEF::PE::Export>{
+class PE_Export : public Mirror<LIEF::PE::Export> {
   public:
   using lief_t = LIEF::PE::Export;
   using Mirror::Mirror;
 
-  class it_entries :
-      public Iterator<PE_ExportEntry, LIEF::PE::Export::it_const_entries>
-  {
+  class it_entries
+    : public Iterator<PE_ExportEntry, LIEF::PE::Export::it_const_entries> {
     public:
-    it_entries(const PE_Export::lief_t& src)
-      : Iterator(std::move(src.entries())) { }
-    auto next() { return Iterator::next(); }
-    auto size() const { return Iterator::size(); }
+    it_entries(const PE_Export::lief_t& src) :
+      Iterator(src.entries()) {}
+    auto next() {
+      return Iterator::next();
+    }
+    auto size() const {
+      return Iterator::size();
+    }
   };
 
   static auto create() {
     return std::make_unique<PE_Export>(std::make_unique<lief_t>());
   }
 
-  auto export_flags() const { return get().export_flags(); }
-  auto timestamp() const { return get().timestamp(); }
-  auto major_version() const { return get().major_version(); }
-  auto minor_version() const { return get().minor_version(); }
-  auto ordinal_base() const { return get().ordinal_base(); }
+  auto export_flags() const {
+    return get().export_flags();
+  }
+  auto timestamp() const {
+    return get().timestamp();
+  }
+  auto major_version() const {
+    return get().major_version();
+  }
+  auto minor_version() const {
+    return get().minor_version();
+  }
+  auto ordinal_base() const {
+    return get().ordinal_base();
+  }
 
-  auto name_rva() const { return get().name_rva(); }
-  auto export_addr_table_rva() const { return get().export_addr_table_rva(); }
-  auto export_addr_table_cnt() const { return get().export_addr_table_cnt(); }
-  auto names_addr_table_rva() const { return get().names_addr_table_rva(); }
-  auto names_addr_table_cnt() const { return get().names_addr_table_cnt(); }
-  auto ord_addr_table_rva() const { return get().ord_addr_table_rva(); }
+  auto name_rva() const {
+    return get().name_rva();
+  }
+  auto export_addr_table_rva() const {
+    return get().export_addr_table_rva();
+  }
+  auto export_addr_table_cnt() const {
+    return get().export_addr_table_cnt();
+  }
+  auto names_addr_table_rva() const {
+    return get().names_addr_table_rva();
+  }
+  auto names_addr_table_cnt() const {
+    return get().names_addr_table_cnt();
+  }
+  auto ord_addr_table_rva() const {
+    return get().ord_addr_table_rva();
+  }
 
-  std::string name() const { return get().name(); }
+  auto name() const {
+    return to_unique_string(get().name());
+  }
 
   auto entries() const {
     return std::make_unique<it_entries>(get());
   }
 
-  void set_export_flags(uint32_t flags) { get().export_flags(flags); }
-  void set_timestamp(uint32_t ts) { get().timestamp(ts); }
-  void set_major_version(uint32_t version) { get().major_version(version); }
-  void set_minor_version(uint32_t version) { get().minor_version(version); }
-  void set_name(std::string name) { get().name(std::move(name)); }
+  auto set_export_flags(uint32_t flags) {
+    get().export_flags(flags);
+  }
+  auto set_timestamp(uint32_t ts) {
+    get().timestamp(ts);
+  }
+  auto set_major_version(uint32_t version) {
+    get().major_version(version);
+  }
+  auto set_minor_version(uint32_t version) {
+    get().minor_version(version);
+  }
+  auto set_name(const std::string& name) {
+    get().name(name);
+  }
 
-  auto entry_by_name(std::string name) const {
+  auto entry_by_name(const std::string& name) const {
     return details::try_unique<PE_ExportEntry>(get().find_entry(name));
   }
 
@@ -78,10 +116,12 @@ class PE_Export : public Mirror<LIEF::PE::Export>{
   }
 
   auto add_entry(const PE_ExportEntry& entry) {
-    return std::make_unique<PE_ExportEntry>(get().add_entry(as<LIEF::PE::ExportEntry>(&entry)));
+    return std::make_unique<PE_ExportEntry>(
+        get().add_entry(as<LIEF::PE::ExportEntry>(&entry))
+    );
   }
 
-  auto add_entry_by_name(std::string name, uint32_t rva) {
+  auto add_entry_by_name(const std::string& name, uint32_t rva) {
     return std::make_unique<PE_ExportEntry>(get().add_entry(name, rva));
   }
 
@@ -93,7 +133,9 @@ class PE_Export : public Mirror<LIEF::PE::Export>{
     return get().remove_entry(rva);
   }
 
-  auto remove_entry_by_name(std::string name) {
+  auto remove_entry_by_name(const std::string& name) {
     return get().remove_entry(name);
   }
 };
+
+using PE_Export_it_entries = PE_Export::it_entries;

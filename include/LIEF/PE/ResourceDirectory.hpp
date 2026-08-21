@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,14 @@
 #ifndef LIEF_PE_RESOURCE_DIRECTORY_H
 #define LIEF_PE_RESOURCE_DIRECTORY_H
 
+#include <memory>
+
 #include "LIEF/visibility.h"
 
 #include "LIEF/PE/ResourceNode.hpp"
 
-namespace LIEF {
-namespace PE {
+
+namespace LIEF::PE {
 
 class Parser;
 class Builder;
@@ -37,12 +39,10 @@ class LIEF_API ResourceDirectory : public ResourceNode {
 
   public:
   ResourceDirectory() :
-    ResourceNode(ResourceNode::TYPE::DIRECTORY)
-  {}
+    ResourceNode(ResourceNode::TYPE::DIRECTORY) {}
 
   ResourceDirectory(uint32_t id) :
-    ResourceNode(ResourceNode::TYPE::DIRECTORY)
-  {
+    ResourceNode(ResourceNode::TYPE::DIRECTORY) {
     this->id(id);
   }
 
@@ -56,7 +56,7 @@ class LIEF_API ResourceDirectory : public ResourceNode {
   ~ResourceDirectory() override = default;
 
   std::unique_ptr<ResourceNode> clone() const override {
-    return std::unique_ptr<ResourceDirectory>(new ResourceDirectory{*this});
+    return std::make_unique<ResourceDirectory>(*this);
   }
 
   /// Resource characteristics. This field is reserved for future use.
@@ -129,5 +129,5 @@ class LIEF_API ResourceDirectory : public ResourceNode {
   uint16_t numberof_id_entries_ = 0;
 };
 }
-}
-#endif /* RESOURCEDIRECTORY_H */
+
+#endif

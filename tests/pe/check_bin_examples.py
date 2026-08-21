@@ -1,33 +1,34 @@
-import os
 from pathlib import Path
-from itertools import chain
 from subprocess import check_call
 
-from utils import lief_samples_dir
+import pytest
+from utils import is_github_ci, lief_build_dir, lief_samples_dir
 
-samples_dir = Path(lief_samples_dir())
-pe_samples = chain(
-    samples_dir.glob("PE/*.exe"),
-    samples_dir.glob("PE/*.dll"),
-)
+SAMPLE = lief_samples_dir() / "PE" / "PE32_x86_library_kernel32.dll"
 
-BUILD_DIR = os.getenv("LIEF_BUILD_DIR", None)
 
-assert BUILD_DIR is not None
+def test_pe_reader_cpp() -> None:
+    target = lief_build_dir() / "examples/cpp/pe_reader"
+    check_call([target, SAMPLE])
 
-BUILD_DIR = Path(BUILD_DIR)
 
-def test_pe_reader_c():
-    target = BUILD_DIR / "examples" / "c" / "pe_reader"
-    for sample in pe_samples:
-        check_call([target, sample])
+def test_abstract_reader() -> None:
+    target = lief_build_dir() / "examples/cpp/abstract_reader"
+    check_call([target, SAMPLE])
 
-def test_pe_reader_cpp():
-    target = BUILD_DIR / "examples" / "cpp" / "pe_reader"
-    for sample in pe_samples:
-        check_call([target, sample])
 
-def test_abstract_reader():
-    target = BUILD_DIR / "examples" / "cpp" / "abstract_reader"
-    for sample in pe_samples:
-        check_call([target, sample])
+def test_pe_builder(tmp_path: Path) -> None:
+    out = tmp_path / "out.dll"
+    target = lief_build_dir() / "examples/cpp/pe_builder"
+    check_call([target, SAMPLE, out])
+
+
+@pytest.mark.skipif(is_github_ci(), reason="Does not work on GHA")
+def test_pe_authenticode_check() -> None:
+    sample = (
+        lief_samples_dir()
+        / "PE"
+        / "PE32_x86-64_binary_avast-free-antivirus-setup-online.exe"
+    )
+    target = lief_build_dir() / "examples/cpp/pe_authenticode_check"
+    check_call([target, sample])

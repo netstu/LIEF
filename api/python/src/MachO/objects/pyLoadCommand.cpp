@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ template<>
 void create<LoadCommand>(nb::module_& m) {
 
   nb::class_<LoadCommand, LIEF::Object> cls(m, "LoadCommand",
-      "Based class for the Mach-O load commands"_doc);
+      "Base class for the Mach-O load commands"_doc);
 
 
 
@@ -97,6 +97,7 @@ void create<LoadCommand>(nb::module_& m) {
     .value(PY_ENUM(LoadCommand::TYPE::FUNCTION_VARIANTS))
     .value(PY_ENUM(LoadCommand::TYPE::FUNCTION_VARIANT_FIXUPS))
     .value(PY_ENUM(LoadCommand::TYPE::TARGET_TRIPLE))
+    .value(PY_ENUM(LoadCommand::TYPE::LAZY_LOAD_DYLIB_INFO))
     .value(PY_ENUM(LoadCommand::TYPE::LIEF_UNKNOWN))
   #undef PY_ENUM
   ;
@@ -112,7 +113,7 @@ void create<LoadCommand>(nb::module_& m) {
     .def_prop_rw("size",
         nb::overload_cast<>(&LoadCommand::size, nb::const_),
         nb::overload_cast<uint32_t>(&LoadCommand::size),
-        "Size of the command (should be greather than ``sizeof(load_command)``)"_doc)
+        "Size of the command (should be greater than ``sizeof(load_command)``)"_doc)
 
     .def_prop_rw("data",
         nb::overload_cast<>(&LoadCommand::data, nb::const_),

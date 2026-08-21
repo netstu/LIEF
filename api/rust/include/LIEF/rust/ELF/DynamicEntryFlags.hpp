@@ -1,4 +1,4 @@
-/* Copyright 2024 - 2025 R. Thomas
+/* Copyright 2024 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,29 +13,28 @@
  * limitations under the License.
  */
 #pragma once
-#include "LIEF/rust/ELF/DynamicEntry.hpp"
 #include "LIEF/ELF/DynamicEntryFlags.hpp"
+#include "LIEF/rust/ELF/DynamicEntry.hpp"
 
 class ELF_DynamicEntryFlags : public ELF_DynamicEntry {
   public:
   using lief_t = LIEF::ELF::DynamicEntryFlags;
   ELF_DynamicEntryFlags(const lief_t& impl) :
-    ELF_DynamicEntry(impl.clone())
-  {}
+    ELF_DynamicEntry(impl.clone()) {}
 
   auto flags() const {
     return impl().raw_flags();
   }
 
-  void add_flag(uint64_t f) {
+  auto add_flag(uint64_t f) {
     impl().add(lief_t::FLAG(f));
   }
 
-  void remove_flag(uint64_t f) {
+  auto remove_flag(uint64_t f) {
     impl().remove(lief_t::FLAG(f));
   }
 
-  static bool classof(const ELF_DynamicEntry& entry) {
+  static auto classof(const ELF_DynamicEntry& entry) {
     return lief_t::classof(&entry.get());
   }
 
@@ -44,10 +43,16 @@ class ELF_DynamicEntryFlags : public ELF_DynamicEntry {
   }
 
   static auto create_dt_flag_1(uint64_t value) {
-    return std::make_unique<ELF_DynamicEntryFlags>(lief_t::create_dt_flag_1(value));
+    return std::make_unique<ELF_DynamicEntryFlags>(
+        lief_t::create_dt_flag_1(value)
+    );
   }
 
   private:
-  const lief_t& impl() const { return as<lief_t>(this); }
-  lief_t& impl() { return as<lief_t>(this); }
+  const lief_t& impl() const {
+    return as<lief_t>(this);
+  }
+  lief_t& impl() {
+    return as<lief_t>(this);
+  }
 };

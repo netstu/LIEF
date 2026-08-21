@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -118,7 +118,7 @@ void create<BuildVersion>(nb::module_& m) {
 
     .def_prop_ro("tools",
         nb::overload_cast<>(&BuildVersion::tools, nb::const_),
-        "List of " RST_CLASS_REF(BuildToolVersion) " used when while this binary"_doc)
+        "List of " RST_CLASS_REF(BuildToolVersion) " used while building this binary"_doc)
 
     LIEF_DEFAULT_STR(BuildVersion);
 

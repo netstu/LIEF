@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 #include <string>
 #include <sstream>
 #include <nanobind/stl/string.h>
+#include <nanobind/stl/string_view.h>
 
 #include "LIEF/ELF/SymbolVersionAux.hpp"
 #include "LIEF/ELF/SymbolVersionAuxRequirement.hpp"
@@ -54,7 +55,8 @@ void create<SymbolVersionRequirement>(nb::module_& m) {
 
     .def("add_auxiliary_requirement",
         static_cast<SymbolVersionAuxRequirement& (SymbolVersionRequirement::*)(const SymbolVersionAuxRequirement&)>(&SymbolVersionRequirement::add_aux_requirement),
-        "Add an auxiliary version requirement to the existing entries"_doc)
+        "Add an auxiliary version requirement to the existing entries"_doc,
+        nb::lock_self())
 
     .def("find_aux", nb::overload_cast<const std::string&>(&SymbolVersionRequirement::find_aux),
         R"doc(
@@ -66,7 +68,7 @@ void create<SymbolVersionRequirement>(nb::module_& m) {
     .def("remove_aux_requirement", nb::overload_cast<const std::string&>(&SymbolVersionRequirement::remove_aux_requirement),
         R"doc(
         Try to remove the auxiliary requirement symbol with the given name.
-        The function returns true if the operation succeed, false otherwise.
+        The function returns true if the operation succeeds, false otherwise.
 
         .. warning::
 
@@ -74,12 +76,12 @@ void create<SymbolVersionRequirement>(nb::module_& m) {
             :class:`~.SymbolVersionAuxRequirement`. Therefore, the user is responsible
             to ensure that the auxiliary requirement is no longer used in the
             ELF binary (e.g. in :class:`~.SymbolVersion`)
-        )doc"_doc, "name"_a)
+        )doc"_doc, "name"_a, nb::lock_self())
 
     .def("remove_aux_requirement", nb::overload_cast<SymbolVersionAuxRequirement&>(&SymbolVersionRequirement::remove_aux_requirement),
         R"doc(
         Try to remove the given auxiliary requirement symbol.
-        The function returns true if the operation succeed, false otherwise.
+        The function returns true if the operation succeeds, false otherwise.
 
         .. warning::
 
@@ -87,7 +89,7 @@ void create<SymbolVersionRequirement>(nb::module_& m) {
             :class:`~.SymbolVersionAuxRequirement`. Therefore, the user is responsible
             to ensure that the auxiliary requirement is no longer used in the
             ELF binary (e.g. in :class:`~.SymbolVersion`)
-        )doc"_doc, "aux"_a)
+        )doc"_doc, "aux"_a, nb::lock_self())
 
     LIEF_DEFAULT_STR(SymbolVersionRequirement);
 }

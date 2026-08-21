@@ -1,5 +1,4 @@
-
-if (LIEF_PY_LIEF_EXT)
+if (LIEF_PRECOMPILED)
   if (LIEF_PY_LIEF_EXT_SHARED)
     find_package(LIEF REQUIRED COMPONENTS SHARED)
   else()
@@ -14,17 +13,12 @@ endif()
 
 include(FetchContent)
 
-# Avoid warning about DOWNLOAD_EXTRACT_TIMESTAMP in CMake 3.24:
-if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.24.0")
-  cmake_policy(SET CMP0135 NEW)
-endif()
-
 if (LIEF_EXTERNAL_NANOBIND)
   find_package(Python REQUIRED COMPONENTS Interpreter Development.Module)
   find_package(nanobind REQUIRED)
 else()
-  set(NANOBIND_VERSION 2.8.0.r19.g617d5a0)
-  set(NANOBIND_SHA256 SHA256=dfe63078063cb49979517130664e74b373d8f6f981a5636e1ee0201877aa46ee)
+  set(NANOBIND_VERSION 2.13.0.r26.g6eeef765)
+  set(NANOBIND_SHA256 SHA256=43e5912518c889e206e3e01915d2fb5be0cd13f4d2afae2ae80941c1be4e3d7e)
   set(NANOBIND_URL "${THIRD_PARTY_DIRECTORY}/nanobind-${NANOBIND_VERSION}.zip"
       CACHE STRING "URL to the Nanobind")
   FetchContent_Declare(nanobind
@@ -48,13 +42,25 @@ set(NANOBIND_OPT
   NOMINSIZE
 )
 
+if (LIEF_PYTHON_STABLE_ABI)
+  message(STATUS "Stable ABI enabled")
+  list(APPEND NANOBIND_OPT STABLE_ABI)
+endif()
+
+if (LIEF_PYTHON_FREE_THREADED)
+  message(STATUS "Free threading enabled")
+  list(APPEND NANOBIND_OPT FREE_THREADED)
+endif()
+
 if (LIEF_PYTHON_STATIC)
-  list(APPEND NANOBIND_OPT NB_EXT_STATIC)
+  list(APPEND NANOBIND_OPT NB_EXT_STATIC ON)
 endif()
 
 nanobind_add_module(
   pyLIEF
   ${NANOBIND_OPT}
+
+  NB_SUPPRESS_WARNINGS
 
   src/pyLIEF.cpp
 )
@@ -71,11 +77,20 @@ set_target_properties(pyLIEF PROPERTIES
   OUTPUT_NAME                  "_lief"
 )
 
+
+if (LIEF_EXTRA_FLAGS)
+  target_compile_options(pyLIEF PRIVATE ${LIEF_EXTRA_FLAGS})
+endif()
+
 if (MSVC AND NOT CLANG_CL AND NOT LIEF_EXTERNAL_SPDLOG)
   target_compile_definitions(pyLIEF PRIVATE FMT_UNICODE=0)
 endif()
 
 target_link_libraries(pyLIEF PUBLIC ${LIEF_TARGET} lief_spdlog)
+
+target_precompile_headers(pyLIEF PRIVATE
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/pylief-pch.hpp
+)
 
 if(APPLE)
   set_target_properties(pyLIEF PROPERTIES
@@ -102,7 +117,11 @@ endif()
 
 
 if (WIN32)
-  target_link_libraries(pyLIEF PUBLIC ${PYTHON_LIBRARIES})
+  target_link_libraries(pyLIEF PUBLIC ${PYTHON_LIBRARIES} bcrypt)
+endif()
+
+if (ANDROID)
+  target_link_libraries(pyLIEF PUBLIC Python::Module)
 endif()
 
 if(SKBUILD)
@@ -113,8 +132,20 @@ if(SKBUILD)
   endif()
 endif()
 
+if (LIEF_ASAN)
+  target_link_libraries(pyLIEF INTERFACE libclang_rt.asan.so)
+endif()
+
+if (LIEF_TSAN)
+  target_link_libraries(pyLIEF INTERFACE libclang_rt.tsan.so)
+endif()
+
 if (LIEF_PYTHON_STATIC)
-  install(TARGETS nanobind-static pyLIEF
+  set(NANOBIND_TARGET nanobind-static)
+  if (LIEF_PYTHON_STABLE_ABI)
+    set(NANOBIND_TARGET nanobind-static-abi3)
+  endif()
+  install(TARGETS ${NANOBIND_TARGET} pyLIEF
           DESTINATION lib/python-${Python_VERSION})
 
   install(

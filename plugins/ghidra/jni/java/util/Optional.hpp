@@ -1,4 +1,4 @@
-/* Copyright 2022 - 2025 R. Thomas
+/* Copyright 2022 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,11 +13,12 @@
  * limitations under the License.
  */
 #pragma once
-#include <cassert>
-#include <jni_bind.h>
+#include "LIEF/errors.hpp"
 #include "jni/java/util/OptionalInt.hpp"
 #include "jni/java/util/OptionalLong.hpp"
-#include <LIEF/optional.hpp>
+#include <jni_bind.h>
+#include <cassert>
+#include <optional>
 
 namespace java::util {
 
@@ -25,34 +26,25 @@ template<class T, typename U = T::lief_t>
 class Optional {
   public:
   using Element = T;
-  static constexpr jni::Class kClass {
-    "java/util/Optional",
-    jni::Static {
-      jni::Method {
-        "empty", jni::Return{jni::Self{}}
-      },
-      jni::Method {
-        "of", jni::Return{jni::Self{}}, jni::Params {
-          jni::kJavaLangObject
-        }
-      }
-    }
+  static constexpr jni::Class kClass{
+      "java/util/Optional",
+      jni::Static{jni::Method{"empty", jni::Return{jni::Self{}}},
+                  jni::Method{"of", jni::Return{jni::Self{}},
+                              jni::Params{jni::kJavaLangObject}}}
   };
 
   static jobject empty() {
-    return jni::StaticRef<kClass>{}. template Call<"empty">().Release();
+    return jni::StaticRef<kClass>{}.template Call<"empty">().Release();
   }
 
   static jobject of(U& impl) {
     jobject jobj = T::create(impl);
-    assert (jobj != nullptr);
-    return jni::StaticRef<kClass>{}. template Call<"of">(
-        jobj
-    ).Release();
+    assert(jobj != nullptr);
+    return jni::StaticRef<kClass>{}.template Call<"of">(jobj).Release();
   }
 };
 
-inline jobject make_optional(LIEF::optional<uint32_t> opt) {
+inline jobject make_optional(std::optional<uint32_t> opt) {
   return opt ? OptionalInt::of(*opt) : OptionalInt::empty();
 }
 
@@ -60,7 +52,7 @@ inline jobject make_optional(LIEF::result<uint32_t> opt) {
   return opt ? OptionalInt::of(*opt) : OptionalInt::empty();
 }
 
-inline jobject make_optional(LIEF::optional<int32_t> opt) {
+inline jobject make_optional(std::optional<int32_t> opt) {
   return opt ? OptionalInt::of(*opt) : OptionalInt::empty();
 }
 
@@ -68,7 +60,7 @@ inline jobject make_optional(LIEF::result<int32_t> opt) {
   return opt ? OptionalInt::of(*opt) : OptionalInt::empty();
 }
 
-inline jobject make_optional(LIEF::optional<uint64_t> opt) {
+inline jobject make_optional(std::optional<uint64_t> opt) {
   return opt ? OptionalLong::of(*opt) : OptionalLong::empty();
 }
 
@@ -76,7 +68,7 @@ inline jobject make_optional(LIEF::result<uint64_t> opt) {
   return opt ? OptionalLong::of(*opt) : OptionalLong::empty();
 }
 
-inline jobject make_optional(LIEF::optional<int64_t> opt) {
+inline jobject make_optional(std::optional<int64_t> opt) {
   return opt ? OptionalLong::of(*opt) : OptionalLong::empty();
 }
 

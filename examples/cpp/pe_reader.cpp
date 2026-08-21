@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,8 +21,8 @@
 
 using namespace LIEF::PE;
 
-int main(int argc, char **argv) {
-  LIEF::logging::set_level(LIEF::logging::LEVEL::DEBUG);
+int main(int argc, char** argv) {
+  LIEF::logging::set_level(LIEF::logging::Level::Debug);
   std::cout << "PE Reader" << '\n';
   if (argc != 2) {
     std::cerr << "Usage: " << argv[0] << " <PE binary>" << '\n';

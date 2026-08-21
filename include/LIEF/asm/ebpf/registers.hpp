@@ -1,4 +1,4 @@
-/* Copyright 2022 - 2025 R. Thomas
+/* Copyright 2022 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,9 +14,9 @@
  */
 #ifndef LIEF_ASM_EBPF_REGISTER_H
 #define LIEF_ASM_EBPF_REGISTER_H
-namespace LIEF {
-namespace assembly {
-namespace ebpf {
+
+
+namespace LIEF::assembly::ebpf {
 enum class REG;
 const char* get_register_name(REG r);
 
@@ -50,6 +50,6 @@ enum class REG {
 };
 
 }
-}
-}
+
+
 #endif

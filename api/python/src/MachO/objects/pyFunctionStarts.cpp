@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -60,7 +60,7 @@ void create<FunctionStarts>(nb::module_& m) {
 
     .def("add_function", &FunctionStarts::add_function,
       "Add a new function"_doc,
-      "address"_a)
+      "address"_a, nb::lock_self())
 
     .def_prop_ro("content",
         nb::overload_cast<>(&FunctionStarts::content, nb::const_),

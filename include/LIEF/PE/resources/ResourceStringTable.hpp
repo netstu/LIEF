@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,22 +15,23 @@
  */
 #ifndef LIEF_PE_RESOURCE_STRING_TABLE_H
 #define LIEF_PE_RESOURCE_STRING_TABLE_H
-#include <string>
+#include <cstdint>
 #include <ostream>
+#include <string>
 
-#include "LIEF/visibility.h"
 #include "LIEF/Object.hpp"
 #include "LIEF/errors.hpp"
 #include "LIEF/iterators.hpp"
-#include "LIEF/optional.hpp"
+#include "LIEF/visibility.h"
+#include <optional>
 
 namespace LIEF {
 class BinaryStream;
 namespace PE {
 
 /// This class represents the `StringTable` structure. This structure
-/// can be seen as a dictionary of key, values with key and values defined a
-/// utf-16 string.
+/// can be seen as a dictionary of key-value pairs with keys and values defined as
+/// UTF-16 strings.
 class LIEF_API ResourceStringTable : public Object {
   public:
   /// An entry in this table which is composed of an UTF-16 key and an UTF-16
@@ -57,9 +58,8 @@ class LIEF_API ResourceStringTable : public Object {
       return key_u8() + ": " + value_u8();
     }
 
-    friend LIEF_API
-      std::ostream& operator<<(std::ostream& os, const entry_t& entry)
-    {
+    friend LIEF_API std::ostream& operator<<(std::ostream& os,
+                                             const entry_t& entry) {
       os << entry.to_string();
       return os;
     }
@@ -110,20 +110,18 @@ class LIEF_API ResourceStringTable : public Object {
     return entries_;
   }
 
-  optional<std::u16string> get(const std::u16string& key) const {
-    auto it = std::find_if(entries_.begin(), entries_.end(),
-      [&key] (const entry_t& entry) {
-        return entry.key == key;
-      }
-    );
+  std::optional<std::u16string> get(const std::u16string& key) const {
+    auto it =
+        std::find_if(entries_.begin(), entries_.end(),
+                     [&key](const entry_t& entry) { return entry.key == key; });
     if (it == entries_.end()) {
-      return nullopt();
+      return std::nullopt;
     }
 
     return it->value;
   }
 
-  optional<std::string> get(const std::string& key) const;
+  std::optional<std::string> get(const std::string& key) const;
 
   ResourceStringTable& key(std::u16string value) {
     key_ = std::move(value);
@@ -145,16 +143,16 @@ class LIEF_API ResourceStringTable : public Object {
 
   void accept(Visitor& visitor) const override;
 
-  optional<std::string> operator[](const std::string& str) const {
+  std::optional<std::string> operator[](const std::string& str) const {
     return get(str);
   }
 
-  optional<std::u16string> operator[](const std::u16string& str) const {
+  std::optional<std::u16string> operator[](const std::u16string& str) const {
     return get(str);
   }
 
-  LIEF_API friend
-    std::ostream& operator<<(std::ostream& os, const ResourceStringTable& table);
+  LIEF_API friend std::ostream& operator<<(std::ostream& os,
+                                           const ResourceStringTable& table);
 
   private:
   uint16_t type_ = 0;

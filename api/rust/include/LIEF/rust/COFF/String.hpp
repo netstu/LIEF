@@ -1,4 +1,4 @@
-/* Copyright 2024 - 2025 R. Thomas
+/* Copyright 2024 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +16,15 @@
 
 #include "LIEF/COFF/String.hpp"
 #include "LIEF/rust/Mirror.hpp"
+#include "LIEF/rust/helpers.hpp"
 
 class COFF_String : public Mirror<LIEF::COFF::String> {
   public:
   using lief_t = LIEF::COFF::String;
   using Mirror::Mirror;
 
-  std::string str() const {
-    return get().str();
+  auto str() const {
+    return to_unique_string(get().str());
   }
 
   auto offset() const {

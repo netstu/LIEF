@@ -1,33 +1,22 @@
-import os
 from pathlib import Path
-from itertools import chain
 from subprocess import check_call
 
-from utils import lief_samples_dir
+from utils import lief_build_dir, lief_samples_dir
 
-samples_dir = Path(lief_samples_dir())
-macho_samples = chain(
-    samples_dir.glob("MachO/*.bin"),
-    samples_dir.glob("MachO/*.dylib"),
-)
+SAMPLE = lief_samples_dir() / "MachO" / "MachO64_x86-64_binary_ls.bin"
 
-BUILD_DIR = os.getenv("LIEF_BUILD_DIR", None)
 
-assert BUILD_DIR is not None
+def test_macho_reader_cpp() -> None:
+    target = lief_build_dir() / "examples/cpp/macho_reader"
+    check_call([target, SAMPLE])
 
-BUILD_DIR = Path(BUILD_DIR)
 
-def test_macho_reader_c():
-    target = BUILD_DIR / "examples" / "c" / "macho_reader"
-    for sample in macho_samples:
-        check_call([target, sample])
+def test_abstract_reader() -> None:
+    target = lief_build_dir() / "examples/cpp/abstract_reader"
+    check_call([target, SAMPLE])
 
-def test_macho_reader_cpp():
-    target = BUILD_DIR / "examples" / "cpp" / "macho_reader"
-    for sample in macho_samples:
-        check_call([target, sample])
 
-def test_abstract_reader():
-    target = BUILD_DIR / "examples" / "cpp" / "abstract_reader"
-    for sample in macho_samples:
-        check_call([target, sample])
+def test_macho_builder(tmp_path: Path) -> None:
+    out = tmp_path / "out.bin"
+    target = lief_build_dir() / "examples/cpp/macho_builder"
+    check_call([target, SAMPLE, out])

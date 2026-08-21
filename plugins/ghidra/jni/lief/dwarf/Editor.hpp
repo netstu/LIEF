@@ -1,4 +1,4 @@
-/* Copyright 2022 - 2025 R. Thomas
+/* Copyright 2022 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,34 +14,35 @@
  */
 #pragma once
 
-#include "jni/mirror.hpp"
 #include "jni/log.hpp"
+#include "jni/mirror.hpp"
 
-#include <jni_bind.h>
 #include <LIEF/Abstract/Binary.hpp>
 #include <LIEF/DWARF/Editor.hpp>
+#include <jni_bind.h>
 
 namespace lief_jni::dwarf {
 
 class Editor : public JNI<Editor, std::unique_ptr<LIEF::dwarf::Editor>> {
   public:
-  static constexpr jni::Class kClass {
-    "lief/dwarf/Editor",
-    jni::Constructor{ jlong{} },
-    jni::Field { "impl", jlong{}, }
-  };
+  static constexpr jni::Class kClass{"lief/dwarf/Editor",
+                                     jni::Constructor{jlong{}},
+                                     jni::Field{
+                                         "impl",
+                                         jlong{},
+                                     }};
 
   class Format {
     public:
-    static constexpr jni::Class kClass {
-      "lief/dwarf/Editor$Format",
+    static constexpr jni::Class kClass{
+        "lief/dwarf/Editor$Format",
     };
   };
 
   class Arch {
     public:
-    static constexpr jni::Class kClass {
-      "lief/dwarf/Editor$Arch",
+    static constexpr jni::Class kClass{
+        "lief/dwarf/Editor$Arch",
     };
   };
 

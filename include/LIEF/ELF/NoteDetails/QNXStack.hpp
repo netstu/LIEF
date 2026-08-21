@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,20 +16,20 @@
 #ifndef LIEF_ELF_QNX_STACK_H
 #define LIEF_ELF_QNX_STACK_H
 
-#include <ostream>
 #include <memory>
+#include <ostream>
 
-#include "LIEF/visibility.h"
 #include "LIEF/ELF/Note.hpp"
+#include "LIEF/visibility.h"
 
-namespace LIEF {
-namespace ELF {
+
+namespace LIEF::ELF {
 
 /// Class representing the QNX `QNT_STACK` note
 class LIEF_API QNXStack : public Note {
   public:
   std::unique_ptr<Note> clone() const override {
-    return std::unique_ptr<QNXStack>(new QNXStack(*this));
+    return std::make_unique<QNXStack>(*this);
   }
 
   /// Size of the stack
@@ -55,17 +55,18 @@ class LIEF_API QNXStack : public Note {
 
   ~QNXStack() override = default;
 
-  LIEF_API friend
-  std::ostream& operator<<(std::ostream& os, const QNXStack& note) {
+  LIEF_API friend std::ostream& operator<<(std::ostream& os,
+                                           const QNXStack& note) {
     note.dump(os);
     return os;
   }
+
   protected:
   using Note::Note;
 };
 
 
-} // namepsace ELF
-} // namespace LIEF
+}
+
 
 #endif

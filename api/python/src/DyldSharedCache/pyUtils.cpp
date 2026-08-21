@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@
 
 namespace LIEF::dsc::py {
 
-void init_utils(nb::module_& m) {
+void init_utils(nb::module_&) {
   lief_mod->def("is_shared_cache",
     [] (nb::PathLike path) { return is_shared_cache(path); },
     "Check if the given file is a dyld shared cache"_doc,

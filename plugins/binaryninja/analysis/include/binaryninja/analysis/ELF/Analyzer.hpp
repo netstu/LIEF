@@ -1,4 +1,4 @@
-/* Copyright 2025 R. Thomas
+/* Copyright 2025 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,8 @@ class Analyzer : public analysis_plugin::Analyzer {
 
   template<class T>
   std::unique_ptr<T> instantiate() {
-    return std::make_unique<T>(*bv_, *elf_, static_cast<elf::TypeBuilder&>(*type_builder_));
+    return std::make_unique<T>(*bv_, *elf_,
+                               static_cast<elf::TypeBuilder&>(*type_builder_));
   }
 
   ~Analyzer() override = default;

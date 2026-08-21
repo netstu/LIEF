@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -129,6 +129,7 @@ void create<TLS>(nb::module_& m) {
     .def("add_callback", &TLS::add_callback,
          "Add a new TLS callback"_doc,
          "addr"_a,
+         nb::lock_self(),
          nb::rv_policy::reference_internal)
 
     LIEF_COPYABLE(TLS)

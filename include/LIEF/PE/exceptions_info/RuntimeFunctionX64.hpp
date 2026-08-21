@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,14 @@
 #ifndef LIEF_PE_RUNTIME_FUNCTION_X64_H
 #define LIEF_PE_RUNTIME_FUNCTION_X64_H
 
+#include <cstdint>
 #include <memory>
+#include <string>
 
+#include "LIEF/enums.hpp"
 #include "LIEF/errors.hpp"
 #include "LIEF/visibility.h"
-#include "LIEF/enums.hpp"
-#include "LIEF/optional.hpp"
+#include <optional>
 
 #include "LIEF/PE/ExceptionInfo.hpp"
 
@@ -41,14 +43,13 @@ class Code;
 /// Reference: https://learn.microsoft.com/en-us/cpp/build/exception-handling-x64
 class LIEF_API RuntimeFunctionX64 : public ExceptionInfo {
   public:
-
-  /// \private
+  /// @private
   LIEF_LOCAL static std::unique_ptr<RuntimeFunctionX64>
-    parse(Parser& ctx, BinaryStream& strm, bool skip_unwind = false);
+      parse(Parser& ctx, BinaryStream& strm, bool skip_unwind = false);
 
-  /// \private
-  LIEF_LOCAL static ok_error_t
-    parse_unwind(Parser& ctx, BinaryStream& strm, RuntimeFunctionX64& func);
+  /// @private
+  LIEF_LOCAL static ok_error_t parse_unwind(Parser& ctx, BinaryStream& strm,
+                                            RuntimeFunctionX64& func);
 
   enum class UNWIND_FLAGS : uint8_t {
     /// The function has an exception handler that should be called when looking
@@ -108,7 +109,7 @@ class LIEF_API RuntimeFunctionX64 : public ExceptionInfo {
     /// unwind operation code slots, as described in the note above.
     SAVE_NONVOL_FAR = 5,
 
-    /// This entry is only revelant for version 2. It describes the function
+    /// This entry is only relevant for version 2. It describes the function
     /// epilog.
     EPILOG = 6,
 
@@ -133,7 +134,21 @@ class LIEF_API RuntimeFunctionX64 : public ExceptionInfo {
 
   enum class UNWIND_REG : uint32_t {
     RAX = 0,
-    RCX, RDX, RBX, RSP, RBP, RSI, RDI, R8, R9, R10, R11, R12, R13, R14, R15,
+    RCX,
+    RDX,
+    RBX,
+    RSP,
+    RBP,
+    RSI,
+    RDI,
+    R8,
+    R9,
+    R10,
+    R11,
+    R12,
+    R13,
+    R14,
+    R15,
   };
 
   /// This structure represents the `UNWIND_INFO` which records the effects
@@ -174,7 +189,7 @@ class LIEF_API RuntimeFunctionX64 : public ExceptionInfo {
     /// exception or termination handler. This value is set if one of these
     /// flags is set: UNWIND_FLAGS::EXCEPTION_HANDLER,
     /// UNWIND_FLAGS::TERMINATE_HANDLER
-    optional<uint32_t> handler;
+    std::optional<uint32_t> handler;
 
     /// If UNWIND_FLAGS::CHAIN_INFO is set, this attributes references the
     /// chained runtime function.
@@ -191,9 +206,8 @@ class LIEF_API RuntimeFunctionX64 : public ExceptionInfo {
     /// Pretty representation of this structure as a string
     std::string to_string() const;
 
-    friend LIEF_API
-      std::ostream& operator<<(std::ostream& os, const unwind_info_t& info)
-    {
+    friend LIEF_API std::ostream& operator<<(std::ostream& os,
+                                             const unwind_info_t& info) {
       os << info.to_string();
       return os;
     }
@@ -202,8 +216,7 @@ class LIEF_API RuntimeFunctionX64 : public ExceptionInfo {
   RuntimeFunctionX64(uint32_t rva_start, uint32_t rva_end, uint32_t unwind_rva) :
     ExceptionInfo(ARCH::X86_64, rva_start),
     rva_end_(rva_end),
-    unwind_rva_(unwind_rva)
-  {}
+    unwind_rva_(unwind_rva) {}
 
   RuntimeFunctionX64(const RuntimeFunctionX64&) = default;
   RuntimeFunctionX64& operator=(const RuntimeFunctionX64&) = default;
@@ -212,7 +225,7 @@ class LIEF_API RuntimeFunctionX64 : public ExceptionInfo {
   RuntimeFunctionX64& operator=(RuntimeFunctionX64&&) = default;
 
   std::unique_ptr<ExceptionInfo> clone() const override {
-    return std::unique_ptr<RuntimeFunctionX64>(new RuntimeFunctionX64(*this));
+    return std::make_unique<RuntimeFunctionX64>(*this);
   }
 
   std::string to_string() const override;
@@ -254,7 +267,7 @@ class LIEF_API RuntimeFunctionX64 : public ExceptionInfo {
   private:
   uint32_t rva_end_ = 0;
   uint32_t unwind_rva_ = 0;
-  optional<unwind_info_t> unwind_info_;
+  std::optional<unwind_info_t> unwind_info_;
 };
 
 LIEF_API const char* to_string(RuntimeFunctionX64::UNWIND_OPCODES op);

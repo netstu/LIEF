@@ -6,6 +6,8 @@
 #include <nanobind/stl/string.h>
 #include <nanobind/make_iterator.h>
 
+#include "pyOwningIterator.hpp"
+
 
 namespace LIEF::objc::py {
 template<>
@@ -29,7 +31,7 @@ void create<objc::Metadata>(nb::module_& m) {
     )
     .def_prop_ro("classes",
         [] (objc::Metadata& self) {
-          auto classes = self.classes();
+          auto classes = LIEF::py::owning_range(self.classes());
           return nb::make_iterator<nb::rv_policy::reference_internal>(
             nb::type<objc::Metadata>(), "classes_it", classes
           );
@@ -40,7 +42,7 @@ void create<objc::Metadata>(nb::module_& m) {
     )
     .def_prop_ro("protocols",
         [] (objc::Metadata& self) {
-          auto protocols = self.protocols();
+          auto protocols = LIEF::py::owning_range(self.protocols());
           return nb::make_iterator<nb::rv_policy::reference_internal>(
             nb::type<objc::Metadata>(), "protocols_it", protocols
           );
@@ -50,17 +52,29 @@ void create<objc::Metadata>(nb::module_& m) {
         binary (``@protocol``).
         )doc"_doc
     )
+    .def_prop_ro("categories",
+        [] (objc::Metadata& self) {
+          auto categories = LIEF::py::owning_range(self.categories());
+          return nb::make_iterator<nb::rv_policy::reference_internal>(
+            nb::type<objc::Metadata>(), "categories_it", categories
+          );
+        }, nb::keep_alive<0, 1>(),
+        R"doc(
+        Return an iterator over the Objective-C categories declared in this
+        binary (e.g. ``@interface NSString (MyAdditions)``).
+        )doc"_doc
+    )
 
     .def("get_class", &objc::Metadata::get_class,
       R"doc(
       Try to find the Objective-C class with the given **mangled** name.
-      )doc"_doc, "name"_a
+      )doc"_doc, "name"_a, nb::keep_alive<0, 1>()
     )
 
     .def("get_protocol", &objc::Metadata::get_protocol,
       R"doc(
-      Try to find the Objective-C class with the given **mangled** name.
-      )doc"_doc, "name"_a
+      Try to find the Objective-C protocol with the given **mangled** name.
+      )doc"_doc, "name"_a, nb::keep_alive<0, 1>()
     )
   ;
 }

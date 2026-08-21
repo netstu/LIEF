@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,18 +16,19 @@
 #ifndef LIEF_PE_DELAY_IMPORT_H
 #define LIEF_PE_DELAY_IMPORT_H
 
-#include <string>
-#include <ostream>
+#include <string_view>
 #include <memory>
+#include <ostream>
+#include <string>
 
 #include "LIEF/Object.hpp"
-#include "LIEF/visibility.h"
 #include "LIEF/iterators.hpp"
+#include "LIEF/visibility.h"
 
 #include "LIEF/PE/DelayImportEntry.hpp"
 
-namespace LIEF {
-namespace PE {
+
+namespace LIEF::PE {
 
 namespace details {
 struct delay_imports;
@@ -40,15 +41,15 @@ class LIEF_API DelayImport : public Object {
   friend class Builder;
 
   public:
-  using entries_t        = std::vector<std::unique_ptr<DelayImportEntry>>;
-  using it_entries       = ref_iterator<entries_t&, DelayImportEntry*>;
-  using it_const_entries = const_ref_iterator<const entries_t&, const DelayImportEntry*>;
+  using entries_t = std::vector<std::unique_ptr<DelayImportEntry>>;
+  using it_entries = ref_iterator<entries_t&, DelayImportEntry*>;
+  using it_const_entries =
+      const_ref_iterator<const entries_t&, const DelayImportEntry*>;
 
   DelayImport() = default;
   DelayImport(const details::delay_imports& import, PE_TYPE type);
   DelayImport(std::string name) :
-    name_(std::move(name))
-  {}
+    name_(std::move(name)) {}
 
   ~DelayImport() override = default;
 
@@ -73,7 +74,7 @@ class LIEF_API DelayImport : public Object {
   }
 
   /// Return the library's name (e.g. `kernel32.dll`)
-  const std::string& name() const {
+  std::string_view name() const LIEF_LIFETIMEBOUND {
     return name_;
   }
   void name(std::string name) {
@@ -121,7 +122,7 @@ class LIEF_API DelayImport : public Object {
   ///
   /// According to the PE specifications, this table is an
   /// exact copy of the delay import address table that can be
-  /// used to to restore the original IAT the case of unloading.
+  /// used to restore the original IAT in the case of unloading.
   uint32_t uiat() const {
     return unload_iat_;
   }
@@ -138,18 +139,19 @@ class LIEF_API DelayImport : public Object {
   }
 
   /// Iterator over the DelayImport's entries (DelayImportEntry)
-  it_entries entries() {
+  it_entries entries() LIEF_LIFETIMEBOUND {
     return entries_;
   }
 
   /// Iterator over the DelayImport's entries (DelayImportEntry)
-  it_const_entries entries() const {
+  it_const_entries entries() const LIEF_LIFETIMEBOUND {
     return entries_;
   }
 
   void accept(Visitor& visitor) const override;
 
-  LIEF_API friend std::ostream& operator<<(std::ostream& os, const DelayImport& entry);
+  LIEF_API friend std::ostream& operator<<(std::ostream& os,
+                                           const DelayImport& entry);
 
   private:
   uint32_t attribute_ = 0;
@@ -166,6 +168,6 @@ class LIEF_API DelayImport : public Object {
 };
 
 }
-}
+
 
 #endif

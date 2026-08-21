@@ -1,4 +1,4 @@
-/* Copyright 2025 R. Thomas
+/* Copyright 2025 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@
 
 #include "binaryninja/analysis/PE/AnalyzerBase.hpp"
 
-#include "LIEF/PE/LoadConfigurations/LoadConfiguration.hpp"
 #include "LIEF/PE/LoadConfigurations/CHPEMetadata/MetadataARM64.hpp"
+#include "LIEF/PE/LoadConfigurations/LoadConfiguration.hpp"
 
 namespace analysis_plugin::pe::analyzers {
 class LoadConfiguration : public AnalyzerBase {
@@ -33,10 +33,9 @@ class LoadConfiguration : public AnalyzerBase {
   void update_loadconfig_ty();
 
   BinaryNinja::Ref<BinaryNinja::Type>
-    process(const LIEF::PE::CHPEMetadataARM64& arm64);
+      process(const LIEF::PE::CHPEMetadataARM64& arm64);
 
   LIEF::PE::LoadConfiguration* load_config_ = nullptr;
-  LIEF::PE::CHPEMetadataARM64* arm64_metadata_ = nullptr;
 };
 
 }

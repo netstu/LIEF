@@ -1,4 +1,4 @@
-/* Copyright 2024 - 2025 R. Thomas
+/* Copyright 2024 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,22 +16,36 @@
 #pragma once
 #include "LIEF/MachO/ThreadCommand.hpp"
 #include "LIEF/rust/MachO/LoadCommand.hpp"
+#include "LIEF/rust/Span.hpp"
 
 class MachO_ThreadCommand : public MachO_Command {
   public:
   using lief_t = LIEF::MachO::ThreadCommand;
-  MachO_ThreadCommand(const lief_t& base) : MachO_Command(base) {}
-  auto flavor() const { return impl().flavor(); }
-  auto count() const { return impl().count(); }
-  int32_t architecture() const { return to_int(impl().architecture()); }
-  auto pc() const { return impl().pc(); }
+  MachO_ThreadCommand(const lief_t& base) :
+    MachO_Command(base) {}
+  auto flavor() const {
+    return impl().flavor();
+  }
+  auto count() const {
+    return impl().count();
+  }
+  int32_t architecture() const {
+    return to_int(impl().architecture());
+  }
+  auto pc() const {
+    return impl().pc();
+  }
 
-  auto state() const { return make_span(impl().state()); }
+  auto state() const {
+    return make_span(impl().state());
+  }
 
-  static bool classof(const MachO_Command& cmd) {
+  static auto classof(const MachO_Command& cmd) {
     return lief_t::classof(&cmd.get());
   }
 
   private:
-  const lief_t& impl() const { return as<lief_t>(this); }
+  const lief_t& impl() const {
+    return as<lief_t>(this);
+  }
 };

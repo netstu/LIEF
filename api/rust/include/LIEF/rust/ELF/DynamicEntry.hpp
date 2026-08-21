@@ -1,4 +1,4 @@
-/* Copyright 2024 - 2025 R. Thomas
+/* Copyright 2024 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,8 @@
 #include "LIEF/rust/Mirror.hpp"
 #include "LIEF/rust/helpers.hpp"
 
+using LIEF_ELF_DynamicEntry = LIEF::ELF::DynamicEntry;
+
 class ELF_DynamicEntry : public Mirror<LIEF::ELF::DynamicEntry> {
   friend class ELF_DynamicEntryRpath;
   friend class ELF_DynamicEntryArray;
@@ -30,24 +32,25 @@ class ELF_DynamicEntry : public Mirror<LIEF::ELF::DynamicEntry> {
   using Mirror::Mirror;
 
   static auto create(uint64_t tag) {
-    return std::make_unique<ELF_DynamicEntry>(
-        lief_t::create((lief_t::TAG)tag)
-    );
+    return std::make_unique<ELF_DynamicEntry>(lief_t::create((lief_t::TAG)tag));
   }
 
-  auto tag() const { return to_int(get().tag()); }
-  auto value() const { return get().value(); }
+  auto tag() const {
+    return as_u64(get().tag());
+  }
+  auto value() const {
+    return get().value();
+  }
 
   auto set_value(uint64_t value) {
     get().value(value);
   }
 
-  std::string to_string() const {
-    return get().to_string();
+  auto to_string() const {
+    return to_unique_string(get().to_string());
   }
 
-  const void* raw_ptr() const {
+  const auto* raw_ptr() const {
     return &get();
   }
-
 };

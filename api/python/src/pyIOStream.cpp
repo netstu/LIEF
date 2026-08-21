@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,13 +30,13 @@ result<PyIOStream> PyIOStream::from_python(nb::object object) {
   const nb::object IOBase = mod_io.attr("IOBase");
 
   if (!nb::isinstance(object, IOBase)) {
-    logging::log(logging::LEVEL::ERR,
+    logging::log(logging::Level::Err,
         "The provided io object does not sub-class io.IOBase");
     return make_error_code(lief_errors::read_error);
   }
 
   if (!nb::hasattr(object, "read") && !nb::hasattr(object, "readinto")) {
-    logging::log(logging::LEVEL::ERR,
+    logging::log(logging::Level::Err,
         "The provided io object does not implement read() or readinto()");
     return make_error_code(lief_errors::read_error);
   }
@@ -55,7 +55,7 @@ result<PyIOStream> PyIOStream::from_python(nb::object object) {
 
   seek(0, PY_SEEK_SET);
   if (nb::hasattr(object, "readinto")) {
-    auto view = nb::memoryview::from_memory(data.data(), size);
+    auto view = nb::extra::memoryview::from_memory(data.data(), size);
     object.attr("readinto")(view);
   }
   else if (nb::hasattr(object, "read")) {

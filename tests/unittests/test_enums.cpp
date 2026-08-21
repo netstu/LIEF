@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,16 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include <LIEF/enums.hpp>
 #include <catch2/catch_session.hpp>
 #include <catch2/catch_test_macros.hpp>
-#include <LIEF/enums.hpp>
 
-enum class TEST_ENUM: uint32_t  {
+enum class TEST_ENUM : uint32_t {
   None = 0,
   A = 1 << 2,
   B = 1 << 5,
 
-  A_or_B  = A | B,
+  A_or_B = A | B,
   A_and_B = A & B,
   not_A = ~A,
 };

@@ -1,4 +1,4 @@
-/* Copyright 2025 R. Thomas
+/* Copyright 2025 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@
  */
 
 #include <nanobind/stl/string.h>
+#include <nanobind/stl/string_view.h>
 #include <nanobind/stl/vector.h>
 #include <nanobind/stl/unique_ptr.h>
 
@@ -26,6 +27,8 @@
 
 #include "LIEF/asm/Engine.hpp"
 #include "LIEF/asm/Instruction.hpp"
+
+#include "pyOwningIterator.hpp"
 
 #include <sstream>
 
@@ -64,6 +67,25 @@ void create<Binary>(nb::module_& m) {
       nb::overload_cast<>(&Binary::sections),
       "Iterator over the different sections located in this COFF binary"_doc,
       nb::keep_alive<0, 1>()
+    )
+
+    .def("get_section",
+      nb::overload_cast<std::string_view>(&Binary::get_section),
+      R"doc(
+      Return the :class:`~lief.COFF.Section` matching the given name.
+
+      Section names that do not fit in the 8 bytes allocated by the COFF format
+      are stored in the COFF string table while the section itself only holds a
+      ``/<offset>`` placeholder. This function transparently resolves both
+      forms, so a long name can be looked up with its **regular** value:
+
+      .. code-block:: python
+
+        sec = binary.get_section(".debug_rnglists")
+        sec.name               # '/18'
+        sec.coff_string.string # '.debug_rnglists'
+      )doc"_doc, "name"_a,
+      nb::rv_policy::reference_internal
     )
 
     .def_prop_ro("relocations",
@@ -114,7 +136,7 @@ void create<Binary>(nb::module_& m) {
 
 
     .def("disassemble", [] (const Binary& self, const Symbol& function) {
-          auto insts = self.disassemble(function);
+          auto insts = LIEF::py::owning_range(self.disassemble(function));
           return nb::make_iterator<nb::rv_policy::reference_internal>(
               nb::type<Binary>(), "instructions_it", insts);
       }, "function"_a, nb::keep_alive<0, 1>(),
@@ -132,7 +154,7 @@ void create<Binary>(nb::module_& m) {
       )doc"_doc)
 
     .def("disassemble", [] (const Binary& self, const std::string& function) {
-          auto insts = self.disassemble(function);
+          auto insts = LIEF::py::owning_range(self.disassemble(function));
           return nb::make_iterator<nb::rv_policy::reference_internal>(
               nb::type<Binary>(), "instructions_it", insts);
       }, "function_name"_a, nb::keep_alive<0, 1>(),
@@ -151,10 +173,10 @@ void create<Binary>(nb::module_& m) {
 
     .def("disassemble_from_bytes",
          [] (const Binary& self, const nb::bytes& buffer, uint64_t address) {
-          auto insts = self.disassemble(
+          auto insts = LIEF::py::owning_range(self.disassemble(
             reinterpret_cast<const uint8_t*>(buffer.c_str()),
             buffer.size(), address
-          );
+          ));
           return nb::make_iterator<nb::rv_policy::reference_internal>(
               nb::type<Binary>(), "instructions_it", insts);
       }, "buffer"_a, "address"_a = 0, nb::keep_alive<0, 1>(), nb::keep_alive<0, 2>(),

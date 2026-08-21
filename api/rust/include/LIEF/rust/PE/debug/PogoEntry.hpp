@@ -1,4 +1,4 @@
-/* Copyright 2024 - 2025 R. Thomas
+/* Copyright 2024 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,13 +17,20 @@
 
 #include "LIEF/PE/debug/PogoEntry.hpp"
 #include "LIEF/rust/Mirror.hpp"
+#include "LIEF/rust/helpers.hpp"
 
 class PE_PogoEntry : private Mirror<LIEF::PE::PogoEntry> {
   public:
   using lief_t = LIEF::PE::PogoEntry;
   using Mirror::Mirror;
 
-  uint32_t start_rva() const { return get().start_rva(); }
-  uint32_t size() const { return get().size(); }
-  std::string name() const { return get().name(); }
+  uint32_t start_rva() const {
+    return get().start_rva();
+  }
+  uint32_t size() const {
+    return get().size();
+  }
+  auto name() const {
+    return to_unique_string(get().name());
+  }
 };

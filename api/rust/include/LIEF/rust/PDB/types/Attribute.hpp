@@ -1,4 +1,4 @@
-/* Copyright 2022 - 2025 R. Thomas
+/* Copyright 2022 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,16 +13,23 @@
  * limitations under the License.
  */
 #pragma once
-#include "LIEF/rust/Mirror.hpp"
 #include "LIEF/PDB/types/Attribute.hpp"
+#include "LIEF/rust/Mirror.hpp"
 #include "LIEF/rust/PDB/Type.hpp"
+#include "LIEF/rust/helpers.hpp"
 
 class PDB_types_Attribute : private Mirror<LIEF::pdb::types::Attribute> {
   public:
   using Mirror::Mirror;
   using lief_t = LIEF::pdb::types::Attribute;
 
-  auto name() const { return get().name(); }
-  auto field_offset() const { return get().field_offset(); }
-  auto get_type() const { return details::try_unique<PDB_Type>(get().type()); } // NOLINT(clang-analyzer-cplusplus.NewDeleteLeaks)
+  auto name() const {
+    return to_unique_string(get().name());
+  }
+  auto field_offset() const {
+    return get().field_offset();
+  }
+  auto get_type() const {
+    return details::try_unique<PDB_Type>(get().type());
+  } // NOLINT(clang-analyzer-cplusplus.NewDeleteLeaks)
 };

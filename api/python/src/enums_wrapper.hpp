@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,12 +17,10 @@
 #define PY_LIEF_ENUMS_WRAPPER_H
 #include <nanobind/nanobind.h>
 #include <nanobind/stl/string.h>
-#include "pyutils.hpp"
-#include <LIEF/logging.hpp>
-#include <map>
-#include <spdlog/fmt/fmt.h>
 
 #include "LIEF/visibility.h"
+
+namespace nb = nanobind;
 
 namespace LIEF {
 

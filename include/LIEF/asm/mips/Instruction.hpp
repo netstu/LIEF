@@ -1,4 +1,4 @@
-/* Copyright 2022 - 2025 R. Thomas
+/* Copyright 2022 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,24 +14,29 @@
  */
 #ifndef LIEF_ASM_MIPS_INST_H
 #define LIEF_ASM_MIPS_INST_H
+#include "LIEF/compiler_attributes.hpp"
 #include "LIEF/visibility.h"
 
 #include "LIEF/asm/Instruction.hpp"
+#include "LIEF/asm/mips/Operand.hpp"
 #include "LIEF/asm/mips/opcodes.hpp"
 
-namespace LIEF {
-namespace assembly {
 
 /// Mips architecture-related namespace
-namespace mips {
+namespace LIEF::assembly::mips {
 
 /// This class represents a Mips instruction (including mips64, mips32)
 class LIEF_API Instruction : public assembly::Instruction {
   public:
   using assembly::Instruction::Instruction;
 
+  using operands_it = iterator_range<Operand::Iterator>;
+
   /// The instruction opcode as defined in LLVM
   OPCODE opcode() const;
+
+  /// Iterator over the operands of the current instruction
+  operands_it operands() const LIEF_LIFETIMEBOUND;
 
   /// True if `inst` is an **effective** instance of mips::Instruction
   static bool classof(const assembly::Instruction* inst);
@@ -39,6 +44,6 @@ class LIEF_API Instruction : public assembly::Instruction {
   ~Instruction() override = default;
 };
 }
-}
-}
+
+
 #endif

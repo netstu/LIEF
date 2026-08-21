@@ -1,4 +1,4 @@
-/* Copyright 2024 - 2025 R. Thomas
+/* Copyright 2024 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,12 +22,21 @@
 class PE_RelocationEntry : public AbstractRelocation {
   public:
   using lief_t = LIEF::PE::RelocationEntry;
-  PE_RelocationEntry(const lief_t& obj) : AbstractRelocation(obj) {}
+  PE_RelocationEntry(const lief_t& obj) :
+    AbstractRelocation(obj) {}
 
-  uint64_t position() const { return impl().position(); }
-  uint32_t get_type() const { return to_int(impl().type()); }
-  uint16_t data() const { return impl().data(); }
+  uint64_t position() const {
+    return impl().position();
+  }
+  uint32_t get_type() const {
+    return to_int(impl().type());
+  }
+  uint16_t data() const {
+    return impl().data();
+  }
 
   private:
-  const lief_t& impl() const { return as<lief_t>(this); }
+  const lief_t& impl() const {
+    return as<lief_t>(this);
+  }
 };

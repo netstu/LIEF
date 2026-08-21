@@ -1,4 +1,4 @@
-/* Copyright 2024 - 2025 R. Thomas
+/* Copyright 2024 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,8 +14,8 @@
  */
 
 #include "LIEF/rust/MachO/Symbol.hpp"
-#include "LIEF/rust/MachO/ExportInfo.hpp"
 #include "LIEF/rust/MachO/BindingInfo.hpp"
+#include "LIEF/rust/MachO/ExportInfo.hpp"
 
 std::unique_ptr<MachO_ExportInfo> MachO_Symbol::export_info() const {
   return details::try_unique<MachO_ExportInfo>(impl().export_info());

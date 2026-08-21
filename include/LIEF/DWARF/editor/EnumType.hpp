@@ -1,4 +1,4 @@
-/* Copyright 2022 - 2025 R. Thomas
+/* Copyright 2022 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,12 +17,12 @@
 #include <cstdint>
 #include <string>
 
-#include "LIEF/visibility.h"
 #include "LIEF/DWARF/editor/Type.hpp"
+#include "LIEF/compiler_attributes.hpp"
+#include "LIEF/visibility.h"
 
-namespace LIEF {
-namespace dwarf {
-namespace editor {
+
+namespace LIEF::dwarf::editor {
 
 namespace details {
 class EnumValue;
@@ -31,7 +31,10 @@ class EnumValue;
 /// This class represents an editable enum type (`DW_TAG_enumeration_type`)
 class LIEF_API EnumType : public Type {
   public:
-  using Type::Type;
+  template<typename... Args,
+           typename = std::enable_if_t<std::is_constructible_v<Type, Args&&...>>>
+  EnumType(Args&&... args) :
+    Type(std::forward<Args>(args)...) {}
 
   /// This class represents an enum value
   class LIEF_API Value {
@@ -40,19 +43,21 @@ class LIEF_API EnumType : public Type {
     Value(std::unique_ptr<details::EnumValue> impl);
 
     ~Value();
+
     private:
     std::unique_ptr<details::EnumValue> impl_;
   };
 
   /// Define the number of bytes required to hold an instance of the
   /// enumeration (`DW_AT_byte_size`).
-  EnumType& set_size(uint64_t size);
+  EnumType& set_size(uint64_t size) LIEF_LIFETIMEBOUND;
 
   /// Set the underlying type that is used to encode this enum
-  EnumType& set_underlying_type(const Type& type);
+  EnumType& set_underlying_type(const Type& type) LIEF_LIFETIMEBOUND;
 
   /// Add an enum value by specifying its name and its integer value
-  std::unique_ptr<Value> add_value(const std::string& name, int64_t value);
+  std::unique_ptr<Value> add_value(const std::string& name,
+                                   int64_t value) LIEF_LIFETIMEBOUND;
 
   static bool classof(const Type* type);
 
@@ -60,6 +65,6 @@ class LIEF_API EnumType : public Type {
 };
 
 }
-}
-}
+
+
 #endif

@@ -1,4 +1,4 @@
-/* Copyright 2022 - 2025 R. Thomas
+/* Copyright 2022 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,11 +14,11 @@
  */
 #include <array>
 
+#include "jni/jni_utils.hpp"
 #include "jni/lief/pe/LoadConfigurations/CHPEMetadata/Metadata.hpp"
 #include "jni/lief/pe/LoadConfigurations/CHPEMetadata/MetadataARM64.hpp"
 #include "jni/lief/pe/LoadConfigurations/CHPEMetadata/MetadataX86.hpp"
 #include "jni/log.hpp"
-#include "jni/jni_utils.hpp"
 
 #include <LIEF/PE/LoadConfigurations/CHPEMetadata/MetadataARM64.hpp>
 #include <LIEF/PE/LoadConfigurations/CHPEMetadata/MetadataX86.hpp>
@@ -26,21 +26,13 @@
 namespace lief_jni::pe {
 
 int CHPEMetadata::register_natives(JNIEnv* env) {
-  static constexpr std::array NATIVE_METHODS {
-    make(
-      "getVersion",
-      "()I",
-      &jni_get_version
-    ),
-    make_destroy(
-      &jni_destroy
-    ),
+  static const std::array NATIVE_METHODS{
+      make("getVersion", "()I", &jni_get_version),
+      make_destroy(&jni_destroy),
   };
 
-  env->RegisterNatives(
-    jni::StaticRef<kClass>{}.GetJClass(),
-    NATIVE_METHODS.data(), NATIVE_METHODS.size()
-  );
+  env->RegisterNatives(jni::StaticRef<kClass>{}.GetJClass(), NATIVE_METHODS.data(),
+                       NATIVE_METHODS.size());
 
   GHIDRA_DEBUG("'{}' registered", kClass.name_);
 

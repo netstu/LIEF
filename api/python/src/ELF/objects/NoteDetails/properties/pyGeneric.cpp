@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ void create<Generic>(nb::module_& m) {
       )doc")
     .def_prop_ro("raw_type", &Generic::type,
         R"doc(
-        The original raw type as an integer. This value might depends
+        The original raw type as an integer. This value might depend
         on the architecture and/or the file type.
         )doc");
 

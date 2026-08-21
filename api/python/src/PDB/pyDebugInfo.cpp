@@ -9,6 +9,8 @@
 #include <nanobind/stl/string.h>
 #include <nanobind/extra/stl/pathlike.h>
 
+#include "pyOwningIterator.hpp"
+
 namespace LIEF::pdb::py {
 template<>
 void create<pdb::DebugInfo>(nb::module_& m) {
@@ -35,10 +37,12 @@ void create<pdb::DebugInfo>(nb::module_& m) {
       )doc"_doc, "filepath"_a
     )
 
-    .def("find_type", &pdb::DebugInfo::find_type,
-      R"doc(
-      Find the type with the given name
-      )doc"_doc, "name"_a
+    .def("find_type", nb::overload_cast<const std::string&>(&pdb::DebugInfo::find_type, nb::const_),
+      "Find the type with the given name"_doc, "name"_a
+    )
+
+    .def("find_type", nb::overload_cast<uint32_t>(&pdb::DebugInfo::find_type, nb::const_),
+      "Find type at the given index"_doc, "index"_a
     )
 
     .def("find_public_symbol", &pdb::DebugInfo::find_public_symbol,
@@ -55,7 +59,7 @@ void create<pdb::DebugInfo>(nb::module_& m) {
     )
     .def_prop_ro("public_symbols",
       [] (pdb::DebugInfo& self) {
-        auto symbols = self.public_symbols();
+        auto symbols = LIEF::py::owning_range(self.public_symbols());
         return nb::make_iterator<nb::rv_policy::reference_internal>(
             nb::type<pdb::DebugInfo>(), "public_symbols_it", symbols);
       },
@@ -65,7 +69,7 @@ void create<pdb::DebugInfo>(nb::module_& m) {
 
     .def_prop_ro("compilation_units",
       [] (pdb::DebugInfo& self) {
-        auto units = self.compilation_units();
+        auto units = LIEF::py::owning_range(self.compilation_units());
         return nb::make_iterator<nb::rv_policy::reference_internal>(
             nb::type<pdb::DebugInfo>(), "compilation_units_it", units);
       },
@@ -76,7 +80,7 @@ void create<pdb::DebugInfo>(nb::module_& m) {
 
     .def_prop_ro("types",
       [] (pdb::DebugInfo& self) {
-        auto types = self.types();
+        auto types = LIEF::py::owning_range(self.types());
         return nb::make_iterator<nb::rv_policy::reference_internal>(
             nb::type<pdb::DebugInfo>(), "types_it", types);
       },

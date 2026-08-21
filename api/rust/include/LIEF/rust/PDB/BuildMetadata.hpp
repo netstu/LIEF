@@ -1,4 +1,4 @@
-/* Copyright 2022 - 2025 R. Thomas
+/* Copyright 2022 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,25 +14,21 @@
  */
 #pragma once
 
+#include "LIEF/PDB/BuildMetadata.hpp"
 #include "LIEF/rust/Mirror.hpp"
 #include "LIEF/rust/helpers.hpp"
-#include "LIEF/PDB/BuildMetadata.hpp"
 
 namespace details {
 inline std::vector<uint16_t>
-  to_vector(const LIEF::pdb::BuildMetadata::version_t& v)
-{
-  return {v.major, v.minor, v.build, v.qfe };
+    to_vector(const LIEF::pdb::BuildMetadata::version_t& v) {
+  return {v.major, v.minor, v.build, v.qfe};
 }
 
 
 inline std::vector<std::string>
-  to_vector(LIEF::pdb::BuildMetadata::build_info_t v)
-{
-  return {
-    std::move(v.cwd), std::move(v.build_tool), std::move(v.source_file),
-    std::move(v.pdb), std::move(v.command_line)
-  };
+    to_vector(LIEF::pdb::BuildMetadata::build_info_t v) {
+  return {std::move(v.cwd), std::move(v.build_tool), std::move(v.source_file),
+          std::move(v.pdb), std::move(v.command_line)};
 }
 }
 
@@ -42,26 +38,40 @@ class PDB_BuildMetadata : private Mirror<LIEF::pdb::BuildMetadata> {
   using lief_t = LIEF::pdb::BuildMetadata;
 
   auto frontend_version() const {
-    return details::to_vector(get().frontend_version());
+    return make_unique_vector<uint16_t>(
+        details::to_vector(get().frontend_version())
+    );
   }
 
   auto backend_version() const {
-    return details::to_vector(get().backend_version());
+    return make_unique_vector<uint16_t>(
+        details::to_vector(get().backend_version())
+    );
   }
 
-  std::string version() const { return get().version(); }
+  auto version() const {
+    return to_unique_string(get().version());
+  }
 
-  auto language() const { return to_int(get().language()); }
-  auto target_cpu() const { return to_int(get().target_cpu()); }
+  auto language() const {
+    return as_u8(get().language());
+  }
+  auto target_cpu() const {
+    return as_u16(get().target_cpu());
+  }
 
-  auto env() const { return get().env(); }
+  auto env() const {
+    return make_unique_vector<std::string>(get().env());
+  }
 
   auto build_info() const {
     if (auto opt = get().build_info()) {
-      return details::to_vector(std::move(*opt));
+      return make_unique_vector<std::string>(details::to_vector(std::move(*opt)));
     }
-    return std::vector<std::string>{};
+    return make_unique_vector<std::string>();
   }
 
-  std::string to_string() const { return get().to_string(); }
+  auto to_string() const {
+    return to_unique_string(get().to_string());
+  }
 };

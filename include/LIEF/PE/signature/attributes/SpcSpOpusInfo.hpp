@@ -1,6 +1,6 @@
 
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,19 +16,21 @@
  */
 #ifndef LIEF_PE_ATTRIBUTES_SPC_SP_OPUS_INFO_H
 #define LIEF_PE_ATTRIBUTES_SPC_SP_OPUS_INFO_H
+#include <string_view>
 #include <memory>
 
-#include "LIEF/visibility.h"
 #include "LIEF/PE/signature/Attribute.hpp"
+#include "LIEF/compiler_attributes.hpp"
+#include "LIEF/visibility.h"
 
 
-namespace LIEF {
-namespace PE {
+namespace LIEF::PE {
 
 /// Interface over the structure described by the OID ``1.3.6.1.4.1.311.2.1.12``
 ///
 /// The internal structure is described in the official document:
-/// [Windows Authenticode Portable Executable Signature Format](http://download.microsoft.com/download/9/c/5/9c5b2167-8017-4bae-9fde-d599bac8184a/Authenticode_PE.docx)
+/// [Windows Authenticode Portable Executable Signature
+/// Format](http://download.microsoft.com/download/9/c/5/9c5b2167-8017-4bae-9fde-d599bac8184a/Authenticode_PE.docx)
 ///
 /// ```text
 /// SpcSpOpusInfo ::= SEQUENCE {
@@ -45,12 +47,10 @@ class LIEF_API SpcSpOpusInfo : public Attribute {
   SpcSpOpusInfo(std::string program_name, std::string more_info) :
     Attribute(Attribute::TYPE::SPC_SP_OPUS_INFO),
     program_name_(std::move(program_name)),
-    more_info_(std::move(more_info))
-  {}
+    more_info_(std::move(more_info)) {}
 
   SpcSpOpusInfo() :
-    SpcSpOpusInfo("", "")
-  {}
+    SpcSpOpusInfo("", "") {}
 
   SpcSpOpusInfo(const SpcSpOpusInfo&) = default;
   SpcSpOpusInfo& operator=(const SpcSpOpusInfo&) = default;
@@ -60,12 +60,12 @@ class LIEF_API SpcSpOpusInfo : public Attribute {
   }
 
   /// Program description provided by the publisher
-  const std::string& program_name() const {
+  std::string_view program_name() const LIEF_LIFETIMEBOUND {
     return program_name_;
   }
 
-  /// Other information such as an url
-  const std::string& more_info() const {
+  /// Other information such as a URL
+  std::string_view more_info() const LIEF_LIFETIMEBOUND {
     return more_info_;
   }
 
@@ -86,6 +86,6 @@ class LIEF_API SpcSpOpusInfo : public Attribute {
 };
 
 }
-}
+
 
 #endif

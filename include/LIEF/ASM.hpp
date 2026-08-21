@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,14 +15,16 @@
  */
 #ifndef LIEF_ASM_H
 #define LIEF_ASM_H
-#include <LIEF/asm/Engine.hpp>
-#include <LIEF/asm/Instruction.hpp>
+// IWYU pragma: begin_exports
+#include "LIEF/asm/Engine.hpp"
+#include "LIEF/asm/Instruction.hpp"
 
-#include <LIEF/asm/aarch64.hpp>
-#include <LIEF/asm/x86.hpp>
-#include <LIEF/asm/riscv.hpp>
-#include <LIEF/asm/mips.hpp>
-#include <LIEF/asm/arm.hpp>
-#include <LIEF/asm/ebpf.hpp>
-#include <LIEF/asm/powerpc.hpp>
+#include "LIEF/asm/aarch64.hpp"
+#include "LIEF/asm/arm.hpp"
+#include "LIEF/asm/ebpf.hpp"
+#include "LIEF/asm/mips.hpp"
+#include "LIEF/asm/powerpc.hpp"
+#include "LIEF/asm/riscv.hpp"
+#include "LIEF/asm/x86.hpp"
+// IWYU pragma: end_exports
 #endif

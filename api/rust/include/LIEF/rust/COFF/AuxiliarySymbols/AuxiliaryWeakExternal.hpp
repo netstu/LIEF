@@ -1,4 +1,4 @@
-/* Copyright 2024 - 2025 R. Thomas
+/* Copyright 2024 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,25 +16,32 @@
 
 #include "LIEF/COFF/AuxiliarySymbols/AuxiliaryWeakExternal.hpp"
 #include "LIEF/rust/COFF/AuxiliarySymbol.hpp"
-#include "LIEF/rust/helpers.hpp"
 #include "LIEF/rust/Span.hpp"
+#include "LIEF/rust/helpers.hpp"
 
 class COFF_AuxiliaryWeakExternal : public COFF_AuxiliarySymbol {
   public:
   using lief_t = LIEF::COFF::AuxiliaryWeakExternal;
-  COFF_AuxiliaryWeakExternal(const lief_t& obj) : COFF_AuxiliarySymbol(obj) {}
+  COFF_AuxiliaryWeakExternal(const lief_t& obj) :
+    COFF_AuxiliarySymbol(obj) {}
 
-  auto sym_idx() const { return impl().sym_idx(); }
-  auto characteristics() const { return to_int(impl().characteristics()); }
+  auto sym_idx() const {
+    return impl().sym_idx();
+  }
+  auto characteristics() const {
+    return to_int(impl().characteristics());
+  }
 
   auto padding() const {
     return make_span(impl().padding());
   }
 
-  static bool classof(const COFF_AuxiliarySymbol& entry) {
+  static auto classof(const COFF_AuxiliarySymbol& entry) {
     return lief_t::classof(&entry.get());
   }
 
   private:
-  const lief_t& impl() const { return as<lief_t>(this); }
+  const lief_t& impl() const {
+    return as<lief_t>(this);
+  }
 };

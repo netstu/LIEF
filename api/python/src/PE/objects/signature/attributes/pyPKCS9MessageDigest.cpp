@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,7 +49,7 @@ void create<PKCS9MessageDigest>(nb::module_& m) {
     .def_prop_ro("digest",
         [] (const PKCS9MessageDigest& digest) {
           return nb::to_bytes(digest.digest());
-        }, "Message digeset as a blob of bytes as described in the RFC"_doc);
+        }, "Message digest as a blob of bytes as described in the RFC"_doc);
 }
 
 }

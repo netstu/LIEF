@@ -1,4 +1,4 @@
-/* Copyright 2022 - 2025 R. Thomas
+/* Copyright 2022 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,12 +15,17 @@
 #pragma once
 #include "LIEF/ObjC/IVar.hpp"
 #include "LIEF/rust/Mirror.hpp"
+#include "LIEF/rust/helpers.hpp"
 
 class ObjC_IVar : private Mirror<LIEF::objc::IVar> {
   public:
   using lief_t = LIEF::objc::IVar;
   using Mirror::Mirror;
 
-  auto name() const { return get().name(); }
-  auto mangled_type() const { return get().mangled_type(); }
+  auto name() const {
+    return to_unique_string(get().name());
+  }
+  auto mangled_type() const {
+    return to_unique_string(get().mangled_type());
+  }
 };

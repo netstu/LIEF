@@ -1,4 +1,4 @@
-/* Copyright 2024 - 2025 R. Thomas
+/* Copyright 2024 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,12 @@
 #include "LIEF/Abstract/Binary.hpp"
 #include <cstdint>
 namespace LIEF {
+/// Return the page size that is commonly used by the architecture targeted by
+/// this binary.
 uint32_t get_pagesize(const Binary& bin);
+
+/// Return the **largest** page size that can be used by the architecture
+/// targeted by this binary.
+uint32_t get_max_pagesize(const Binary& bin);
 }
 #endif

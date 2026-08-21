@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,15 +16,17 @@
 #ifndef LIEF_PE_RESOURCE_DATA_H
 #define LIEF_PE_RESOURCE_DATA_H
 
+#include <memory>
 #include <vector>
 
-#include "LIEF/visibility.h"
 #include "LIEF/PE/ResourceNode.hpp"
-#include "LIEF/span.hpp"
+#include "LIEF/compiler_attributes.hpp"
 #include "LIEF/iostream.hpp"
+#include "LIEF/span.hpp"
+#include "LIEF/visibility.h"
 
-namespace LIEF {
-namespace PE {
+
+namespace LIEF::PE {
 
 class Parser;
 class Builder;
@@ -36,19 +38,16 @@ class LIEF_API ResourceData : public ResourceNode {
 
   public:
   ResourceData() :
-    ResourceNode(ResourceNode::TYPE::DATA)
-  {}
+    ResourceNode(ResourceNode::TYPE::DATA) {}
   ResourceData(std::vector<uint8_t> content, uint32_t code_page = 0) :
     ResourceNode(ResourceNode::TYPE::DATA),
     content_(std::move(content)),
-    code_page_(code_page)
-  {}
+    code_page_(code_page) {}
 
   ResourceData(const std::string& str, uint32_t code_page = 0) :
     ResourceNode(ResourceNode::TYPE::DATA),
     content_{str.begin(), str.end()},
-    code_page_(code_page)
-  {}
+    code_page_(code_page) {}
 
   ResourceData(const ResourceData& other) = default;
   ResourceData& operator=(const ResourceData& other) = default;
@@ -57,7 +56,7 @@ class LIEF_API ResourceData : public ResourceNode {
   ~ResourceData() override = default;
 
   std::unique_ptr<ResourceNode> clone() const override {
-    return std::unique_ptr<ResourceData>{new ResourceData{*this}};
+    return std::make_unique<ResourceData>(*this);
   }
 
   /// Return the code page that is used to decode code point values within the
@@ -67,11 +66,11 @@ class LIEF_API ResourceData : public ResourceNode {
   }
 
   /// Resource content
-  span<const uint8_t> content() const {
+  span<const uint8_t> content() const LIEF_LIFETIMEBOUND {
     return content_;
   }
 
-  span<uint8_t> content() {
+  span<uint8_t> content() LIEF_LIFETIMEBOUND {
     return content_;
   }
 
@@ -107,17 +106,17 @@ class LIEF_API ResourceData : public ResourceNode {
     reserved_ = value;
   }
 
-  /// \private
+  /// @private
   LIEF_LOCAL vector_iostream edit() {
-    return vector_iostream(content_);
+    return content_;
   }
 
-  /// \private
+  /// @private
   LIEF_LOCAL const std::vector<uint8_t> raw_content() const {
     return content_;
   }
 
-  /// \private
+  /// @private
   LIEF_LOCAL void set_offset(uint32_t offset) {
     offset_ = offset;
   }
@@ -135,6 +134,6 @@ class LIEF_API ResourceData : public ResourceNode {
   uint32_t offset_ = 0;
 };
 
-} // namespace PE
-} // namepsace LIEF
-#endif /* RESOURCEDATA_H */
+}
+
+#endif

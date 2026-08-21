@@ -1,4 +1,4 @@
-/* Copyright 2024 - 2025 R. Thomas
+/* Copyright 2024 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,19 +15,30 @@
 #pragma once
 #include "LIEF/ELF/Note.hpp"
 #include "LIEF/rust/Mirror.hpp"
-#include "LIEF/rust/helpers.hpp"
 #include "LIEF/rust/Span.hpp"
+#include "LIEF/rust/helpers.hpp"
 
-class ELF_Note : private Mirror<LIEF::ELF::Note> {
+class ELF_Note : public Mirror<LIEF::ELF::Note> {
   public:
   using lief_t = LIEF::ELF::Note;
   using Mirror::Mirror;
 
-  std::string name() const { return get().name(); }
-  uint32_t get_type() const { return to_int(get().type()); }
-  uint32_t original_type() const { return get().original_type(); }
-  uint64_t size() const { return get().size(); }
+  friend class ELF_Binary;
 
-  Span description() const { return make_span(get().description()); }
+  auto name() const {
+    return to_unique_string(get().name());
+  }
+  auto get_type() const {
+    return as_u32(get().type());
+  }
+  uint32_t original_type() const {
+    return get().original_type();
+  }
+  uint64_t size() const {
+    return get().size();
+  }
+
+  Span description() const {
+    return make_span(get().description());
+  }
 };
-

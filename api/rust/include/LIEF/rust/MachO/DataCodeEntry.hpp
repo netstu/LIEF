@@ -1,4 +1,4 @@
-/* Copyright 2024 - 2025 R. Thomas
+/* Copyright 2024 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,13 @@ class MachO_DataCodeEntry : private Mirror<LIEF::MachO::DataCodeEntry> {
   using lief_t = LIEF::MachO::DataCodeEntry;
   using Mirror::Mirror;
 
-  uint32_t offset() const { return get().offset(); };
-  uint32_t length() const { return get().length(); };
-  auto get_type() const { return to_int(get().type()); };
+  uint32_t offset() const {
+    return get().offset();
+  }
+  uint32_t length() const {
+    return get().length();
+  }
+  auto get_type() const {
+    return as_u32(get().type());
+  }
 };

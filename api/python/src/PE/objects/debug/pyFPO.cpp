@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@ void create<FPO>(nb::module_& m) {
 
   using FRAME_TYPE = FPO::FRAME_TYPE;
   enum_<FRAME_TYPE>(dbg, "FRAME_TYPE")
-    .value("FPO", FRAME_TYPE::FPO)
+    .value("FPO_", FRAME_TYPE::FPO)
     .value("TRAP", FRAME_TYPE::TRAP)
     .value("TSS", FRAME_TYPE::TSS)
     .value("NON_FPO", FRAME_TYPE::NON_FPO);

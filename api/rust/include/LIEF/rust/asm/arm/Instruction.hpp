@@ -1,4 +1,4 @@
-/* Copyright 2024 - 2025 R. Thomas
+/* Copyright 2024 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,10 +26,12 @@ class asm_arm_Instruction : public asm_Instruction {
     return to_int(impl().opcode());
   }
 
-  static bool classof(const asm_Instruction& inst) {
+  static auto classof(const asm_Instruction& inst) {
     return lief_t::classof(&inst.get());
   }
 
   private:
-  const lief_t& impl() const { return as<lief_t>(this); }
+  const lief_t& impl() const {
+    return as<lief_t>(this);
+  }
 };

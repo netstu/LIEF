@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,11 +19,11 @@
 
 #include "LIEF/ART/Header.hpp"
 
-#include "LIEF/visibility.h"
 #include "LIEF/Object.hpp"
+#include "LIEF/visibility.h"
 
-namespace LIEF {
-namespace ART {
+
+namespace LIEF::ART {
 class Parser;
 
 class LIEF_API File : public Object {
@@ -31,10 +31,10 @@ class LIEF_API File : public Object {
 
   public:
   File& operator=(const File& copy) = delete;
-  File(const File& copy)            = delete;
+  File(const File& copy) = delete;
 
-  const Header& header() const;
-  Header& header();
+  const Header& header() const LIEF_LIFETIMEBOUND;
+  Header& header() LIEF_LIFETIMEBOUND;
 
   void accept(Visitor& visitor) const override;
 
@@ -50,6 +50,6 @@ class LIEF_API File : public Object {
 };
 
 }
-}
+
 
 #endif

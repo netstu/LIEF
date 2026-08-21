@@ -1,4 +1,4 @@
-/* Copyright 2022 - 2025 R. Thomas
+/* Copyright 2022 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,14 +15,23 @@
 #pragma once
 #include "LIEF/ObjC/Method.hpp"
 #include "LIEF/rust/Mirror.hpp"
+#include "LIEF/rust/helpers.hpp"
 
 class ObjC_Method : private Mirror<LIEF::objc::Method> {
   public:
   using lief_t = LIEF::objc::Method;
   using Mirror::Mirror;
 
-  auto name() const { return get().name(); }
-  auto mangled_type() const { return get().mangled_type(); }
-  uint64_t address() const { return get().address(); }
-  auto is_instance() const { return get().is_instance(); }
+  auto name() const {
+    return to_unique_string(get().name());
+  }
+  auto mangled_type() const {
+    return to_unique_string(get().mangled_type());
+  }
+  uint64_t address() const {
+    return get().address();
+  }
+  auto is_instance() const {
+    return get().is_instance();
+  }
 };

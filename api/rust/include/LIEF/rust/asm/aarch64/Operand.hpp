@@ -1,4 +1,4 @@
-/* Copyright 2022 - 2025 R. Thomas
+/* Copyright 2022 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,14 @@
 #include "LIEF/asm/aarch64/Operand.hpp"
 
 #include "LIEF/rust/Mirror.hpp"
+#include "LIEF/rust/helpers.hpp"
 
 class asm_aarch64_Operand : public Mirror<LIEF::assembly::aarch64::Operand> {
   public:
   using lief_t = LIEF::assembly::aarch64::Operand;
   using Mirror::Mirror;
 
-  std::string to_string() const {
-    return get().to_string();
+  auto to_string() const {
+    return to_unique_string(get().to_string());
   }
 };

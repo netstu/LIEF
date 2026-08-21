@@ -1,4 +1,4 @@
-/* Copyright 2024 - 2025 R. Thomas
+/* Copyright 2024 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,10 +13,11 @@
  * limitations under the License.
  */
 #pragma once
-#include "LIEF/optional.hpp"
+#include <cstdint>
+#include <optional>
 namespace details {
 template<class T>
-inline T make_optional(LIEF::optional<T>&& result, uint32_t& is_set) {
+inline T make_optional(std::optional<T>&& result, uint32_t& is_set) {
   if (result) {
     is_set = 1;
     return *result;
@@ -26,7 +27,7 @@ inline T make_optional(LIEF::optional<T>&& result, uint32_t& is_set) {
 }
 
 template<class T>
-inline T make_optional(const LIEF::optional<T>& result, uint32_t& is_set) {
+inline T make_optional(const std::optional<T>& result, uint32_t& is_set) {
   if (result) {
     is_set = 1;
     return *result;

@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,7 +48,7 @@ void create<SymbolCommand>(nb::module_& m) {
     .def_prop_rw("strings_size",
         nb::overload_cast<>(&SymbolCommand::strings_size, nb::const_),
         nb::overload_cast<uint32_t>(&SymbolCommand::strings_size),
-        "Size of the size string table"_doc)
+        "Size of the string table"_doc)
 
     LIEF_DEFAULT_STR(SymbolCommand);
 }

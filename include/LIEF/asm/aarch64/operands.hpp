@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,10 @@
  */
 #ifndef LIEF_ASM_AARCH64_OPERANDS_H
 #define LIEF_ASM_AARCH64_OPERANDS_H
-#include <LIEF/asm/aarch64/operands/Register.hpp>
-#include <LIEF/asm/aarch64/operands/Immediate.hpp>
-#include <LIEF/asm/aarch64/operands/PCRelative.hpp>
-#include <LIEF/asm/aarch64/operands/Memory.hpp>
+// IWYU pragma: begin_exports
+#include "LIEF/asm/aarch64/operands/Immediate.hpp"
+#include "LIEF/asm/aarch64/operands/Memory.hpp"
+#include "LIEF/asm/aarch64/operands/PCRelative.hpp"
+#include "LIEF/asm/aarch64/operands/Register.hpp"
+// IWYU pragma: end_exports
 #endif

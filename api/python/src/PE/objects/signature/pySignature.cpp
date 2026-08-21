@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@
 #include <nanobind/stl/string.h>
 #include <nanobind/stl/vector.h>
 #include <nanobind/stl/unique_ptr.h>
+#include <nanobind/stl/string_view.h>
 #include "nanobind/extra/stl/pathlike.h"
 #include "nanobind/utils.hpp"
 
@@ -131,29 +132,29 @@ void create<Signature>(nb::module_& m) {
     .def("find_crt",
         nb::overload_cast<const std::vector<uint8_t>&>(&Signature::find_crt, nb::const_),
         "Find the " RST_CLASS_REF(lief.PE.x509) " certificate according to its serial number"_doc,
-        nb::rv_policy::reference,
+        nb::rv_policy::reference_internal,
         "serialno"_a)
 
     .def("find_crt_subject",
-        nb::overload_cast<const std::string&>(&Signature::find_crt_subject, nb::const_),
+        nb::overload_cast<std::string_view>(&Signature::find_crt_subject, nb::const_),
         "Find the " RST_CLASS_REF(lief.PE.x509) " certificate according to its subject"_doc,
         nb::rv_policy::reference,
         "subject"_a)
 
     .def("find_crt_subject",
-        nb::overload_cast<const std::string&, const std::vector<uint8_t>&>(&Signature::find_crt_subject, nb::const_),
+        nb::overload_cast<std::string_view, const std::vector<uint8_t>&>(&Signature::find_crt_subject, nb::const_),
         "Find the " RST_CLASS_REF(lief.PE.x509) " certificate according to its subject **AND** its serial number"_doc,
         nb::rv_policy::reference,
         "subject"_a, "serialno"_a)
 
     .def("find_crt_issuer",
-        nb::overload_cast<const std::string&>(&Signature::find_crt_issuer, nb::const_),
+        nb::overload_cast<std::string_view>(&Signature::find_crt_issuer, nb::const_),
         "Find the " RST_CLASS_REF(lief.PE.x509) " certificate according to its issuer"_doc,
         nb::rv_policy::reference,
         "issuer"_a)
 
     .def("find_crt_issuer",
-        nb::overload_cast<const std::string&, const std::vector<uint8_t>&>(&Signature::find_crt_issuer, nb::const_),
+        nb::overload_cast<std::string_view, const std::vector<uint8_t>&>(&Signature::find_crt_issuer, nb::const_),
         "Find the " RST_CLASS_REF(lief.PE.x509) " certificate according to its issuer **AND** its serial number"_doc,
         nb::rv_policy::reference,
         "issuer"_a, "serialno"_a)
@@ -183,7 +184,7 @@ void create<Signature>(nb::module_& m) {
            and that its value matches hash of ContentInfo
         6. Check the validity of the PKCS #9 counter signature if present
         7. If the signature doesn't embed a signing-time in the counter signature, check the certificate
-           validity. (See :attr:`lief.PE.Signature.VERIFICATION_CHECKS.LIFETIME_SIGNING` and :attr:`lief.pe.Signature.VERIFICATION_CHECKS.SKIP_CERT_TIME`)
+           validity. (See :attr:`lief.PE.Signature.VERIFICATION_CHECKS.LIFETIME_SIGNING` and :attr:`lief.PE.Signature.VERIFICATION_CHECKS.SKIP_CERT_TIME`)
 
         See: :class:`lief.PE.Signature.VERIFICATION_CHECKS` to tweak the behavior
 

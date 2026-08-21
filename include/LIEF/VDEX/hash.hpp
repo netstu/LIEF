@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,11 @@
 #ifndef LIEF_VDEX_HASH_H
 #define LIEF_VDEX_HASH_H
 
-#include "LIEF/visibility.h"
 #include "LIEF/hash.hpp"
+#include "LIEF/visibility.h"
 
-namespace LIEF {
-namespace VDEX {
+
+namespace LIEF::VDEX {
 class File;
 class Header;
 
@@ -33,13 +33,13 @@ class LIEF_API Hash : public LIEF::Hash {
   using LIEF::Hash::visit;
 
   public:
-  void visit(const File& file)     override;
+  void visit(const File& file) override;
   void visit(const Header& header) override;
 
   ~Hash() override;
 };
 
 }
-}
+
 
 #endif

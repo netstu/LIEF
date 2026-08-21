@@ -1,4 +1,4 @@
-/* Copyright 2022 - 2025 R. Thomas
+/* Copyright 2022 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,23 +16,24 @@
 
 #include "jni/mirror.hpp"
 
-#include <jni_bind.h>
 #include <LIEF/Abstract/Binary.hpp>
+#include <jni_bind.h>
 
 #include <LIEF/DWARF/Editor.hpp>
 #include <LIEF/DWARF/editor/CompilationUnit.hpp>
 
 namespace lief_jni::dwarf::editor {
 
-class CompilationUnit : public JNI<
-  CompilationUnit, std::unique_ptr<LIEF::dwarf::editor::CompilationUnit>>
-{
+class CompilationUnit
+  : public JNI<CompilationUnit,
+               std::unique_ptr<LIEF::dwarf::editor::CompilationUnit>> {
   public:
-  static constexpr jni::Class kClass {
-    "lief/dwarf/editor/CompilationUnit",
-    jni::Constructor{ jlong{} },
-    jni::Field { "impl", jlong{}, }
-  };
+  static constexpr jni::Class kClass{"lief/dwarf/editor/CompilationUnit",
+                                     jni::Constructor{jlong{}},
+                                     jni::Field{
+                                         "impl",
+                                         jlong{},
+                                     }};
 
   static void jni_set_producer(JNIEnv* env, jobject thiz, jstring producer);
 

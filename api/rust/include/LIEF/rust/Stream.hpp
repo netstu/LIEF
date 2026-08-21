@@ -1,4 +1,4 @@
-/* Copyright 2024 - 2025 R. Thomas
+/* Copyright 2024 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,21 +17,21 @@
 
 #include "LIEF/BinaryStream/VectorStream.hpp"
 
-#include "LIEF/rust/ELF/Binary.hpp"
-#include "LIEF/ELF/utils.hpp"
 #include "LIEF/ELF/Parser.hpp"
+#include "LIEF/ELF/utils.hpp"
+#include "LIEF/rust/ELF/Binary.hpp"
 
-#include "LIEF/rust/PE/Binary.hpp"
-#include "LIEF/PE/utils.hpp"
 #include "LIEF/PE/Parser.hpp"
+#include "LIEF/PE/utils.hpp"
+#include "LIEF/rust/PE/Binary.hpp"
 
-#include "LIEF/rust/MachO/FatBinary.hpp"
-#include "LIEF/MachO/utils.hpp"
 #include "LIEF/MachO/Parser.hpp"
+#include "LIEF/MachO/utils.hpp"
+#include "LIEF/rust/MachO/FatBinary.hpp"
 
-#include "LIEF/rust/COFF/Binary.hpp"
-#include "LIEF/COFF/utils.hpp"
 #include "LIEF/COFF/Parser.hpp"
+#include "LIEF/COFF/utils.hpp"
+#include "LIEF/rust/COFF/Binary.hpp"
 
 #include "LIEF/visibility.h"
 
@@ -41,44 +41,52 @@ class RustStream {
   public:
   RustStream() = delete;
   RustStream(std::unique_ptr<LIEF::VectorStream> stream) :
-    stream_(std::move(stream))
-  {}
+    stream_(std::move(stream)) {}
   LIEF_API
-  static std::unique_ptr<RustStream> from_rust(uint8_t* buffer , size_t size);
+  static std::unique_ptr<RustStream> from_rust(uint8_t* buffer, size_t size);
 
-  bool is_elf() const {
+  auto is_elf() const {
     return LIEF::ELF::is_elf(*stream_);
   }
 
-  bool is_pe() const {
+  auto is_pe() const {
     return LIEF::PE::is_pe(*stream_);
   }
 
-  bool is_macho() const {
+  auto is_macho() const {
     return LIEF::MachO::is_macho(*stream_);
   }
 
-  bool is_coff() const {
+  auto is_coff() const {
     return LIEF::COFF::is_coff(*stream_);
   }
 
   auto as_elf() {
-    return details::try_unique<ELF_Binary>(LIEF::ELF::Parser::parse(std::move(stream_))); // NOLINT(clang-analyzer-cplusplus.NewDeleteLeaks)
+    return details::try_unique<ELF_Binary>(
+        LIEF::ELF::Parser::parse(std::move(stream_))
+    ); // NOLINT(clang-analyzer-cplusplus.NewDeleteLeaks)
   }
 
   auto as_macho() {
-    return details::try_unique<MachO_FatBinary>(LIEF::MachO::Parser::parse(std::move(stream_))); // NOLINT(clang-analyzer-cplusplus.NewDeleteLeaks)
+    return details::try_unique<MachO_FatBinary>(
+        LIEF::MachO::Parser::parse(std::move(stream_))
+    ); // NOLINT(clang-analyzer-cplusplus.NewDeleteLeaks)
   }
 
   auto as_pe() {
-    return details::try_unique<PE_Binary>(LIEF::PE::Parser::parse(std::move(stream_))); // NOLINT(clang-analyzer-cplusplus.NewDeleteLeaks)
+    return details::try_unique<PE_Binary>(
+        LIEF::PE::Parser::parse(std::move(stream_))
+    ); // NOLINT(clang-analyzer-cplusplus.NewDeleteLeaks)
   }
 
   auto as_coff() {
-    return details::try_unique<COFF_Binary>(LIEF::COFF::Parser::parse(std::move(stream_))); // NOLINT(clang-analyzer-cplusplus.NewDeleteLeaks)
+    return details::try_unique<COFF_Binary>(
+        LIEF::COFF::Parser::parse(std::move(stream_))
+    ); // NOLINT(clang-analyzer-cplusplus.NewDeleteLeaks)
   }
 
   ~RustStream() = default;
+
   private:
   std::unique_ptr<LIEF::VectorStream> stream_;
 };

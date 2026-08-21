@@ -1,4 +1,4 @@
-/* Copyright 2022 - 2025 R. Thomas
+/* Copyright 2022 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,10 +18,8 @@
 #include "LIEF/asm/aarch64/Operand.hpp"
 #include "LIEF/asm/aarch64/registers.hpp"
 
-namespace LIEF {
-namespace assembly {
-namespace aarch64 {
-namespace operands {
+
+namespace LIEF::assembly::aarch64::operands {
 
 /// This class represents a register operand.
 ///
@@ -61,7 +59,6 @@ class LIEF_API Register : public Operand {
   ~Register() override = default;
 };
 }
-}
-}
-}
+
+
 #endif

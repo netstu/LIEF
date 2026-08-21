@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -101,7 +101,7 @@ void create<Header>(nb::module_& m) {
 
     .def_prop_ro("nb_dex_files",
         nb::overload_cast<>(&Header::nb_dex_files, nb::const_),
-        "Number of " RST_CLASS_REF_FULL(lief.DEX.File) " registred in the current OAT"_doc)
+        "Number of " RST_CLASS_REF_FULL(lief.DEX.File) " registered in the current OAT"_doc)
 
     .def_prop_ro("oat_dex_files_offset",
         nb::overload_cast<>(&Header::oat_dex_files_offset, nb::const_),

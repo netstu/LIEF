@@ -6,7 +6,6 @@
 #include "DWARF/pyTypes.hpp"
 
 
-#include <nanobind/make_iterator.h>
 #include <nanobind/stl/unique_ptr.h>
 #include <nanobind/stl/string.h>
 
@@ -31,7 +30,7 @@ void create<dw::Variable>(nb::module_& m) {
       The name of the variable which is used for linking (``DW_AT_linkage_name``).
 
       This name differs from :attr:`~.name` as it is usually mangled. The function
-      return an empty string if the linkage name is not available.
+      returns an empty string if the linkage name is not available.
       )doc"_doc
     )
     .def_prop_ro("address",
@@ -91,6 +90,14 @@ void create<dw::Variable>(nb::module_& m) {
       R"doc(
       Description (``DW_AT_description``) of the variable or an empty string.
       )doc"_doc
+    )
+
+    .def("to_decl",
+      [] (const dw::Variable& self, const DeclOpt* opt) {
+        return opt ? self.to_decl(*opt) : self.to_decl();
+      },
+      "Generates a C/C++ definition for this variable"_doc,
+      "opt"_a.none() = nb::none()
     )
   ;
 }

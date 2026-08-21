@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,21 +15,23 @@
  */
 #ifndef LIEF_MACHO_VERSION_MIN_COMMAND_H
 #define LIEF_MACHO_VERSION_MIN_COMMAND_H
-#include <ostream>
 #include <array>
+#include <memory>
+#include <ostream>
 
 #include "LIEF/visibility.h"
 
 #include "LIEF/MachO/LoadCommand.hpp"
 
-namespace LIEF {
-namespace MachO {
+
+namespace LIEF::MachO {
 
 namespace details {
 struct version_min_command;
 }
 
-/// Class that wraps the LC_VERSION_MIN_MACOSX, LC_VERSION_MIN_IPHONEOS, ... commands.
+/// Class that wraps the LC_VERSION_MIN_MACOSX, LC_VERSION_MIN_IPHONEOS, ...
+/// commands.
 class LIEF_API VersionMin : public LoadCommand {
 
   public:
@@ -43,13 +45,13 @@ class LIEF_API VersionMin : public LoadCommand {
   VersionMin(const VersionMin& copy) = default;
 
   std::unique_ptr<LoadCommand> clone() const override {
-    return std::unique_ptr<VersionMin>(new VersionMin(*this));
+    return std::make_unique<VersionMin>(*this);
   }
 
   ~VersionMin() override = default;
 
   /// Return the version as an array
-  const version_t& version() const {
+  const version_t& version() const LIEF_LIFETIMEBOUND {
     return version_;
   }
   void version(const version_t& version) {
@@ -57,7 +59,7 @@ class LIEF_API VersionMin : public LoadCommand {
   }
 
   /// Return the sdk version as an array
-  const version_t& sdk() const {
+  const version_t& sdk() const LIEF_LIFETIMEBOUND {
     return sdk_;
   }
   void sdk(const version_t& sdk) {
@@ -82,5 +84,5 @@ class LIEF_API VersionMin : public LoadCommand {
 };
 
 }
-}
+
 #endif

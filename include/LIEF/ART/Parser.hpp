@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@
 #ifndef LIEF_ART_PARSER_H
 #define LIEF_ART_PARSER_H
 #include <memory>
-#include <vector>
 #include <string>
+#include <vector>
 
 #include "LIEF/ART/types.hpp"
 #include "LIEF/visibility.h"
@@ -28,14 +28,15 @@ namespace ART {
 class File;
 
 
-/// Class which parses an ART file and transform into a ART::File object
+/// Class which parses an ART file and transforms it into an ART::File object
 class LIEF_API Parser {
   public:
   static std::unique_ptr<File> parse(const std::string& file);
-  static std::unique_ptr<File> parse(std::vector<uint8_t> data, const std::string& name = "");
+  static std::unique_ptr<File> parse(std::vector<uint8_t> data,
+                                     const std::string& name = "");
 
   Parser& operator=(const Parser& copy) = delete;
-  Parser(const Parser& copy)            = delete;
+  Parser(const Parser& copy) = delete;
 
   private:
   Parser();
@@ -95,13 +96,13 @@ class LIEF_API Parser {
 
 
   //// Parse a **Single** java.lang.DexCache object
-  //template<typename ART_T, typename PTR_T>
-  //void parse_class_roots(size_t object_offset);
+  // template<typename ART_T, typename PTR_T>
+  // void parse_class_roots(size_t object_offset);
 
   std::unique_ptr<File> file_;
   std::unique_ptr<BinaryStream> stream_;
   uint32_t imagebase_ = 0;
 };
-} // namespace ART
-} // namespace LIEF
+}
+}
 #endif

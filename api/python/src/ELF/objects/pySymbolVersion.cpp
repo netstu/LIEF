@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,13 +49,13 @@ void create<SymbolVersion>(nb::module_& m) {
         R"delim(
         Value associated with the symbol.
 
-        If the given SymbolVersion hasn't Auxiliary version:
+        If the given SymbolVersion has no auxiliary version:
 
         - `0` : The symbol is local
         - `1` : The symbol is global
 
         All other values are used for versions in the own object or in any of
-        the dependencies. This is the version the symbol is tight to.
+        the dependencies. This is the version the symbol is tied to.
         )delim"_doc)
 
     .def_prop_ro("has_auxiliary_version",
@@ -70,7 +70,7 @@ void create<SymbolVersion>(nb::module_& m) {
         Return the :class:`~lief.ELF.SymbolVersionAux` associated with this version or None if not present.
 
         The value can be changed by assigning a :class:`~lief.ELF.SymbolVersionAuxRequirement` which
-        must already exist in the :class:`~lief.ELF.SymbolVersionRequirement`. Once can use
+        must already exist in the :class:`~lief.ELF.SymbolVersionRequirement`. One can use
         :meth:`~lief.ELF.SymbolVersionAuxRequirement.add_aux_requirement` to add a new
         :class:`~lief.ELF.SymbolVersionAuxRequirement`.
         )delim"_doc,

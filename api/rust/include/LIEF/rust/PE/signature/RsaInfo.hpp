@@ -1,4 +1,4 @@
-/* Copyright 2024 - 2025 R. Thomas
+/* Copyright 2024 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,18 +17,35 @@
 
 #include "LIEF/PE/signature/RsaInfo.hpp"
 #include "LIEF/rust/Mirror.hpp"
+#include "LIEF/rust/helpers.hpp"
 
 class PE_RsaInfo : private Mirror<LIEF::PE::RsaInfo> {
   public:
   using lief_t = LIEF::PE::RsaInfo;
   using Mirror::Mirror;
 
-  uint32_t key_size() const { return get().key_size(); }
-  bool has_public_key() const { return get().has_public_key(); }
-  bool has_private_key() const { return get().has_private_key(); }
-  std::vector<uint8_t> N() const { return get().N(); }
-  std::vector<uint8_t> E() const { return get().E(); }
-  std::vector<uint8_t> D() const { return get().D(); }
-  std::vector<uint8_t> P() const { return get().P(); }
-  std::vector<uint8_t> Q() const { return get().Q(); }
+  uint32_t key_size() const {
+    return get().key_size();
+  }
+  auto has_public_key() const {
+    return get().has_public_key();
+  }
+  auto has_private_key() const {
+    return get().has_private_key();
+  }
+  auto N() const {
+    return make_unique_vector<uint8_t>(get().N());
+  }
+  auto E() const {
+    return make_unique_vector<uint8_t>(get().E());
+  }
+  auto D() const {
+    return make_unique_vector<uint8_t>(get().D());
+  }
+  auto P() const {
+    return make_unique_vector<uint8_t>(get().P());
+  }
+  auto Q() const {
+    return make_unique_vector<uint8_t>(get().Q());
+  }
 };

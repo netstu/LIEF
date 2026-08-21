@@ -1,4 +1,4 @@
-/* Copyright 2022 - 2025 R. Thomas
+/* Copyright 2022 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,11 +15,12 @@
 #ifndef LIEF_DWARF_SUBROUTINE_TYPE_H
 #define LIEF_DWARF_SUBROUTINE_TYPE_H
 
-#include "LIEF/visibility.h"
 #include "LIEF/DWARF/Type.hpp"
+#include "LIEF/compiler_attributes.hpp"
+#include "LIEF/visibility.h"
 
-namespace LIEF {
-namespace dwarf {
+
+namespace LIEF::dwarf {
 class Parameter;
 
 namespace types {
@@ -27,16 +28,25 @@ namespace types {
 /// This class represents a `DW_TAG_subroutine_type`
 class LIEF_API Subroutine : public Type {
   public:
-  using Type::Type;
+  template<typename... Args,
+           typename = std::enable_if_t<std::is_constructible_v<Type, Args&&...>>>
+  Subroutine(Args&&... args) :
+    Type(std::forward<Args>(args)...) {}
+
+  Subroutine(const Subroutine&) = delete;
+  Subroutine& operator=(const Subroutine&) = delete;
+
+  Subroutine(Subroutine&&) noexcept = default;
+  Subroutine& operator=(Subroutine&&) noexcept = default;
 
   using parameters_t = std::vector<std::unique_ptr<Parameter>>;
 
   /// Return the dwarf::Type associated with the **return type** of this
   /// function
-  std::unique_ptr<Type> return_type() const;
+  std::unique_ptr<Type> return_type() const LIEF_LIFETIMEBOUND;
 
   /// Parameters of this subroutine
-  parameters_t parameters() const;
+  parameters_t parameters() const LIEF_LIFETIMEBOUND;
 
   static bool classof(const Type* type) {
     return type->kind() == Type::KIND::SUBROUTINE;
@@ -47,5 +57,5 @@ class LIEF_API Subroutine : public Type {
 
 }
 }
-}
+
 #endif

@@ -1,4 +1,4 @@
-/* Copyright 2024 - 2025 R. Thomas
+/* Copyright 2024 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,9 +14,9 @@
  */
 #ifndef LIEF_PROFILING_UTILS_H
 #define LIEF_PROFILING_UTILS_H
-#include <spdlog/stopwatch.h>
-#include <spdlog/fmt/chrono.h>
 #include "logging.hpp"
+#include <spdlog/fmt/chrono.h>
+#include <spdlog/stopwatch.h>
 #include <chrono>
 
 using std::chrono::duration_cast;
@@ -25,15 +25,15 @@ namespace LIEF {
 class Profile {
   public:
   explicit Profile(std::string msg) :
-    msg_(std::move(msg))
-  {
+    msg_(std::move(msg)) {
     sw_.reset();
   }
 
   ~Profile() {
-    LIEF_DEBUG("{}: {}",
-        msg_, duration_cast<std::chrono::milliseconds>(sw_.elapsed()));
+    LIEF_DEBUG("{}: {}", msg_,
+               duration_cast<std::chrono::milliseconds>(sw_.elapsed()));
   }
+
   private:
   spdlog::stopwatch sw_;
   std::string msg_;

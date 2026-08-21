@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,11 +17,11 @@
 #define LIEF_PE_ATTRIBUTES_SPC_RELAXED_PE_MARKER_CHECK_H
 #include <cstdint>
 
-#include "LIEF/visibility.h"
 #include "LIEF/PE/signature/Attribute.hpp"
+#include "LIEF/visibility.h"
 
-namespace LIEF {
-namespace PE {
+
+namespace LIEF::PE {
 
 class LIEF_API SpcRelaxedPeMarkerCheck : public Attribute {
   friend class Parser;
@@ -29,13 +29,11 @@ class LIEF_API SpcRelaxedPeMarkerCheck : public Attribute {
 
   public:
   SpcRelaxedPeMarkerCheck() :
-    SpcRelaxedPeMarkerCheck(0)
-  {}
+    SpcRelaxedPeMarkerCheck(0) {}
 
   SpcRelaxedPeMarkerCheck(uint32_t value) :
     Attribute(Attribute::TYPE::SPC_RELAXED_PE_MARKER_CHECK),
-    value_(value)
-  {}
+    value_(value) {}
 
   SpcRelaxedPeMarkerCheck(const SpcRelaxedPeMarkerCheck&) = default;
   SpcRelaxedPeMarkerCheck& operator=(const SpcRelaxedPeMarkerCheck&) = default;
@@ -69,6 +67,6 @@ class LIEF_API SpcRelaxedPeMarkerCheck : public Attribute {
 };
 
 }
-}
+
 
 #endif

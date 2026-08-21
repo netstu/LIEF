@@ -1,4 +1,4 @@
-/* Copyright 2022 - 2025 R. Thomas
+/* Copyright 2022 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,25 +14,18 @@
  */
 #include <array>
 
+#include "jni/jni_utils.hpp"
 #include "jni/lief/elf/Utils.hpp"
 #include "jni/log.hpp"
-#include "jni/jni_utils.hpp"
 
 namespace lief_jni::elf {
 
 int Utils::register_natives(JNIEnv* env) {
-  static constexpr std::array NATIVE_METHODS {
-    make(
-      "isELF",
-      "(Ljava/lang/String;)Z",
-      jni_is_elf
-    )
-  };
+  static const std::array NATIVE_METHODS{make("isELF", "(Ljava/lang/String;)Z",
+                                              jni_is_elf)};
 
-  env->RegisterNatives(
-    jni::StaticRef<kClass>{}.GetJClass(),
-    NATIVE_METHODS.data(), NATIVE_METHODS.size()
-  );
+  env->RegisterNatives(jni::StaticRef<kClass>{}.GetJClass(), NATIVE_METHODS.data(),
+                       NATIVE_METHODS.size());
 
   GHIDRA_DEBUG("'{}' registered", kClass.name_);
 

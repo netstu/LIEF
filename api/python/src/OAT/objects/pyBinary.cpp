@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -65,7 +65,7 @@ void create<Binary>(nb::module_& m) {
         nb::keep_alive<0, 1>())
 
     .def("has_class", &Binary::has_class,
-        "Check if the class if the given name is present in the current OAT binary"_doc)
+        "Check if the class with the given name is present in the current OAT binary"_doc)
 
     .def("get_class",
         nb::overload_cast<const std::string&>(&Binary::get_class),

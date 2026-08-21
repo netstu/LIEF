@@ -1,4 +1,4 @@
-/* Copyright 2025 R. Thomas
+/* Copyright 2025 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,9 +12,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include <sstream>
-#include <fstream>
 #include <filesystem>
+#include <fstream>
+#include <sstream>
 
 #include "binaryninja/lief_utils.hpp"
 #include "binaryninja/log_core.hpp"
@@ -22,15 +22,15 @@
 #include <binaryninja/binaryninjaapi.h>
 #include <binaryninja/binaryninjacore.h>
 
-#include <LIEF/MachO/utils.hpp>
-#include <LIEF/MachO/Parser.hpp>
+#include <LIEF/COFF/utils.hpp>
+#include <LIEF/DyldSharedCache/utils.hpp>
+#include <LIEF/ELF/utils.hpp>
 #include <LIEF/MachO/Binary.hpp>
 #include <LIEF/MachO/FatBinary.hpp>
 #include <LIEF/MachO/Header.hpp>
-#include <LIEF/ELF/utils.hpp>
+#include <LIEF/MachO/Parser.hpp>
+#include <LIEF/MachO/utils.hpp>
 #include <LIEF/PE/utils.hpp>
-#include <LIEF/COFF/utils.hpp>
-#include <LIEF/DyldSharedCache/utils.hpp>
 
 namespace binaryninja {
 
@@ -68,7 +68,8 @@ std::unique_ptr<LIEF::Binary> get_bin(BinaryNinja::BinaryView& bv) {
   std::string original_file = bv.GetFile()->GetOriginalFilename();
   if (LIEF::MachO::is_macho(original_file)) {
     bn::Ref<bn::Architecture> arch = bv.GetDefaultArchitecture();
-    std::unique_ptr<LIEF::MachO::FatBinary> fat = LIEF::MachO::Parser::parse(original_file);
+    std::unique_ptr<LIEF::MachO::FatBinary> fat =
+        LIEF::MachO::Parser::parse(original_file);
     if (fat == nullptr) {
       return nullptr;
     }
@@ -102,8 +103,8 @@ std::unique_ptr<LIEF::Binary> get_bin(BinaryNinja::BinaryView& bv) {
       return fat->take(LIEF::MachO::Header::CPU_TYPE::POWERPC64);
     }
 
-    BN_ERR("Unsupported architecture: {} ({})",
-           arch_name, bv.GetDefaultPlatform()->GetName());
+    BN_ERR("Unsupported architecture: {} ({})", arch_name,
+           bv.GetDefaultPlatform()->GetName());
     return nullptr;
   }
 

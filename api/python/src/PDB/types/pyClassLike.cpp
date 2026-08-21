@@ -7,6 +7,8 @@
 #include <nanobind/stl/unique_ptr.h>
 #include <nanobind/make_iterator.h>
 
+#include "pyOwningIterator.hpp"
+
 namespace LIEF::pdb::py {
 template<>
 void create<pdb::types::ClassLike>(nb::module_& m) {
@@ -20,7 +22,7 @@ void create<pdb::types::ClassLike>(nb::module_& m) {
   type
     .def_prop_ro("attributes",
       [] (pdb::types::ClassLike& self) {
-        auto attrs = self.attributes();
+        auto attrs = LIEF::py::owning_range(self.attributes());
         return nb::make_iterator<nb::rv_policy::reference_internal>(
             nb::type<pdb::types::ClassLike>(), "attributes_it", attrs);
       },
@@ -30,7 +32,7 @@ void create<pdb::types::ClassLike>(nb::module_& m) {
 
     .def_prop_ro("methods",
       [] (pdb::types::ClassLike& self) {
-        auto methods = self.methods();
+        auto methods = LIEF::py::owning_range(self.methods());
         return nb::make_iterator<nb::rv_policy::reference_internal>(
             nb::type<pdb::types::ClassLike>(), "methods_it", methods);
       },
@@ -41,19 +43,6 @@ void create<pdb::types::ClassLike>(nb::module_& m) {
     .def_prop_ro("unique_name", &pdb::types::ClassLike::unique_name,
       R"doc(
       Mangled type name.
-      )doc"_doc
-    )
-
-    .def_prop_ro("name", &pdb::types::ClassLike::name,
-      R"doc(
-      Demangled type name
-      )doc"_doc
-    )
-
-    .def_prop_ro("size", &pdb::types::ClassLike::size,
-      R"doc(
-      Size of the type including all its attributes. This size should match
-      the ``sizeof(...)`` this type.
       )doc"_doc
     )
   ;

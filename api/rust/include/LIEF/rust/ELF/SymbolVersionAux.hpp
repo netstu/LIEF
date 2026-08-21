@@ -1,4 +1,4 @@
-/* Copyright 2024 - 2025 R. Thomas
+/* Copyright 2024 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,10 +15,13 @@
 #pragma once
 #include "LIEF/ELF/SymbolVersionAux.hpp"
 #include "LIEF/rust/Mirror.hpp"
+#include "LIEF/rust/helpers.hpp"
 
 class ELF_SymbolVersionAux : public Mirror<LIEF::ELF::SymbolVersionAux> {
   public:
   using lief_t = LIEF::ELF::SymbolVersionAux;
   using Mirror::Mirror;
-  std::string name() const { return get().name(); }
+  auto name() const {
+    return to_unique_string(get().name());
+  }
 };

@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,15 +18,15 @@
 #include "LIEF/OAT/hash.hpp"
 #include <ostream>
 
-namespace LIEF {
-namespace OAT {
+
+namespace LIEF::OAT {
 
 DexFile::DexFile(const DexFile&) = default;
 DexFile& DexFile::operator=(const DexFile&) = default;
 
 DexFile::DexFile() = default;
 
-const std::string& DexFile::location() const {
+std::string_view DexFile::location() const {
   return location_;
 }
 
@@ -83,15 +83,13 @@ void DexFile::accept(Visitor& visitor) const {
 }
 
 
-
 std::ostream& operator<<(std::ostream& os, const DexFile& dex_file) {
-  os << dex_file.location() << " - " << std::hex << std::showbase << "(Checksum: " << dex_file.checksum() << ")";
+  os << dex_file.location() << " - " << std::hex << std::showbase
+     << "(Checksum: " << dex_file.checksum() << ")";
   return os;
 }
 
 DexFile::~DexFile() = default;
 
 
-
-}
 }

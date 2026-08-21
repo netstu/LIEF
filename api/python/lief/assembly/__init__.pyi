@@ -17,6 +17,8 @@ class Engine:
     pass
 
 class Instruction:
+    __match_args__: tuple = ...
+
     class MemoryAccess(enum.Flag):
         @staticmethod
         def from_value(arg: int, /) -> Instruction.MemoryAccess: ...
@@ -116,6 +118,6 @@ class AssemblerConfig:
     @staticmethod
     def default_config() -> AssemblerConfig: ...
 
-    dialect: AssemblerConfig.DIALECT
+    dialect: DIALECT
 
     def resolve_symbol(self, name: str) -> int | None: ...

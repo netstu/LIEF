@@ -1,4 +1,4 @@
-/* Copyright 2022 - 2025 R. Thomas
+/* Copyright 2022 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,30 +14,38 @@
  */
 #pragma once
 #include "LIEF/DWARF/Parameter.hpp"
-#include "LIEF/rust/Mirror.hpp"
 #include "LIEF/rust/DWARF/Type.hpp"
+#include "LIEF/rust/Mirror.hpp"
+#include "LIEF/rust/helpers.hpp"
 
 class DWARF_Parameter_Location : public Mirror<LIEF::dwarf::Parameter::Location> {
   public:
   using Mirror::Mirror;
   using lief_t = LIEF::dwarf::Parameter::Location;
 
-  auto get_type() const { return to_int(get().type); }
+  auto get_type() const {
+    return to_int(get().type);
+  }
 };
 
-class DWARF_Parameter_RegisterLocation : public Mirror<LIEF::dwarf::Parameter::RegisterLoc> {
+class DWARF_Parameter_RegisterLocation
+  : public Mirror<LIEF::dwarf::Parameter::RegisterLoc> {
   public:
   using Mirror::Mirror;
   using lief_t = LIEF::dwarf::Parameter::RegisterLoc;
 
-  auto id() const { return impl().id; }
+  auto id() const {
+    return impl().id;
+  }
 
-  static bool classof(const DWARF_Parameter_Location& loc) {
+  static auto classof(const DWARF_Parameter_Location& loc) {
     return lief_t::classof(&loc.get());
   }
 
   private:
-  const lief_t& impl() const { return as<lief_t>(this); }
+  const lief_t& impl() const {
+    return as<lief_t>(this);
+  }
 };
 
 class DWARF_Parameter : public Mirror<LIEF::dwarf::Parameter> {
@@ -45,10 +53,12 @@ class DWARF_Parameter : public Mirror<LIEF::dwarf::Parameter> {
   using Mirror::Mirror;
   using lief_t = LIEF::dwarf::Parameter;
 
-  auto name() const { return get().name(); }
+  auto name() const {
+    return to_unique_string(get().name());
+  }
 
   auto get_type() const {
-    return details::try_unique<DWARF_Type>(get().type()); // NOLINT(clang-analyzer-cplusplus.NewDeleteLeaks)
+    return details::try_unique<DWARF_Type>(get().type());
   }
 
   auto location() const {
@@ -60,34 +70,40 @@ class DWARF_parameters_Formal : public DWARF_Parameter {
   public:
   using lief_t = LIEF::dwarf::parameters::Formal;
 
-  static bool classof(const DWARF_Parameter& type) {
+  static auto classof(const DWARF_Parameter& type) {
     return lief_t::classof(&type.get());
   }
 
   private:
-  const lief_t& impl() const { return as<lief_t>(this); }
+  const lief_t& impl() const {
+    return as<lief_t>(this);
+  }
 };
 
 class DWARF_parameters_TemplateValue : public DWARF_Parameter {
   public:
   using lief_t = LIEF::dwarf::parameters::TemplateValue;
 
-  static bool classof(const DWARF_Parameter& type) {
+  static auto classof(const DWARF_Parameter& type) {
     return lief_t::classof(&type.get());
   }
 
   private:
-  const lief_t& impl() const { return as<lief_t>(this); }
+  const lief_t& impl() const {
+    return as<lief_t>(this);
+  }
 };
 
 class DWARF_parameters_TemplateType : public DWARF_Parameter {
   public:
   using lief_t = LIEF::dwarf::parameters::TemplateType;
 
-  static bool classof(const DWARF_Parameter& type) {
+  static auto classof(const DWARF_Parameter& type) {
     return lief_t::classof(&type.get());
   }
 
   private:
-  const lief_t& impl() const { return as<lief_t>(this); }
+  const lief_t& impl() const {
+    return as<lief_t>(this);
+  }
 };

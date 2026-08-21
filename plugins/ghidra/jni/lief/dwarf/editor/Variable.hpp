@@ -1,4 +1,4 @@
-/* Copyright 2022 - 2025 R. Thomas
+/* Copyright 2022 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,23 +16,23 @@
 
 #include <jni_bind.h>
 
-#include "jni/mirror.hpp"
 #include "jni/lief/dwarf/editor/Type.hpp"
+#include "jni/mirror.hpp"
 
 #include <LIEF/DWARF/editor/Variable.hpp>
 
 namespace lief_jni::dwarf::editor {
 
-class Variable : public JNI<
-  Variable, std::unique_ptr<LIEF::dwarf::editor::Variable>>
-{
+class Variable
+  : public JNI<Variable, std::unique_ptr<LIEF::dwarf::editor::Variable>> {
   public:
   using JNI::JNI;
-  static constexpr jni::Class kClass {
-    "lief/dwarf/editor/Variable",
-    jni::Constructor{ jlong{} },
-    jni::Field { "impl", jlong{}, }
-  };
+  static constexpr jni::Class kClass{"lief/dwarf/editor/Variable",
+                                     jni::Constructor{jlong{}},
+                                     jni::Field{
+                                         "impl",
+                                         jlong{},
+                                     }};
 
   static int register_natives(JNIEnv* env);
 
@@ -56,9 +56,7 @@ class Variable : public JNI<
   }
 
   static jobject jni_set_type(JNIEnv* env, jobject thiz, jobject type) {
-    from_jni(thiz)->impl().set_type(
-      Type::from_jni(type)->impl()
-    );
+    from_jni(thiz)->impl().set_type(Type::from_jni(type)->impl());
     return thiz;
   }
 

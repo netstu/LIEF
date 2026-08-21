@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,15 +15,16 @@
  */
 #ifndef LIEF_MACHO_UUID_COMMAND_H
 #define LIEF_MACHO_UUID_COMMAND_H
-#include <ostream>
 #include <array>
+#include <memory>
+#include <ostream>
 
 #include "LIEF/visibility.h"
 
 #include "LIEF/MachO/LoadCommand.hpp"
 
-namespace LIEF {
-namespace MachO {
+
+namespace LIEF::MachO {
 
 namespace details {
 struct uuid_command;
@@ -41,13 +42,13 @@ class LIEF_API UUIDCommand : public LoadCommand {
   UUIDCommand(const UUIDCommand& copy) = default;
 
   std::unique_ptr<LoadCommand> clone() const override {
-    return std::unique_ptr<UUIDCommand>(new UUIDCommand(*this));
+    return std::make_unique<UUIDCommand>(*this);
   }
 
   ~UUIDCommand() override = default;
 
   /// The UUID as a 16-bytes array
-  const uuid_t& uuid() const {
+  const uuid_t& uuid() const LIEF_LIFETIMEBOUND {
     return uuid_;
   }
   void uuid(const uuid_t& uuid) {
@@ -67,5 +68,5 @@ class LIEF_API UUIDCommand : public LoadCommand {
 };
 
 }
-}
+
 #endif

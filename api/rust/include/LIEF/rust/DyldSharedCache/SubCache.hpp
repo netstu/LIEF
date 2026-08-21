@@ -1,4 +1,4 @@
-/* Copyright 2022 - 2025 R. Thomas
+/* Copyright 2022 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
 #pragma once
 #include "LIEF/DyldSharedCache/SubCache.hpp"
 #include "LIEF/rust/Mirror.hpp"
+#include "LIEF/rust/helpers.hpp"
 
 class dsc_DyldSharedCache;
 
@@ -23,8 +24,14 @@ class dsc_SubCache : private Mirror<LIEF::dsc::SubCache> {
   using lief_t = LIEF::dsc::SubCache;
   using Mirror::Mirror;
 
-  auto vm_offset() const { return get().vm_offset(); }
-  auto suffix() const { return get().suffix(); }
-  auto uuid() const { return details::make_vector(get().uuid()); }
+  auto vm_offset() const {
+    return get().vm_offset();
+  }
+  auto suffix() const {
+    return to_unique_string(get().suffix());
+  }
+  auto uuid() const {
+    return make_unique_vector<uint64_t>(details::make_vector(get().uuid()));
+  }
   LIEF_API std::unique_ptr<dsc_DyldSharedCache> cache() const;
 };

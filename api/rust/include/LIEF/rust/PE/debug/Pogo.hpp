@@ -1,4 +1,4 @@
-/* Copyright 2024 - 2025 R. Thomas
+/* Copyright 2024 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,33 +15,45 @@
 #pragma once
 #include <memory>
 
+#include "LIEF/rust/Iterator.hpp"
 #include "LIEF/rust/PE/debug/Debug.hpp"
 #include "LIEF/rust/PE/debug/PogoEntry.hpp"
-#include "LIEF/rust/Iterator.hpp"
+#include "LIEF/rust/helpers.hpp"
 
 #include "LIEF/PE/debug/Pogo.hpp"
 
 class PE_Pogo : public PE_Debug {
   public:
   using lief_t = LIEF::PE::Pogo;
-  class it_entries :
-      public Iterator<PE_PogoEntry, LIEF::PE::Pogo::it_const_entries>
-  {
+  class it_entries
+    : public Iterator<PE_PogoEntry, LIEF::PE::Pogo::it_const_entries> {
     public:
-    it_entries(const PE_Pogo::lief_t& src)
-      : Iterator(std::move(src.entries())) { }
-    auto next() { return Iterator::next(); }
-    auto size() const { return Iterator::size(); }
+    it_entries(const PE_Pogo::lief_t& src) :
+      Iterator(std::move(src.entries())) {}
+    auto next() {
+      return Iterator::next();
+    }
+    auto size() const {
+      return Iterator::size();
+    }
   };
 
   auto entries() const {
     return std::make_unique<it_entries>(impl());
   }
 
-  static bool classof(const PE_Debug& entry) {
+  uint32_t pogo_signature() const {
+    return as_u32(impl().signature());
+  }
+
+  static auto classof(const PE_Debug& entry) {
     return lief_t::classof(&entry.get());
   }
 
   private:
-  const lief_t& impl() const { return as<lief_t>(this); }
+  const lief_t& impl() const {
+    return as<lief_t>(this);
+  }
 };
+
+using PE_Pogo_it_entries = PE_Pogo::it_entries;

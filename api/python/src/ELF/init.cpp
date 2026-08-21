@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,10 +18,12 @@
 #include "ELF/pyELF.hpp"
 
 #include <nanobind/stl/string.h>
+#include <nanobind/stl/pair.h>
 #include <nanobind/stl/vector.h>
 #include "nanobind/extra/stl/pathlike.h"
 
 #include "LIEF/ELF/Builder.hpp"
+#include "LIEF/ELF/Binary.hpp"
 #include "LIEF/ELF/DynamicEntry.hpp"
 #include "LIEF/ELF/DynamicEntryArray.hpp"
 #include "LIEF/ELF/DynamicEntryFlags.hpp"
@@ -29,6 +31,8 @@
 #include "LIEF/ELF/DynamicEntryRpath.hpp"
 #include "LIEF/ELF/DynamicEntryRunPath.hpp"
 #include "LIEF/ELF/DynamicSharedObject.hpp"
+#include "LIEF/ELF/DynamicEntryAuxiliary.hpp"
+#include "LIEF/ELF/DynamicEntryFilter.hpp"
 #include "LIEF/ELF/GnuHash.hpp"
 #include "LIEF/ELF/Header.hpp"
 #include "LIEF/ELF/Parser.hpp"
@@ -89,6 +93,8 @@ void init_objects(nb::module_& m) {
   CREATE(DynamicEntry, m);
   CREATE(DynamicEntryLibrary, m);
   CREATE(DynamicSharedObject, m);
+  CREATE(DynamicEntryAuxiliary, m);
+  CREATE(DynamicEntryFilter, m);
   CREATE(DynamicEntryArray, m);
   CREATE(DynamicEntryRpath, m);
   CREATE(DynamicEntryRunPath, m);
@@ -100,7 +106,7 @@ void init_objects(nb::module_& m) {
   init_notes(m);
 }
 
-inline void init_utils(nb::module_&) {
+inline void init_utils(nb::module_& m) {
   lief_mod->def("is_elf",
     [] (nb::PathLike path) {
       return is_elf(path);
@@ -111,11 +117,19 @@ inline void init_utils(nb::module_&) {
       nb::overload_cast<const std::vector<uint8_t>&>(&is_elf),
       "Check if the given raw data is an ``ELF``",
       "raw"_a);
+
+  m.def("check_layout", [] (const Binary& bin) -> std::pair<bool, std::string> {
+    std::string error;
+    if (!check_layout(bin, &error)) {
+      return std::make_pair(false, std::move(error));
+    }
+    return std::make_pair(true, "");
+  }, "Check that the layout of the given binary is correct."_doc, "binary"_a);
 }
 
 void init(nb::module_& m) {
   nb::module_ elf_mod = m.def_submodule("ELF", "Python API for the ELF format");
-  init_utils(m);
+  init_utils(elf_mod);
   init_enums(elf_mod);
   init_objects(elf_mod);
 }

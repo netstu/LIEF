@@ -5,6 +5,8 @@
 #include <nanobind/stl/unique_ptr.h>
 #include <nanobind/make_iterator.h>
 
+#include "pyOwningIterator.hpp"
+
 namespace LIEF::objc::py {
 template<>
 void create<objc::Protocol>(nb::module_& m) {
@@ -21,9 +23,22 @@ void create<objc::Protocol>(nb::module_& m) {
       )doc"_doc
     )
 
+    .def_prop_ro("protocols",
+      [] (objc::Protocol& self) {
+        auto protocols = LIEF::py::owning_range(self.protocols());
+        return nb::make_iterator<nb::rv_policy::reference_internal>(
+          nb::type<objc::Protocol>(), "protocols_it", protocols
+        );
+      }, nb::keep_alive<0, 1>(),
+      R"doc(
+      Iterator over the protocols adopted by this protocol (e.g. the
+      ``<Bar, Baz>`` in ``@protocol Foo <Bar, Baz>``).
+      )doc"_doc
+    )
+
     .def_prop_ro("optional_methods",
       [] (objc::Protocol& self) {
-        auto methods = self.optional_methods();
+        auto methods = LIEF::py::owning_range(self.optional_methods());
         return nb::make_iterator<nb::rv_policy::reference_internal>(
           nb::type<objc::Protocol>(), "optional_methods_it", methods
         );
@@ -34,7 +49,7 @@ void create<objc::Protocol>(nb::module_& m) {
     )
     .def_prop_ro("required_methods",
       [] (objc::Protocol& self) {
-        auto methods = self.required_methods();
+        auto methods = LIEF::py::owning_range(self.required_methods());
         return nb::make_iterator<nb::rv_policy::reference_internal>(
           nb::type<objc::Protocol>(), "required_methods_it", methods
         );
@@ -45,7 +60,7 @@ void create<objc::Protocol>(nb::module_& m) {
     )
     .def_prop_ro("properties",
       [] (objc::Protocol& self) {
-        auto props = self.properties();
+        auto props = LIEF::py::owning_range(self.properties());
         return nb::make_iterator<nb::rv_policy::reference_internal>(
           nb::type<objc::Protocol>(), "properties_it", props
         );

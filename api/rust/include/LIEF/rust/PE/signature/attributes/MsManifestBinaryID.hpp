@@ -1,4 +1,4 @@
-/* Copyright 2024 - 2025 R. Thomas
+/* Copyright 2024 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,18 +15,24 @@
 #pragma once
 #include "LIEF/PE/signature/attributes/MsManifestBinaryID.hpp"
 #include "LIEF/rust/PE/signature/attributes/Attribute.hpp"
+#include "LIEF/rust/helpers.hpp"
 
 class PE_MsManifestBinaryID : public PE_Attribute {
   public:
   using lief_t = LIEF::PE::MsManifestBinaryID;
-  PE_MsManifestBinaryID(const lief_t& base) : PE_Attribute(base) {}
+  PE_MsManifestBinaryID(const lief_t& base) :
+    PE_Attribute(base) {}
 
-  static bool classof(const PE_Attribute& attr) {
+  static auto classof(const PE_Attribute& attr) {
     return lief_t::classof(&attr.get());
   }
 
-  auto manifest_id() const { return impl().manifest_id(); }
+  auto manifest_id() const {
+    return to_unique_string(impl().manifest_id());
+  }
 
   private:
-  const lief_t& impl() const { return as<lief_t>(this); }
+  const lief_t& impl() const {
+    return as<lief_t>(this);
+  }
 };

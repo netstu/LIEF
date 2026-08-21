@@ -1,4 +1,4 @@
-/* Copyright 2022 - 2025 R. Thomas
+/* Copyright 2022 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,23 +21,24 @@ template<class T>
 class Enum {
   public:
   using Element = T;
-  static constexpr jni::Class kClass {
-    "java/lang/Enum",
-    jni::Method{"ordinal", jni::Return{jint{}}},
-    jni::Method{"name", jni::Return{jstring{}}},
+  static constexpr jni::Class kClass{
+      "java/lang/Enum",
+      jni::Method{"ordinal", jni::Return{jint{}}},
+      jni::Method{"name", jni::Return{jstring{}}},
   };
 
   Enum() = delete;
   Enum(jobject thiz) :
-    thiz_(thiz)
-  {}
+    thiz_(thiz) {}
 
   int ordinal() const {
     return thiz_.template Call<"ordinal">();
   }
 
   std::string name() const {
-    return std::string(jni::LocalString(thiz_.template Call<"name">()).Pin().ToString());
+    return std::string(
+        jni::LocalString(thiz_.template Call<"name">()).Pin().ToString()
+    );
   }
 
   template<typename U>

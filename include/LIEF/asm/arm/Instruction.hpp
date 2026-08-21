@@ -1,4 +1,4 @@
-/* Copyright 2022 - 2025 R. Thomas
+/* Copyright 2022 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,10 +19,9 @@
 #include "LIEF/asm/Instruction.hpp"
 #include "LIEF/asm/arm/opcodes.hpp"
 
-namespace LIEF {
-namespace assembly {
+
 /// ARM architecture-related namespace
-namespace arm {
+namespace LIEF::assembly::arm {
 
 /// This class represents an ARM/Thumb instruction
 class LIEF_API Instruction : public assembly::Instruction {
@@ -38,6 +37,6 @@ class LIEF_API Instruction : public assembly::Instruction {
   ~Instruction() override = default;
 };
 }
-}
-}
+
+
 #endif

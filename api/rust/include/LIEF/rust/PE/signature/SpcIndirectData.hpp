@@ -1,4 +1,4 @@
-/* Copyright 2024 - 2025 R. Thomas
+/* Copyright 2024 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,38 +13,37 @@
  * limitations under the License.
  */
 #pragma once
-#include "LIEF/rust/PE/signature/ContentInfo.hpp"
 #include "LIEF/PE/signature/SpcIndirectData.hpp"
-#include "LIEF/rust/helpers.hpp"
+#include "LIEF/rust/PE/signature/ContentInfo.hpp"
 #include "LIEF/rust/Span.hpp"
+#include "LIEF/rust/helpers.hpp"
 
 class PE_SpcIndirectData : public PE_ContentInfo_Content {
   public:
   using lief_t = LIEF::PE::SpcIndirectData;
 
   auto digest_algorithm() const {
-    return to_int(impl().digest_algorithm());
+    return as_u32(impl().digest_algorithm());
   }
 
   auto digest() const {
     return make_span(impl().digest());
   }
 
-  std::string file() const {
-    return impl().file();
+  auto file() const {
+    return to_unique_string(impl().file());
   }
 
-  std::string url() const {
-    return impl().url();
+  auto url() const {
+    return to_unique_string(impl().url());
   }
 
-  static bool classof(const PE_ContentInfo_Content& info) {
+  static auto classof(const PE_ContentInfo_Content& info) {
     return lief_t::classof(&info.get());
   }
 
   private:
-  const lief_t& impl() const { return as<lief_t>(this); }
-
+  const lief_t& impl() const {
+    return as<lief_t>(this);
+  }
 };
-
-

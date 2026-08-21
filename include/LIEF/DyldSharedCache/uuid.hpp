@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,10 +20,10 @@
 
 // NOTE(romain): Windows is #define-ing uuid_t so we can't use this alias
 
-namespace LIEF {
-namespace dsc {
+
+namespace LIEF::dsc {
 /// UUID used in different places of the shared cache
 using sc_uuid_t = std::array<uint8_t, 16>;
 }
-}
+
 #endif

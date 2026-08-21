@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,10 @@
 #include <string>
 #include <sstream>
 #include <nanobind/stl/string.h>
+#include <nanobind/stl/unique_ptr.h>
 #include <nanobind/stl/vector.h>
 #include <nanobind/stl/set.h>
+#include <nanobind/stl/string_view.h>
 #include <nanobind/operators.h>
 
 #include "LIEF/MachO/Section.hpp"
@@ -90,15 +92,15 @@ void create<Section>(nb::module_& m) {
   ;
 
   sec
-    .def(nb::init<>())
+    .def_static("create",
+        nb::overload_cast<std::string, const Section::content_t&, Section::TYPE>(&Section::create),
+        "Create a section with the given name, content and type",
+        "name"_a, "content"_a, "type"_a = Section::TYPE::REGULAR)
 
-    .def(nb::init<const std::string&>(),
-        "Constructor from a section's name"_doc,
-        "section_name"_a)
-
-    .def(nb::init<const std::string&, const Section::content_t&>(),
-        "Constructor from a section's name and its content"_doc,
-        "section_name"_a, "content"_a)
+    .def_static("create",
+        nb::overload_cast<std::string, Section::TYPE>(&Section::create),
+        "Create a section with the given name",
+        "name"_a, "type"_a = Section::TYPE::REGULAR)
 
     .def_prop_rw("alignment",
         nb::overload_cast<>(&Section::alignment, nb::const_),
@@ -112,7 +114,7 @@ void create<Section>(nb::module_& m) {
         Offset of the relocation table. This value should be 0
         for executable and libraries as the relocations are managed by the :attr:`lief.MachO.DyldInfo.rebase`
 
-        Other the other hand, for object files (``.o``) this value should not be 0
+        On the other hand, for object files (``.o``) this value should not be 0
         )delim"_doc)
 
     .def_prop_rw("numberof_relocations",

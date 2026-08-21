@@ -1,4 +1,4 @@
-/* Copyright 2024 - 2025 R. Thomas
+/* Copyright 2024 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,14 +20,21 @@
 class MachO_RelocationObject : public MachO_Relocation {
   public:
   using lief_t = LIEF::MachO::RelocationObject;
-  MachO_RelocationObject(const lief_t& base) : MachO_Relocation(base) {}
+  MachO_RelocationObject(const lief_t& base) :
+    MachO_Relocation(base) {}
 
-  bool is_scattered() const { return impl().is_scattered(); };
+  auto is_scattered() const {
+    return impl().is_scattered();
+  }
 
-  static bool classof(const MachO_Relocation& reloc) {
-    return lief_t::classof(*static_cast<const MachO_Relocation::lief_t*>(&reloc.get()));
+  static auto classof(const MachO_Relocation& reloc) {
+    return lief_t::classof(
+        *static_cast<const MachO_Relocation::lief_t*>(&reloc.get())
+    );
   }
 
   private:
-  const lief_t& impl() const { return as<lief_t>(this); }
+  const lief_t& impl() const {
+    return as<lief_t>(this);
+  }
 };

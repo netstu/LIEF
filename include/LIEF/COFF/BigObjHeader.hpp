@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,16 +15,17 @@
  */
 #ifndef LIEF_COFF_BIGOBJ_HEADER_H
 #define LIEF_COFF_BIGOBJ_HEADER_H
-#include <cstdint>
 #include <array>
+#include <cstdint>
 
 #include "LIEF/COFF/Header.hpp"
 
-#include "LIEF/visibility.h"
+#include "LIEF/compiler_attributes.hpp"
 #include "LIEF/span.hpp"
+#include "LIEF/visibility.h"
 
-namespace LIEF {
-namespace COFF {
+
+namespace LIEF::COFF {
 
 /// This class represents the header for a COFF object compiled
 /// with `/bigobj` support (i.e. the number of sections can exceed 65536).
@@ -35,8 +36,7 @@ class LIEF_API BigObjHeader : public Header {
   public:
   static constexpr auto UUID_SZ = 16;
   BigObjHeader() :
-    Header(KIND::BIGOBJ)
-  {}
+    Header(KIND::BIGOBJ) {}
 
   static std::unique_ptr<BigObjHeader> create(BinaryStream& stream);
 
@@ -55,8 +55,9 @@ class LIEF_API BigObjHeader : public Header {
     return version_;
   }
 
-  /// Originally named `ClassID`, this uuid should match: `{D1BAA1C7-BAEE-4ba9-AF20-FAF66AA4DCB8}`
-  span<const uint8_t> uuid() const {
+  /// Originally named `ClassID`, this uuid should match:
+  /// `{D1BAA1C7-BAEE-4ba9-AF20-FAF66AA4DCB8}`
+  span<const uint8_t> uuid() const LIEF_LIFETIMEBOUND {
     return uuid_;
   }
 
@@ -119,5 +120,5 @@ class LIEF_API BigObjHeader : public Header {
 };
 
 }
-}
+
 #endif

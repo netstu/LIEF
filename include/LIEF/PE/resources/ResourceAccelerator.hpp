@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 #ifndef LIEF_PE_RESOURCE_ACCELERATOR_H
 #define LIEF_PE_RESOURCE_ACCELERATOR_H
 
-#include <string>
 #include <ostream>
 #include <vector>
 
@@ -27,8 +26,8 @@
 #include "LIEF/PE/resources/AcceleratorCodes.hpp"
 #include "LIEF/enums.hpp"
 
-namespace LIEF {
-namespace PE {
+
+namespace LIEF::PE {
 class ResourcesManager;
 
 namespace details {
@@ -37,8 +36,8 @@ struct pe_resource_acceltableentry;
 
 class LIEF_API ResourceAccelerator : public Object {
   friend class ResourcesManager;
-  public:
 
+  public:
   /// From: https://docs.microsoft.com/en-us/windows/win32/menurc/acceltableentry
   enum class FLAGS : uint32_t {
     /// The accelerator key is a virtual-key code. If this flag is not specified,
@@ -122,7 +121,8 @@ class LIEF_API ResourceAccelerator : public Object {
 
   void accept(Visitor& visitor) const override;
 
-  LIEF_API friend std::ostream& operator<<(std::ostream& os, const ResourceAccelerator& acc);
+  LIEF_API friend std::ostream& operator<<(std::ostream& os,
+                                           const ResourceAccelerator& acc);
 
   private:
   int16_t flags_ = 0;
@@ -134,7 +134,7 @@ class LIEF_API ResourceAccelerator : public Object {
 LIEF_API const char* to_string(ResourceAccelerator::FLAGS e);
 
 }
-}
+
 
 ENABLE_BITMASK_OPERATORS(LIEF::PE::ResourceAccelerator::FLAGS);
 #endif

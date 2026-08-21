@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@
 #include <memory>
 #include <string>
 
-#include "LIEF/visibility.h"
 #include "LIEF/PE/LoadConfigurations/DynamicRelocation/DynamicRelocationBase.hpp"
+#include "LIEF/visibility.h"
 
 namespace LIEF {
 class BinaryStream;
@@ -33,8 +33,7 @@ class Parser;
 class LIEF_API DynamicRelocationV2 : public DynamicRelocation {
   public:
   DynamicRelocationV2() :
-    DynamicRelocation(2)
-  {}
+    DynamicRelocation(2) {}
 
   DynamicRelocationV2(const DynamicRelocationV2&) = default;
   DynamicRelocationV2& operator=(const DynamicRelocationV2&) = default;
@@ -43,7 +42,7 @@ class LIEF_API DynamicRelocationV2 : public DynamicRelocation {
   DynamicRelocationV2& operator=(DynamicRelocationV2&&) = default;
 
   std::unique_ptr<DynamicRelocation> clone() const override {
-    return std::unique_ptr<DynamicRelocationV2>(new DynamicRelocationV2(*this));
+    return std::make_unique<DynamicRelocationV2>(*this);
   }
 
   std::string to_string() const override;
@@ -54,10 +53,10 @@ class LIEF_API DynamicRelocationV2 : public DynamicRelocation {
 
   ~DynamicRelocationV2() override = default;
 
-  /// \private
-  template<class PE_T> LIEF_LOCAL static
-    std::unique_ptr<DynamicRelocationV2> parse(Parser& ctx, BinaryStream& strm);
-
+  /// @private
+  template<class PE_T>
+  LIEF_LOCAL static std::unique_ptr<DynamicRelocationV2> parse(Parser& ctx,
+                                                               BinaryStream& strm);
 };
 
 }

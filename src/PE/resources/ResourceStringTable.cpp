@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,19 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+#include <spdlog/fmt/fmt.h>
 #include <utility>
 
-#include "LIEF/utils.hpp"
 #include "LIEF/Visitor.hpp"
+#include "LIEF/utils.hpp"
 
-#include "LIEF/PE/resources/ResourceStringTable.hpp"
 #include "LIEF/BinaryStream/BinaryStream.hpp"
+#include "LIEF/PE/resources/ResourceStringTable.hpp"
 
-#include "logging.hpp"
-
-namespace LIEF {
-namespace PE {
+namespace LIEF::PE {
 
 result<ResourceStringTable::entry_t> parse_string(BinaryStream& stream) {
   // typedef struct {
@@ -37,7 +34,9 @@ result<ResourceStringTable::entry_t> parse_string(BinaryStream& stream) {
   //   WORD  Value;
   // } String;
   auto wLength = stream.read<uint16_t>();
-  if (!wLength) { return make_error_code(wLength.error()); }
+  if (!wLength) {
+    return make_error_code(wLength.error());
+  }
 
   if (*wLength == 0) {
     return make_error_code(lief_errors::read_error);
@@ -46,10 +45,14 @@ result<ResourceStringTable::entry_t> parse_string(BinaryStream& stream) {
   const uint32_t end_offset = stream.pos() - sizeof(uint16_t) + *wLength;
 
   auto wValueLength = stream.read<uint16_t>();
-  if (!wValueLength) { return make_error_code(wValueLength.error()); }
+  if (!wValueLength) {
+    return make_error_code(wValueLength.error());
+  }
 
   auto wType = stream.read<uint16_t>();
-  if (!wType) { return make_error_code(wType.error()); }
+  if (!wType) {
+    return make_error_code(wType.error());
+  }
 
   if (*wType != 0 && wType != 1) {
     return make_error_code(lief_errors::corrupted);
@@ -58,7 +61,9 @@ result<ResourceStringTable::entry_t> parse_string(BinaryStream& stream) {
   ResourceStringTable::entry_t entry;
 
   auto szKey = stream.read_u16string();
-  if (!szKey) { return make_error_code(szKey.error()); }
+  if (!szKey) {
+    return make_error_code(szKey.error());
+  }
 
   entry.key = std::move(*szKey);
 
@@ -73,7 +78,9 @@ result<ResourceStringTable::entry_t> parse_string(BinaryStream& stream) {
   }
 
   auto Value = stream.read_u16string();
-  if (!Value) { return entry; }
+  if (!Value) {
+    return entry;
+  }
 
   entry.value = std::move(*Value);
 
@@ -92,20 +99,28 @@ result<ResourceStringTable> ResourceStringTable::parse(BinaryStream& stream) {
   // } StringTable;
   ResourceStringTable table;
   auto wLength = stream.read<uint16_t>();
-  if (!wLength) { return make_error_code(wLength.error()); }
+  if (!wLength) {
+    return make_error_code(wLength.error());
+  }
 
   auto wValueLength = stream.read<uint16_t>();
-  if (!wValueLength) { return make_error_code(wValueLength.error()); }
+  if (!wValueLength) {
+    return make_error_code(wValueLength.error());
+  }
 
   auto wType = stream.read<uint16_t>();
-  if (!wType) { return make_error_code(wType.error()); }
+  if (!wType) {
+    return make_error_code(wType.error());
+  }
 
   if (*wType != 0 && wType != 1) {
     return make_error_code(lief_errors::corrupted);
   }
 
   auto szKey = stream.read_u16string();
-  if (!szKey) { return make_error_code(szKey.error()); }
+  if (!szKey) {
+    return make_error_code(szKey.error());
+  }
 
   table.key(std::move(*szKey));
 
@@ -133,17 +148,17 @@ std::string ResourceStringTable::key_u8() const {
   return u16tou8(key());
 }
 
-optional<std::string> ResourceStringTable::get(const std::string& key) const {
+std::optional<std::string> ResourceStringTable::get(const std::string& key) const {
   auto u16 = u8tou16(key);
   if (!u16) {
-    return nullopt();
+    return std::nullopt;
   }
 
   if (auto value = get(*u16)) {
     return u16tou8(*value);
   }
 
-  return nullopt();
+  return std::nullopt;
 }
 
 void ResourceStringTable::accept(Visitor& visitor) const {
@@ -159,5 +174,4 @@ std::ostream& operator<<(std::ostream& os, const ResourceStringTable& table) {
   return os;
 }
 
-}
 }

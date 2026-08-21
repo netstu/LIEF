@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -71,7 +71,13 @@ void create<CorePrStatus>(nb::module_& m) {
     .def_prop_rw("status",
         nb::overload_cast<>(&CorePrStatus::status, nb::const_),
         nb::overload_cast<const CorePrStatus::pr_status_t&>(&CorePrStatus::status),
-        "Info associated with the signal"_doc)
+        R"doc(
+        Status information from a core dump
+
+        This structure mirrors the kernel's ``prstatus`` data embedded in
+        ``NT_PRSTATUS`` core-dump notes and exposes signal state, process
+        identifiers, and CPU-time accounting.
+        )doc"_doc)
 
     .def_prop_ro("architecture", &CorePrStatus::architecture,
         R"doc(Original target architecture.)doc"_doc)
@@ -101,7 +107,7 @@ void create<CorePrStatus>(nb::module_& m) {
     .def_prop_ro("register_values", &CorePrStatus::register_values,
       R"doc(
       List of the register values.
-      This list is **guarantee** to be as long as the number of registers defined
+      This list is **guaranteed** to be as long as the number of registers defined
       in the :class:`~.Registers` or empty if it can't be resolved.
 
       Thus, one can access a specific register through:
@@ -109,7 +115,7 @@ void create<CorePrStatus>(nb::module_& m) {
       .. code-block:: python
 
         reg_vals: list[int] = note.register_values()
-        x20 = reg_vals[CorePrStatus.Registesr.AARCH64.X20.value]
+        x20 = reg_vals[CorePrStatus.Registers.AARCH64.X20.value]
       )doc"_doc
     )
 

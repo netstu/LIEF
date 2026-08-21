@@ -1,4 +1,4 @@
-/* Copyright 2024 - 2025 R. Thomas
+/* Copyright 2024 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,21 +15,46 @@
 #pragma once
 #include <LIEF/asm/powerpc/Instruction.hpp>
 
+#include "LIEF/rust/Iterator.hpp"
 #include "LIEF/rust/asm/Instruction.hpp"
+#include "LIEF/rust/asm/powerpc/Operand.hpp"
 #include "LIEF/rust/helpers.hpp"
 
 class asm_powerpc_Instruction : public asm_Instruction {
   public:
   using lief_t = LIEF::assembly::powerpc::Instruction;
 
+  class it_operands
+    : public ForwardIterator<asm_powerpc_Operand,
+                             LIEF::assembly::powerpc::Operand::Iterator> {
+    public:
+    it_operands(const asm_powerpc_Instruction::lief_t& src) :
+      ForwardIterator(src.operands()) {}
+
+    auto next() {
+      return ForwardIterator::next();
+    }
+    auto size() const {
+      return ForwardIterator::size();
+    }
+  };
+
   uint64_t opcode() const {
     return to_int(impl().opcode());
   }
 
-  static bool classof(const asm_Instruction& inst) {
+  auto operands() const {
+    return std::make_unique<it_operands>(impl());
+  }
+
+  static auto classof(const asm_Instruction& inst) {
     return lief_t::classof(&inst.get());
   }
 
   private:
-  const lief_t& impl() const { return as<lief_t>(this); }
+  const lief_t& impl() const {
+    return as<lief_t>(this);
+  }
 };
+
+using asm_powerpc_Instruction_it_operands = asm_powerpc_Instruction::it_operands;

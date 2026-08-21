@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,10 @@ void create<Pogo>(nb::module_& m) {
     .value(PY_ENUM(Pogo::SIGNATURES::UNKNOWN))
     .value(PY_ENUM(Pogo::SIGNATURES::ZERO))
     .value(PY_ENUM(Pogo::SIGNATURES::LCTG))
-    .value(PY_ENUM(Pogo::SIGNATURES::PGI));
+    .value(PY_ENUM(Pogo::SIGNATURES::PGI))
+    .value(PY_ENUM(Pogo::SIGNATURES::PGO))
+    .value(PY_ENUM(Pogo::SIGNATURES::PGU))
+    .value(PY_ENUM(Pogo::SIGNATURES::SPGO));
 
   pogo
     .def(nb::init<>())

@@ -1,4 +1,4 @@
-/* Copyright 2024 - 2025 R. Thomas
+/* Copyright 2024 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,29 +13,38 @@
  * limitations under the License.
  */
 #pragma once
-#include "LIEF/rust/ELF/DynamicEntry.hpp"
 #include "LIEF/ELF/DynamicSharedObject.hpp"
+#include "LIEF/rust/ELF/DynamicEntry.hpp"
 
 class ELF_DynamicSharedObject : public ELF_DynamicEntry {
   public:
   using lief_t = LIEF::ELF::DynamicSharedObject;
   ELF_DynamicSharedObject(std::unique_ptr<lief_t> impl) :
-    ELF_DynamicEntry(std::move(impl))
-  {}
+    ELF_DynamicEntry(std::move(impl)) {}
 
-  static auto create(std::string name) {
+  static auto create(const std::string& name) {
     return std::make_unique<ELF_DynamicSharedObject>(
-        std::make_unique<lief_t>(std::move(name)));
+        std::make_unique<lief_t>(name)
+    );
   }
 
-  std::string name() const { return impl().name(); }
+  auto name() const {
+    return to_unique_string(impl().name());
+  }
 
-  void set_name(std::string name) { impl().name(std::move(name)); }
+  auto set_name(const std::string& name) {
+    impl().name(name);
+  }
 
-  static bool classof(const ELF_DynamicEntry& entry) {
+  static auto classof(const ELF_DynamicEntry& entry) {
     return lief_t::classof(&entry.get());
   }
+
   private:
-  const lief_t& impl() const { return as<lief_t>(this); }
-  lief_t& impl() { return as<lief_t>(this); }
+  const lief_t& impl() const {
+    return as<lief_t>(this);
+  }
+  lief_t& impl() {
+    return as<lief_t>(this);
+  }
 };

@@ -1,4 +1,4 @@
-/* Copyright 2024 - 2025 R. Thomas
+/* Copyright 2024 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,28 +12,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include <string>
-#include <sstream>
-#include <vector>
-#include <memory>
-#include "LIEF/errors.hpp"
-#include "LIEF/optional.hpp"
-#include "LIEF/canbe_unique.hpp"
-
 #pragma once
+#include "LIEF/canbe_unique.hpp"
+#include "LIEF/errors.hpp"
+#include <memory>
+#include <optional>
+#include <sstream>
+#include <string>
+#include <vector>
+
 template<class T>
 class Mirror {
   public:
-  Mirror(T& impl) : impl_(impl) {}
-  Mirror(const T& impl) : impl_(impl) {}
+  Mirror(T& impl) :
+    impl_(impl) {}
+  Mirror(const T& impl) :
+    impl_(impl) {}
   Mirror(T&& impl) :
-    Mirror(std::make_unique<T>(std::move(impl)))
-  {}
-  Mirror(std::unique_ptr<T> impl) : impl_(std::move(impl)) {}
+    Mirror(std::make_unique<T>(std::move(impl))) {}
+  Mirror(std::unique_ptr<T> impl) :
+    impl_(std::move(impl)) {}
 
-  T& get() { return *impl_; }
-  const T& get() const { return *impl_; }
-  T& force_get() const { return const_cast<T&>(*impl_); }
+  T& get() {
+    return *impl_;
+  }
+  const T& get() const {
+    return *impl_;
+  }
+  T& force_get() const {
+    return const_cast<T&>(*impl_);
+  }
 
   private:
   LIEF::details::canbe_unique<T> impl_;
@@ -73,7 +81,7 @@ inline std::unique_ptr<T> try_unique(std::unique_ptr<const V> value) {
 }
 
 template<class T, class V>
-inline std::unique_ptr<T> try_unique(LIEF::optional<V> value) {
+inline std::unique_ptr<T> try_unique(std::optional<V> value) {
   return value ? std::make_unique<T>(std::move(*value)) : nullptr;
 }
 
@@ -83,8 +91,9 @@ inline std::unique_ptr<T> from_result(const LIEF::result<V> value) {
 }
 
 // Note(romain): It looks like cxx can't generate a std::vector<> with any integer
-// A C++ std::vector was found containing some type that cxx can't accommodate as a vector element (unsigned short)
-// Not ideal but let's promote to uint64_t which is supported
+// A C++ std::vector was found containing some type that cxx can't accommodate as a
+// vector element (unsigned short) Not ideal but let's promote to uint64_t which is
+// supported
 template<class T, size_t N>
 inline auto make_vector(const std::array<T, N>& array) {
   return std::vector<uint64_t>(std::begin(array), std::end(array));

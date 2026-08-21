@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +16,14 @@
 #ifndef LIEF_PE_ATTRIBUTES_H
 #define LIEF_PE_ATTRIBUTES_H
 #include <memory>
-#include <string>
 #include <ostream>
+#include <string>
 
 #include "LIEF/Object.hpp"
 #include "LIEF/visibility.h"
 
-namespace LIEF {
-namespace PE {
+
+namespace LIEF::PE {
 
 /// Interface over PKCS #7 attribute
 class LIEF_API Attribute : public Object {
@@ -70,15 +70,15 @@ class LIEF_API Attribute : public Object {
 
   ~Attribute() override = default;
 
-  LIEF_API friend
-  std::ostream& operator<<(std::ostream& os, const Attribute& attribute) {
+  LIEF_API friend std::ostream& operator<<(std::ostream& os,
+                                           const Attribute& attribute) {
     os << attribute.print();
     return os;
   }
 
   template<class T>
   const T* cast() const {
-    static_assert(std::is_base_of<Attribute, T>::value,
+    static_assert(std::is_base_of_v<Attribute, T>,
                   "Require Attribute inheritance");
     if (T::classof(this)) {
       return static_cast<const T*>(this);
@@ -93,14 +93,13 @@ class LIEF_API Attribute : public Object {
 
   protected:
   Attribute(TYPE type) :
-    type_(type)
-  {}
+    type_(type) {}
   TYPE type_ = TYPE::UNKNOWN;
 };
 
 LIEF_API const char* to_string(Attribute::TYPE e);
 
 }
-}
+
 
 #endif

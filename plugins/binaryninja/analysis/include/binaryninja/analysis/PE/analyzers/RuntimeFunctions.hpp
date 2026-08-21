@@ -1,4 +1,4 @@
-/* Copyright 2025 R. Thomas
+/* Copyright 2025 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
 #include "binaryninja/analysis/PE/AnalyzerBase.hpp"
 
 #include "LIEF/PE/ExceptionInfo.hpp"
-#include "LIEF/PE/exceptions_info/RuntimeFunctionX64.hpp"
 #include "LIEF/PE/exceptions_info/RuntimeFunctionAArch64.hpp"
+#include "LIEF/PE/exceptions_info/RuntimeFunctionX64.hpp"
 
 namespace analysis_plugin::pe::analyzers {
 class RuntimeFunctions : public AnalyzerBase {
@@ -43,7 +43,6 @@ class RuntimeFunctions : public AnalyzerBase {
   private:
   void process(const LIEF::PE::RuntimeFunctionX64& x64);
   void process(const LIEF::PE::RuntimeFunctionAArch64& arm64);
-
 };
 
 }

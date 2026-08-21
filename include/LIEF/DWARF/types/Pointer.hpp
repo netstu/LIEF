@@ -1,4 +1,4 @@
-/* Copyright 2022 - 2025 R. Thomas
+/* Copyright 2022 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,30 +15,39 @@
 #ifndef LIEF_DWARF_TYPE_POINTER_H
 #define LIEF_DWARF_TYPE_POINTER_H
 
-#include "LIEF/visibility.h"
 #include "LIEF/DWARF/Type.hpp"
+#include "LIEF/compiler_attributes.hpp"
+#include "LIEF/visibility.h"
 
-namespace LIEF {
-namespace dwarf {
-namespace types {
+
+namespace LIEF::dwarf::types {
 
 /// This class represents a `DW_TAG_pointer_type` DWARF type
 class LIEF_API Pointer : public Type {
   public:
-  using Type::Type;
+  template<typename... Args,
+           typename = std::enable_if_t<std::is_constructible_v<Type, Args&&...>>>
+  Pointer(Args&&... args) :
+    Type(std::forward<Args>(args)...) {}
+
+  Pointer(const Pointer&) = delete;
+  Pointer& operator=(const Pointer&) = delete;
+
+  Pointer(Pointer&&) noexcept = default;
+  Pointer& operator=(Pointer&&) noexcept = default;
 
   static bool classof(const Type* type) {
     return type->kind() == Type::KIND::POINTER;
   }
 
   /// The type pointed by this pointer
-  const Type* underlying_type() const;
+  const Type* underlying_type() const LIEF_LIFETIMEBOUND;
 
-  const Type* operator->() const {
+  const Type* operator->() const LIEF_LIFETIMEBOUND {
     return underlying_type();
   }
 
-  const Type& operator*() const {
+  const Type& operator*() const LIEF_LIFETIMEBOUND {
     return *underlying_type();
   }
 
@@ -49,8 +58,6 @@ class LIEF_API Pointer : public Type {
 };
 
 }
-}
-}
+
+
 #endif
-
-

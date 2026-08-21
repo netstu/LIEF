@@ -1,4 +1,4 @@
-/* Copyright 2024 - 2025 R. Thomas
+/* Copyright 2024 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,28 +16,37 @@
 #include <cstdint>
 
 #include "LIEF/PE/Relocation.hpp"
-#include "LIEF/rust/PE/RelocationEntry.hpp"
 #include "LIEF/rust/Iterator.hpp"
+#include "LIEF/rust/PE/RelocationEntry.hpp"
 
 class PE_Relocation : Mirror<LIEF::PE::Relocation> {
   public:
   using lief_t = LIEF::PE::Relocation;
   using Mirror::Mirror;
 
-  class it_entries :
-      public Iterator<PE_RelocationEntry, LIEF::PE::Relocation::it_const_entries>
-  {
+  class it_entries
+    : public Iterator<PE_RelocationEntry, LIEF::PE::Relocation::it_const_entries> {
     public:
-    it_entries(const PE_Relocation::lief_t& src)
-      : Iterator(std::move(src.entries())) { }
-    auto next() { return Iterator::next(); }
-    auto size() const { return Iterator::size(); }
+    it_entries(const PE_Relocation::lief_t& src) :
+      Iterator(src.entries()) {}
+    auto next() {
+      return Iterator::next();
+    }
+    auto size() const {
+      return Iterator::size();
+    }
   };
 
-  uint32_t virtual_address() const { return get().virtual_address(); }
-  uint32_t block_size() const { return get().block_size(); }
+  uint32_t virtual_address() const {
+    return get().virtual_address();
+  }
+  uint32_t block_size() const {
+    return get().block_size();
+  }
 
   auto entries() const {
     return std::make_unique<it_entries>(get());
   }
 };
+
+using PE_Relocation_it_entries = PE_Relocation::it_entries;

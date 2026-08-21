@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,7 +42,7 @@ void create<AuxiliaryFunctionDefinition>(nb::module_& m) {
       The size of the executable code for the function itself.
 
       If the function is in its own section, the ``SizeOfRawData`` in the section
-      header is greater or equal to this field, depending on alignment consideration
+      header is greater or equal to this field, depending on alignment considerations
       )doc"_doc
     )
 

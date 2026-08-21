@@ -1,4 +1,4 @@
-/* Copyright 2022 - 2025 R. Thomas
+/* Copyright 2022 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,10 +21,12 @@ class DWARF_editor_BaseType : public DWARF_editor_Type {
   using lief_t = LIEF::dwarf::editor::BaseType;
   using DWARF_editor_Type::DWARF_editor_Type;
 
-  static bool classof(const DWARF_editor_Type& type) {
+  static auto classof(const DWARF_editor_Type& type) {
     return lief_t::classof(&type.get());
   }
 
   private:
-  const lief_t& impl() const { return as<lief_t>(this); }
+  const lief_t& impl() const {
+    return as<lief_t>(this);
+  }
 };

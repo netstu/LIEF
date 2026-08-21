@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,14 +15,16 @@
  */
 #ifndef LIEF_PE_LOAD_CONFIGURATION_DYNAMIC_RELOCS_HEADERS_H
 #define LIEF_PE_LOAD_CONFIGURATION_DYNAMIC_RELOCS_HEADERS_H
+// IWYU pragma: begin_exports
+#include "LIEF/PE/LoadConfigurations/DynamicRelocation/DynamicFixup.hpp"
+#include "LIEF/PE/LoadConfigurations/DynamicRelocation/DynamicFixupARM64Kernel.hpp"
+#include "LIEF/PE/LoadConfigurations/DynamicRelocation/DynamicFixupARM64X.hpp"
+#include "LIEF/PE/LoadConfigurations/DynamicRelocation/DynamicFixupControlTransfer.hpp"
+#include "LIEF/PE/LoadConfigurations/DynamicRelocation/DynamicFixupGeneric.hpp"
+#include "LIEF/PE/LoadConfigurations/DynamicRelocation/DynamicFixupUnknown.hpp"
 #include "LIEF/PE/LoadConfigurations/DynamicRelocation/DynamicRelocationBase.hpp"
 #include "LIEF/PE/LoadConfigurations/DynamicRelocation/DynamicRelocationV1.hpp"
 #include "LIEF/PE/LoadConfigurations/DynamicRelocation/DynamicRelocationV2.hpp"
 #include "LIEF/PE/LoadConfigurations/DynamicRelocation/FunctionOverride.hpp"
-#include "LIEF/PE/LoadConfigurations/DynamicRelocation/DynamicFixup.hpp"
-#include "LIEF/PE/LoadConfigurations/DynamicRelocation/DynamicFixupARM64X.hpp"
-#include "LIEF/PE/LoadConfigurations/DynamicRelocation/DynamicFixupControlTransfer.hpp"
-#include "LIEF/PE/LoadConfigurations/DynamicRelocation/DynamicFixupARM64Kernel.hpp"
-#include "LIEF/PE/LoadConfigurations/DynamicRelocation/DynamicFixupGeneric.hpp"
-#include "LIEF/PE/LoadConfigurations/DynamicRelocation/DynamicFixupUnknown.hpp"
+// IWYU pragma: end_exports
 #endif

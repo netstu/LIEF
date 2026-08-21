@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,13 +15,15 @@
  */
 #ifndef LIEF_PE_DEBUG_INC_H
 #define LIEF_PE_DEBUG_INC_H
-#include <LIEF/PE/debug/Debug.hpp>
-#include <LIEF/PE/debug/CodeView.hpp>
-#include <LIEF/PE/debug/Pogo.hpp>
-#include <LIEF/PE/debug/PogoEntry.hpp>
-#include <LIEF/PE/debug/Repro.hpp>
-#include <LIEF/PE/debug/CodeViewPDB.hpp>
-#include <LIEF/PE/debug/VCFeature.hpp>
-#include <LIEF/PE/debug/ExDllCharacteristics.hpp>
-#include <LIEF/PE/debug/FPO.hpp>
+// IWYU pragma: begin_exports
+#include "LIEF/PE/debug/CodeView.hpp"
+#include "LIEF/PE/debug/CodeViewPDB.hpp"
+#include "LIEF/PE/debug/Debug.hpp"
+#include "LIEF/PE/debug/ExDllCharacteristics.hpp"
+#include "LIEF/PE/debug/FPO.hpp"
+#include "LIEF/PE/debug/Pogo.hpp"
+#include "LIEF/PE/debug/PogoEntry.hpp"
+#include "LIEF/PE/debug/Repro.hpp"
+#include "LIEF/PE/debug/VCFeature.hpp"
+// IWYU pragma: end_exports
 #endif

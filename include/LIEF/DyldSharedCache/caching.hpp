@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,11 +15,11 @@
  */
 #ifndef LIEF_DSC_CACHING_H
 #define LIEF_DSC_CACHING_H
-#include <string>
 #include "LIEF/visibility.h"
+#include <string>
 
-namespace LIEF {
-namespace dsc {
+
+namespace LIEF::dsc {
 
 /// Enable globally cache/memoization. One can also leverage this function
 /// by setting the environment variable `DYLDSC_ENABLE_CACHE` to `1`
@@ -35,7 +35,8 @@ namespace dsc {
 /// directory (in this priority):
 ///
 /// 1. System or user cache directory
-///   - macOS: `DARWIN_USER_TEMP_DIR` / `DARWIN_USER_CACHE_DIR` + `/dyld_shared_cache`
+///   - macOS: `DARWIN_USER_TEMP_DIR` / `DARWIN_USER_CACHE_DIR` +
+///   `/dyld_shared_cache`
 ///   - Linux: `${XDG_CACHE_HOME}/dyld_shared_cache`
 ///   - Windows: `%LOCALAPPDATA%\dyld_shared_cache`
 /// 2. Home directory
@@ -43,13 +44,12 @@ namespace dsc {
 ///   - Windows: `%USERPROFILE%\.dyld_shared_cache`
 ///
 ///
-/// \see LIEF::dsc::DyldSharedCache::enable_caching for a finer granularity
+/// @see LIEF::dsc::DyldSharedCache::enable_caching for a finer granularity
 LIEF_API bool enable_cache();
 
 /// Same behavior as enable_cache() but with a
 /// user-provided cache directory
 LIEF_API bool enable_cache(const std::string& dir);
 }
-}
-#endif
 
+#endif

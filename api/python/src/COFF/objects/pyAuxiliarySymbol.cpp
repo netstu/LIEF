@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,7 +44,7 @@ void create<AuxiliarySymbol>(nb::module_& m) {
     Class that represents an auxiliary symbol.
 
     An auxiliary symbol has the same size as a regular :class:`lief.PE.Symbol`
-    (18 bytes) but its content depends on the the parent symbol.
+    (18 bytes) but its content depends on the parent symbol.
     )doc"_doc
   );
 

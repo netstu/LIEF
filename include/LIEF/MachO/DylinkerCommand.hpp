@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,15 +15,17 @@
  */
 #ifndef LIEF_MACHO_DYLINKER_COMMAND_H
 #define LIEF_MACHO_DYLINKER_COMMAND_H
-#include <string>
+#include <string_view>
+#include <memory>
 #include <ostream>
+#include <string>
 
 #include "LIEF/visibility.h"
 
 #include "LIEF/MachO/LoadCommand.hpp"
 
-namespace LIEF {
-namespace MachO {
+
+namespace LIEF::MachO {
 
 namespace details {
 struct dylinker_command;
@@ -41,7 +43,7 @@ class LIEF_API DylinkerCommand : public LoadCommand {
   DylinkerCommand(const DylinkerCommand& copy) = default;
 
   std::unique_ptr<LoadCommand> clone() const override {
-    return std::unique_ptr<DylinkerCommand>(new DylinkerCommand(*this));
+    return std::make_unique<DylinkerCommand>(*this);
   }
 
   ~DylinkerCommand() override = default;
@@ -49,7 +51,7 @@ class LIEF_API DylinkerCommand : public LoadCommand {
   std::ostream& print(std::ostream& os) const override;
 
   /// Path to the linker (or loader)
-  const std::string& name() const {
+  std::string_view name() const LIEF_LIFETIMEBOUND {
     return name_;
   }
 
@@ -70,5 +72,5 @@ class LIEF_API DylinkerCommand : public LoadCommand {
 };
 
 }
-}
+
 #endif

@@ -1,4 +1,4 @@
-/* Copyright 2025 R. Thomas
+/* Copyright 2025 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,14 +12,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "log.hpp"
-#include "binaryninja/lief_utils.hpp"
+#include "binaryninja/analysis/ELF/analyzers/AndroidJNI.hpp"
 #include "LIEF/ELF/Binary.hpp"
 #include "LIEF/ELF/Relocation.hpp"
-#include "binaryninja/analysis/ELF/analyzers/AndroidJNI.hpp"
+#include "binaryninja/lief_utils.hpp"
+#include "log.hpp"
 
-#include <binaryninja/binaryninjacore.h>
 #include <binaryninja/binaryninjaapi.h>
+#include <binaryninja/binaryninjacore.h>
 
 using namespace LIEF::ELF;
 using namespace BinaryNinja;
@@ -29,11 +29,11 @@ namespace analysis_plugin::elf::analyzers {
 
 static constexpr auto ANDROID_JNI_TL = "aarch64/android-jni.bntl";
 
-bool should_change(Ref<Type> ty);
+bool should_change(const Ref<Type>& ty);
 bool should_change(const Confidence<Ref<Type>>& ty);
 
-bool should_change(Ref<Type> ty) {
-  std::string type_str = ty->GetString();
+bool should_change(const Ref<Type>& ty) {
+  const std::string type_str = ty->GetString();
   if (type_str == "jobject" || type_str == "jclass" || type_str == "JNIEnv") {
     return false;
   }
@@ -51,14 +51,14 @@ bool should_change(Ref<Type> ty) {
 }
 
 bool should_change(const Confidence<Ref<Type>>& ty) {
-  std::string type_str = ty->GetString();
   if (ty.GetConfidence() != BN_FULL_CONFIDENCE) {
     return true;
   }
   return should_change(ty.GetValue());
 }
 
-static void process(FunctionParameter& original_param, FunctionParameter& new_param)  {
+static void process(FunctionParameter& original_param,
+                    FunctionParameter& new_param) {
   if (original_param.name.starts_with("arg")) {
     original_param.name = new_param.name;
   }
@@ -68,7 +68,7 @@ static void process(FunctionParameter& original_param, FunctionParameter& new_pa
   }
 }
 
-bool AndroidJNI::can_run(BinaryNinja::BinaryView& bv, Binary& elf) {
+bool AndroidJNI::can_run(BinaryNinja::BinaryView& /*bv*/, Binary& elf) {
   return elf.is_targeting_android();
 }
 
@@ -96,7 +96,7 @@ void AndroidJNI::run() {
 
   Ref<TagType> jni_tag = get_or_create_tag(ANDROID_JNI_FUNC_TAG);
 
-  for (Ref<Function> F : bv_.GetAnalysisFunctionList()) {
+  for (const Ref<Function>& F : bv_.GetAnalysisFunctionList()) {
     if (F->GetSymbol()->GetRawName() == "JNI_OnLoad") {
       process_JNI_OnLoad(*F);
     }
@@ -118,7 +118,9 @@ void AndroidJNI::process_JNI_OnLoad(Function& F) {
   QualifiedNameAndType JNI_OnLoadTy;
 
   std::string err;
-  if (!bv_.ParseTypeString("jint JNI_OnLoad(JavaVM* vm, void* reserved)", JNI_OnLoadTy, err)) {
+  if (!bv_.ParseTypeString("jint JNI_OnLoad(JavaVM* vm, void* reserved)",
+                           JNI_OnLoadTy, err))
+  {
     BN_ERR("Can't parse JNI_OnLoad prototype: {}", err);
     return;
   }
@@ -165,11 +167,8 @@ void AndroidJNI::process_JNI_function(Function& F) {
   process(params[0], P0);
   process(params[1], P1);
 
-  F.SetUserType(Type::FunctionType(
-    F.GetReturnType(),
-    F.GetCallingConvention(),
-    params
-  ));
+  F.SetUserType(Type::FunctionType(F.GetReturnType(), F.GetCallingConvention(),
+                                   params));
 }
 
 }

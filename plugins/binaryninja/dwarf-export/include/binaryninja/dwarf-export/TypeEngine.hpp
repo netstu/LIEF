@@ -1,4 +1,4 @@
-/* Copyright 2025 R. Thomas
+/* Copyright 2025 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,9 +13,9 @@
  * limitations under the License.
  */
 #pragma once
-#include <unordered_map>
 #include <LIEF/DWARF/editor/CompilationUnit.hpp>
 #include <binaryninja/binaryninjaapi.h>
+#include <unordered_map>
 
 namespace dwarf_plugin {
 class TypeEngine {
@@ -23,20 +23,20 @@ class TypeEngine {
   // We using BinaryNinja::Type::GetString(...) as key for the map since
   // it provides a better unicity for the types already added.
   // (Previously BinaryNinja::Type::GetObject())
-  using type_map_t = std::unordered_map<
-    std::string, std::unique_ptr<LIEF::dwarf::editor::Type>>;
+  using type_map_t =
+      std::unordered_map<std::string, std::unique_ptr<LIEF::dwarf::editor::Type>>;
 
-  using anon_types_t = std::vector<
-    std::unique_ptr<LIEF::dwarf::editor::Type>>;
+  using anon_types_t = std::vector<std::unique_ptr<LIEF::dwarf::editor::Type>>;
 
   TypeEngine() = delete;
   TypeEngine(LIEF::dwarf::editor::CompilationUnit& CU,
              BinaryNinja::BinaryView& bv) :
-    unit_(CU), bv_(bv)
-  {}
+    unit_(CU),
+    bv_(bv) {}
 
-  static std::unique_ptr<TypeEngine> create(
-      LIEF::dwarf::editor::CompilationUnit& CU, BinaryNinja::BinaryView& bv) {
+  static std::unique_ptr<TypeEngine>
+      create(LIEF::dwarf::editor::CompilationUnit& CU,
+             BinaryNinja::BinaryView& bv) {
     auto engine = std::make_unique<TypeEngine>(CU, bv);
     engine->init();
     return engine;
@@ -47,11 +47,9 @@ class TypeEngine {
   private:
   void init();
 
-  void add_member(
-    const BinaryNinja::StructureMember& member,
-    LIEF::dwarf::editor::StructType& S);
+  void add_member(const BinaryNinja::StructureMember& member,
+                  LIEF::dwarf::editor::StructType& S);
 
-  size_t id_ = 0;
   size_t array_id_ = 0;
   size_t func_id_ = 0;
   type_map_t mapping_;
@@ -60,4 +58,3 @@ class TypeEngine {
   BinaryNinja::BinaryView& bv_;
 };
 }
-

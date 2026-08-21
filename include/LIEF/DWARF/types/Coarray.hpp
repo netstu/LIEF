@@ -1,4 +1,4 @@
-/* Copyright 2022 - 2025 R. Thomas
+/* Copyright 2022 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,17 +15,25 @@
 #ifndef LIEF_DWARF_TYPE_COARRAY_H
 #define LIEF_DWARF_TYPE_COARRAY_H
 
-#include "LIEF/visibility.h"
 #include "LIEF/DWARF/Type.hpp"
+#include "LIEF/visibility.h"
 
-namespace LIEF {
-namespace dwarf {
-namespace types {
+
+namespace LIEF::dwarf::types {
 
 /// This class represents a `DW_TAG_coarray_type`
 class LIEF_API Coarray : public Type {
   public:
-  using Type::Type;
+  template<typename... Args,
+           typename = std::enable_if_t<std::is_constructible_v<Type, Args&&...>>>
+  Coarray(Args&&... args) :
+    Type(std::forward<Args>(args)...) {}
+
+  Coarray(const Coarray&) = delete;
+  Coarray& operator=(const Coarray&) = delete;
+
+  Coarray(Coarray&&) noexcept = default;
+  Coarray& operator=(Coarray&&) noexcept = default;
 
   static bool classof(const Type* type) {
     return type->kind() == Type::KIND::COARRAY;
@@ -35,6 +43,6 @@ class LIEF_API Coarray : public Type {
 };
 
 }
-}
-}
+
+
 #endif

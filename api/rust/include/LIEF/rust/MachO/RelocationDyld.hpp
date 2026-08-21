@@ -1,4 +1,4 @@
-/* Copyright 2024 - 2025 R. Thomas
+/* Copyright 2024 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,12 +20,17 @@
 class MachO_RelocationDyld : public MachO_Relocation {
   public:
   using lief_t = LIEF::MachO::RelocationDyld;
-  MachO_RelocationDyld(const lief_t& base) : MachO_Relocation(base) {}
+  MachO_RelocationDyld(const lief_t& base) :
+    MachO_Relocation(base) {}
 
-  static bool classof(const MachO_Relocation& reloc) {
-    return lief_t::classof(*static_cast<const MachO_Relocation::lief_t*>(&reloc.get()));
+  static auto classof(const MachO_Relocation& reloc) {
+    return lief_t::classof(
+        *static_cast<const MachO_Relocation::lief_t*>(&reloc.get())
+    );
   }
 
   private:
-  const lief_t& impl() const { return as<lief_t>(this); }
+  const lief_t& impl() const {
+    return as<lief_t>(this);
+  }
 };

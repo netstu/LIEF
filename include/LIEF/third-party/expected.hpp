@@ -1,4 +1,4 @@
-/* Copyright 2021 - 2025 R. Thomas
+/* Copyright 2021 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,14 @@
  */
 #ifndef LIEF_EXPECTED_H
 #define LIEF_EXPECTED_H
-#include "LIEF/config.h"
+#include "LIEF/config.h" // IWYU pragma: keep
 
 #undef TL_EXPECTED_EXCEPTIONS_ENABLED
 
 #ifndef LIEF_EXTERNAL_EXPECTED
-#include <LIEF/third-party/internal/expected.hpp>
+  #include "LIEF/third-party/internal/expected.hpp"
 #else
-#include <tl/expected.hpp>
+  #include <tl/expected.hpp>
 #endif
 
 #endif

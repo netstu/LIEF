@@ -1,4 +1,4 @@
-/* Copyright 2024 - 2025 R. Thomas
+/* Copyright 2024 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,20 +16,24 @@
 
 #include "LIEF/COFF/AuxiliarySymbols/AuxiliaryFile.hpp"
 #include "LIEF/rust/COFF/AuxiliarySymbol.hpp"
+#include "LIEF/rust/helpers.hpp"
 
 class COFF_AuxiliaryFile : public COFF_AuxiliarySymbol {
   public:
   using lief_t = LIEF::COFF::AuxiliaryFile;
-  COFF_AuxiliaryFile(const lief_t& obj) : COFF_AuxiliarySymbol(obj) {}
+  COFF_AuxiliaryFile(const lief_t& obj) :
+    COFF_AuxiliarySymbol(obj) {}
 
-  std::string filename() const {
-    return impl().filename();
+  auto filename() const {
+    return to_unique_string(impl().filename());
   }
 
-  static bool classof(const COFF_AuxiliarySymbol& entry) {
+  static auto classof(const COFF_AuxiliarySymbol& entry) {
     return lief_t::classof(&entry.get());
   }
 
   private:
-  const lief_t& impl() const { return as<lief_t>(this); }
+  const lief_t& impl() const {
+    return as<lief_t>(this);
+  }
 };

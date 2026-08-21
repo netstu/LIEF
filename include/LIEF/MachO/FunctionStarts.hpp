@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,16 +15,18 @@
  */
 #ifndef LIEF_MACHO_FUNCTION_STARTS_COMMAND_H
 #define LIEF_MACHO_FUNCTION_STARTS_COMMAND_H
-#include <vector>
+#include <memory>
 #include <ostream>
+#include <vector>
 
+#include "LIEF/compiler_attributes.hpp"
 #include "LIEF/visibility.h"
 
-#include "LIEF/span.hpp"
 #include "LIEF/MachO/LoadCommand.hpp"
+#include "LIEF/span.hpp"
 
-namespace LIEF {
-namespace MachO {
+
+namespace LIEF::MachO {
 class BinaryParser;
 class LinkEdit;
 
@@ -48,10 +50,11 @@ class LIEF_API FunctionStarts : public LoadCommand {
   FunctionStarts(const FunctionStarts& copy) = default;
 
   std::unique_ptr<LoadCommand> clone() const override {
-    return std::unique_ptr<FunctionStarts>(new FunctionStarts(*this));
+    return std::make_unique<FunctionStarts>(*this);
   }
 
-  /// Offset in the ``__LINKEDIT`` SegmentCommand where *start functions* are located
+  /// Offset in the ``__LINKEDIT`` SegmentCommand where *start functions* are
+  /// located
   uint32_t data_offset() const {
     return data_offset_;
   }
@@ -63,14 +66,15 @@ class LIEF_API FunctionStarts : public LoadCommand {
 
   /// Addresses of every function entry point in the executable.
   ///
-  /// This allows functions to exist for which there are no entries in the symbol table.
+  /// This allows functions to exist for which there are no entries in the symbol
+  /// table.
   ///
   /// @warning The address is relative to the ``__TEXT`` segment
-  const std::vector<uint64_t>& functions() const {
+  const std::vector<uint64_t>& functions() const LIEF_LIFETIMEBOUND {
     return functions_;
   }
 
-  std::vector<uint64_t>& functions() {
+  std::vector<uint64_t>& functions() LIEF_LIFETIMEBOUND {
     return functions_;
   }
 
@@ -90,11 +94,11 @@ class LIEF_API FunctionStarts : public LoadCommand {
     functions_ = std::move(funcs);
   }
 
-  span<const uint8_t> content() const {
+  span<const uint8_t> content() const LIEF_LIFETIMEBOUND {
     return content_;
   }
 
-  span<uint8_t> content() {
+  span<uint8_t> content() LIEF_LIFETIMEBOUND {
     return content_;
   }
 
@@ -107,6 +111,7 @@ class LIEF_API FunctionStarts : public LoadCommand {
   static bool classof(const LoadCommand* cmd) {
     return cmd->command() == LoadCommand::TYPE::FUNCTION_STARTS;
   }
+
   private:
   uint32_t data_offset_ = 0;
   uint32_t data_size_ = 0;
@@ -115,5 +120,5 @@ class LIEF_API FunctionStarts : public LoadCommand {
 };
 
 }
-}
+
 #endif

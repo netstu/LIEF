@@ -1,4 +1,4 @@
-/* Copyright 2025 R. Thomas
+/* Copyright 2025 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 #include "binaryninja/analysis/PE/Analyzer.hpp"
-#include "log.hpp"
 #include "binaryninja/analysis/PE/TypeBuilder.hpp"
+#include "log.hpp"
 
 #include "binaryninja/analysis/PE/analyzers/LoadConfiguration.hpp"
 #include "binaryninja/analysis/PE/analyzers/RuntimeFunctions.hpp"
@@ -30,13 +30,12 @@ namespace analysis_plugin::pe {
 Analyzer::Analyzer(std::unique_ptr<LIEF::PE::Binary> impl,
                    BinaryNinja::BinaryView& bv) :
   analysis_plugin::Analyzer(bv, std::make_unique<TypeBuilder>(bv)),
-  pe_(std::move(impl))
-{
+  pe_(std::move(impl)) {
   using namespace analyzers;
 
   if (RuntimeFunctions::can_run(*bv_, *pe_)) {
     analyzers_.push_back(std::make_unique<RuntimeFunctions>(
-      *bv_, *pe_, static_cast<pe::TypeBuilder&>(*type_builder_)
+        *bv_, *pe_, static_cast<pe::TypeBuilder&>(*type_builder_)
     ));
   }
 

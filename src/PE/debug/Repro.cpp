@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,17 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include <sstream>
 #include "LIEF/PE/debug/Repro.hpp"
 #include "LIEF/Visitor.hpp"
+#include <sstream>
 
 #include "internal_utils.hpp"
 
 #include <spdlog/fmt/fmt.h>
 #include <spdlog/fmt/ranges.h>
 
-namespace LIEF {
-namespace PE {
+
+namespace LIEF::PE {
 
 void Repro::accept(Visitor& visitor) const {
   visitor.visit(*this);
@@ -40,5 +40,4 @@ std::string Repro::to_string() const {
   return os.str();
 }
 
-} // namespace PE
-} // namespace LIEF
+}

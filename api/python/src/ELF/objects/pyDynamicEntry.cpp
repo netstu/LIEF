@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -73,6 +73,8 @@ void create<DynamicEntry>(nb::module_& m) {
     ENTRY(RELR)
     ENTRY(RELRENT)
     ENTRY(GNU_HASH)
+    ENTRY(TLSDESC_PLT)
+    ENTRY(TLSDESC_GOT)
     ENTRY(RELACOUNT)
     ENTRY(RELCOUNT)
     ENTRY(FLAGS_1)
@@ -81,6 +83,8 @@ void create<DynamicEntry>(nb::module_& m) {
     ENTRY(VERDEFNUM)
     ENTRY(VERNEED)
     ENTRY(VERNEEDNUM)
+    ENTRY(AUXILIARY)
+    ENTRY(FILTER)
     ENTRY(ANDROID_REL_OFFSET)
     ENTRY(ANDROID_REL_SIZE)
     ENTRY(ANDROID_REL)

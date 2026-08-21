@@ -1,4 +1,4 @@
-/* Copyright 2022 - 2025 R. Thomas
+/* Copyright 2022 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@
 
 #include <jni_bind.h>
 
-#include "jni/lief/pe/RuntimeFunctionAArch64.hpp"
 #include "jni/buffer.hpp"
+#include "jni/lief/pe/RuntimeFunctionAArch64.hpp"
 
 #include <LIEF/PE/exceptions_info/AArch64/UnpackedFunction.hpp>
 
@@ -30,9 +30,9 @@ class UnpackedFunction : public RuntimeFunctionAArch64 {
 
   using RuntimeFunctionAArch64::RuntimeFunctionAArch64;
 
-  static constexpr jni::Class kClass {
-    "lief/pe/aarch64/UnpackedFunction",
-    jni::Constructor{ jlong{} },
+  static constexpr jni::Class kClass{
+      "lief/pe/aarch64/UnpackedFunction",
+      jni::Constructor{jlong{}},
   };
 
   static auto jni_is_extended(JNIEnv* env, jobject thiz) {

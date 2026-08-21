@@ -1,4 +1,4 @@
-/* Copyright 2022 - 2025 R. Thomas
+/* Copyright 2022 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,17 +15,25 @@
 #ifndef LIEF_DWARF_TYPE_FILE_H
 #define LIEF_DWARF_TYPE_FILE_H
 
-#include "LIEF/visibility.h"
 #include "LIEF/DWARF/Type.hpp"
+#include "LIEF/visibility.h"
 
-namespace LIEF {
-namespace dwarf {
-namespace types {
+
+namespace LIEF::dwarf::types {
 
 /// This class represents a `DW_TAG_file_type`
 class LIEF_API File : public Type {
   public:
-  using Type::Type;
+  template<typename... Args,
+           typename = std::enable_if_t<std::is_constructible_v<Type, Args&&...>>>
+  File(Args&&... args) :
+    Type(std::forward<Args>(args)...) {}
+
+  File(const File&) = delete;
+  File& operator=(const File&) = delete;
+
+  File(File&&) noexcept = default;
+  File& operator=(File&&) noexcept = default;
 
   static bool classof(const Type* type) {
     return type->kind() == Type::KIND::FILE;
@@ -35,6 +43,6 @@ class LIEF_API File : public Type {
 };
 
 }
-}
-}
+
+
 #endif

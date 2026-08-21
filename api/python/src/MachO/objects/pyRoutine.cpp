@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ void create<Routine>(nb::module_& m) {
   nb::class_<Routine, LoadCommand>(m, "Routine",
       R"delim(
       Class that represents the ``LC_ROUTINE/LC_ROUTINE64`` commands.
-      Accodring to the Mach-O ``loader.h`` documentation:
+      According to the Mach-O ``loader.h`` documentation:
 
       The routines command contains the address of the dynamic shared library
       initialization routine and an index into the module table for the module

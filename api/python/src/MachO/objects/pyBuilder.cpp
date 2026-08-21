@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,7 +47,7 @@ void create<Builder>(nb::module_& m) {
                 },
                 R"delim(
                 )delim",
-                "binary"_a, "output"_a)
+                "binary"_a.lock(), "output"_a)
     .def_static("write",
                 [] (Binary& bin, const std::string& out, Builder::config_t config) {
                   auto target = nb::overload_cast<Binary&, const std::string&, Builder::config_t>(&Builder::write);
@@ -55,7 +55,7 @@ void create<Builder>(nb::module_& m) {
                 },
                 R"delim(
                 )delim",
-                "binary"_a, "output"_a, "config"_a)
+                "binary"_a.lock(), "output"_a, "config"_a)
     .def_static("write",
                 [] (FatBinary& fat, const std::string& out) {
                   auto target = nb::overload_cast<FatBinary&, const std::string&>(&Builder::write);
@@ -63,7 +63,7 @@ void create<Builder>(nb::module_& m) {
                 },
                 R"delim(
                 )delim",
-                "fat_binary"_a, "output"_a)
+                "fat_binary"_a.lock(), "output"_a)
     .def_static("write",
                 [] (FatBinary& fat, const std::string& out, Builder::config_t config) {
                   auto target = nb::overload_cast<FatBinary&, const std::string&, Builder::config_t>(&Builder::write);
@@ -71,6 +71,6 @@ void create<Builder>(nb::module_& m) {
                 },
                 R"delim(
                 )delim",
-                "fat_binary"_a, "output"_a, "config"_a);
+                "fat_binary"_a.lock(), "output"_a, "config"_a);
 }
 }

@@ -1,4 +1,4 @@
-/* Copyright 2022 - 2025 R. Thomas
+/* Copyright 2022 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,30 +15,39 @@
 #ifndef LIEF_DWARF_RESTRICT_H
 #define LIEF_DWARF_RESTRICT_H
 
-#include "LIEF/visibility.h"
 #include "LIEF/DWARF/Type.hpp"
+#include "LIEF/compiler_attributes.hpp"
+#include "LIEF/visibility.h"
 
-namespace LIEF {
-namespace dwarf {
-namespace types {
+
+namespace LIEF::dwarf::types {
 
 /// This class represents a `DW_TAG_restrict_type`
 class LIEF_API Restrict : public Type {
   public:
-  using Type::Type;
+  template<typename... Args,
+           typename = std::enable_if_t<std::is_constructible_v<Type, Args&&...>>>
+  Restrict(Args&&... args) :
+    Type(std::forward<Args>(args)...) {}
+
+  Restrict(const Restrict&) = delete;
+  Restrict& operator=(const Restrict&) = delete;
+
+  Restrict(Restrict&&) noexcept = default;
+  Restrict& operator=(Restrict&&) noexcept = default;
 
   static bool classof(const Type* type) {
     return type->kind() == Type::KIND::RESTRICT;
   }
 
   /// The underlying type referenced by this restrict-type.
-  const Type* underlying_type() const;
+  const Type* underlying_type() const LIEF_LIFETIMEBOUND;
 
-  const Type* operator->() const {
+  const Type* operator->() const LIEF_LIFETIMEBOUND {
     return underlying_.get();
   }
 
-  const Type* operator*() const {
+  const Type* operator*() const LIEF_LIFETIMEBOUND {
     return underlying_.get();
   }
 
@@ -49,6 +58,6 @@ class LIEF_API Restrict : public Type {
 };
 
 }
-}
-}
+
+
 #endif

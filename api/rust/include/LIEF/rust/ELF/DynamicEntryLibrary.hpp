@@ -1,4 +1,4 @@
-/* Copyright 2024 - 2025 R. Thomas
+/* Copyright 2024 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 #pragma once
-#include "LIEF/rust/ELF/DynamicEntry.hpp"
 #include "LIEF/ELF/DynamicEntryLibrary.hpp"
+#include "LIEF/rust/ELF/DynamicEntry.hpp"
 
 class ELF_DynamicEntryLibrary : public ELF_DynamicEntry {
   public:
@@ -22,18 +22,23 @@ class ELF_DynamicEntryLibrary : public ELF_DynamicEntry {
   ELF_DynamicEntryLibrary(const lief_t& impl) :
     ELF_DynamicEntry(static_cast<const LIEF::ELF::DynamicEntry&>(impl)) {}
 
-  std::string name() const { return impl().name(); }
-
-  void set_name(std::string name) {
-    impl().name(std::move(name));
+  auto name() const {
+    return to_unique_string(impl().name());
   }
 
-  static bool classof(const ELF_DynamicEntry& entry) {
+  auto set_name(const std::string& name) {
+    impl().name(name);
+  }
+
+  static auto classof(const ELF_DynamicEntry& entry) {
     return lief_t::classof(&entry.get());
   }
 
   private:
-  const lief_t& impl() const { return as<lief_t>(this); }
-  lief_t& impl() { return as<lief_t>(this); }
-
+  const lief_t& impl() const {
+    return as<lief_t>(this);
+  }
+  lief_t& impl() {
+    return as<lief_t>(this);
+  }
 };

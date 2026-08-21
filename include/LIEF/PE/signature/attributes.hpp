@@ -1,5 +1,5 @@
-/* Copyright 2021 - 2025 R. Thomas
- * Copyright 2021 - 2025 Quarkslab
+/* Copyright 2021 - 2026 R. Thomas
+ * Copyright 2021 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 #ifndef LIEF_PE_SIGNATURE_ATTRIBUTES_H
 #define LIEF_PE_SIGNATURE_ATTRIBUTES_H
+// IWYU pragma: begin_exports
 #include "LIEF/PE/signature/attributes/ContentType.hpp"
 #include "LIEF/PE/signature/attributes/GenericType.hpp"
 #include "LIEF/PE/signature/attributes/MsCounterSign.hpp"
@@ -26,7 +27,7 @@
 #include "LIEF/PE/signature/attributes/PKCS9MessageDigest.hpp"
 #include "LIEF/PE/signature/attributes/PKCS9SigningTime.hpp"
 #include "LIEF/PE/signature/attributes/SigningCertificateV2.hpp"
-#include "LIEF/PE/signature/attributes/SpcSpOpusInfo.hpp"
 #include "LIEF/PE/signature/attributes/SpcRelaxedPeMarkerCheck.hpp"
+#include "LIEF/PE/signature/attributes/SpcSpOpusInfo.hpp"
+// IWYU pragma: end_exports
 #endif
-

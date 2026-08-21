@@ -25,6 +25,7 @@ void create<dw::Editor>(nb::module_& m) {
   );
 
   nb::enum_<dw::Editor::ARCH>(editor, "ARCH")
+    .value("UNKNOWN", dw::Editor::ARCH::UNKNOWN)
     .value("X64", dw::Editor::ARCH::X64)
     .value("X86", dw::Editor::ARCH::X86)
     .value("AARCH64", dw::Editor::ARCH::AARCH64)
@@ -47,13 +48,13 @@ void create<dw::Editor>(nb::module_& m) {
       "fmt"_a, "arch"_a
     )
     .def("create_compilation_unit", &dw::Editor::create_compilation_unit,
-      "Create a new compilation unit"_doc
+      "Create a new compilation unit"_doc, nb::lock_self()
     )
     .def("write", [] (dw::Editor& self, nb::PathLike path) {
         self.write(path);
       },
       "Write the DWARF file to the specified output"_doc,
-      "output"_a
+      "output"_a, nb::lock_self()
     )
   ;
 

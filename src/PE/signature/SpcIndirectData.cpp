@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,16 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "LIEF/Visitor.hpp"
 #include "LIEF/PE/signature/SpcIndirectData.hpp"
 #include "LIEF/PE/EnumToString.hpp"
+#include "LIEF/Visitor.hpp"
 
 #include "internal_utils.hpp"
 
 #include <spdlog/fmt/fmt.h>
 
-namespace LIEF {
-namespace PE {
+
+namespace LIEF::PE {
 
 void SpcIndirectData::accept(Visitor& visitor) const {
   visitor.visit(*this);
@@ -30,12 +30,12 @@ void SpcIndirectData::accept(Visitor& visitor) const {
 
 void SpcIndirectData::print(std::ostream& os) const {
   if (!file().empty()) {
-    os << fmt::format("{} - {} - {}\n", to_string(digest_algorithm()),
-                      file(), hex_dump(digest()));
+    os << fmt::format("{} - {} - {}\n", to_string(digest_algorithm()), file(),
+                      hex_dump(digest()));
   } else {
-    os << fmt::format("{}: {}\n", to_string(digest_algorithm()), hex_dump(digest()));
+    os << fmt::format("{}: {}\n", to_string(digest_algorithm()),
+                      hex_dump(digest()));
   }
 }
 
-}
 }

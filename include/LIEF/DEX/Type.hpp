@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,41 +16,42 @@
 #ifndef LIEF_DEX_TYPE_H
 #define LIEF_DEX_TYPE_H
 
-#include <vector>
-#include <string>
 #include <ostream>
+#include <string>
+#include <vector>
 
-#include "LIEF/visibility.h"
 #include "LIEF/Object.hpp"
+#include "LIEF/visibility.h"
 
-namespace LIEF {
-namespace DEX {
+
+namespace LIEF::DEX {
 class Parser;
 class Class;
 
 /// Class which represents a DEX type as described in the
-/// format specifications: https://source.android.com/devices/tech/dalvik/dex-format#typedescriptor
+/// format specifications:
+/// https://source.android.com/devices/tech/dalvik/dex-format#typedescriptor
 class LIEF_API Type : public Object {
   friend class Parser;
 
   public:
   enum class TYPES {
-    UNKNOWN   = 0,
+    UNKNOWN = 0,
     PRIMITIVE = 1,
-    CLASS     = 2,
-    ARRAY     = 3,
+    CLASS = 2,
+    ARRAY = 3,
   };
 
   enum class PRIMITIVES {
-    VOID_T  = 0x01,
+    VOID_T = 0x01,
     BOOLEAN = 0x02,
-    BYTE    = 0x03,
-    SHORT   = 0x04,
-    CHAR    = 0x05,
-    INT     = 0x06,
-    LONG    = 0x07,
-    FLOAT   = 0x08,
-    DOUBLE  = 0x09,
+    BYTE = 0x03,
+    SHORT = 0x04,
+    CHAR = 0x05,
+    INT = 0x06,
+    LONG = 0x07,
+    FLOAT = 0x08,
+    DOUBLE = 0x09,
   };
 
   using array_t = std::vector<Type>;
@@ -71,24 +72,24 @@ class LIEF_API Type : public Object {
   const PRIMITIVES& primitive() const;
 
   /// **IF** the current type is a TYPES::CLASS, return the
-  /// associated DEX::CLASS. Otherwise the returned value is **undefined**.
+  /// associated DEX::CLASS. Otherwise, the returned value is **undefined**.
   Class& cls();
 
   /// **IF** the current type is a TYPES::ARRAY, return the
-  /// associated array. Otherwise the returned value is **undefined**.
+  /// associated array. Otherwise, the returned value is **undefined**.
   array_t& array();
 
   /// **IF** the current type is a TYPES::PRIMITIVE, return the
-  /// associated PRIMITIVES. Otherwise the returned value is **undefined**.
+  /// associated PRIMITIVES. Otherwise, the returned value is **undefined**.
   PRIMITIVES& primitive();
 
   /// Return the array dimension if the current type is
-  /// an array. Otherwise it returns 0
+  /// an array. Otherwise, it returns 0
   size_t dim() const;
 
   /// In the case of a TYPES::ARRAY, return the array's type
-  const Type& underlying_array_type() const;
-  Type& underlying_array_type();
+  const Type& underlying_array_type() const LIEF_LIFETIMEBOUND;
+  Type& underlying_array_type() LIEF_LIFETIMEBOUND;
 
   void accept(Visitor& visitor) const override;
 
@@ -109,5 +110,5 @@ class LIEF_API Type : public Object {
 };
 
 } // Namespace DEX
-} // Namespace LIEF
+// Namespace LIEF
 #endif

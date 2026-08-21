@@ -1,4 +1,4 @@
-/* Copyright 2022 - 2025 R. Thomas
+/* Copyright 2022 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,13 +20,11 @@
 namespace lief_jni::pe {
 class Utils {
   public:
-  static constexpr jni::Class kClass {
-    "lief/pe/Utils",
+  static constexpr jni::Class kClass{
+      "lief/pe/Utils",
   };
 
-  static jboolean jni_is_pe(JNIEnv* /*env*/, jclass /*clazz*/,
-                            jstring path)
-  {
+  static jboolean jni_is_pe(JNIEnv* /*env*/, jclass /*clazz*/, jstring path) {
     jni::ThreadGuard TG;
     jni::LocalString jpath(path);
     return LIEF::PE::is_pe(std::string(jpath.Pin().ToString()));

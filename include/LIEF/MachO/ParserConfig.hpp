@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
 #define LIEF_MACHO_PARSER_CONFIG_H
 #include "LIEF/visibility.h"
 
-namespace LIEF {
-namespace MachO {
+
+namespace LIEF::MachO {
 
 /// This structure is used to tweak the MachO Parser (MachO::Parser)
 struct LIEF_API ParserConfig {
@@ -36,10 +36,17 @@ struct LIEF_API ParserConfig {
   /// @warning Enabling this flag can slow down the parsing
   ParserConfig& full_dyldinfo(bool flag);
 
-  bool parse_dyld_exports  = true; ///< Parse the Dyld export trie
-  bool parse_dyld_bindings = true; ///< Parse the Dyld binding opcodes
-  bool parse_dyld_rebases  = true; ///< Parse the Dyld rebase opcodes
-  bool parse_overlay = true; ///< Whether the overlay data should be parsed
+  /// Parse the Dyld export trie
+  bool parse_dyld_exports = true;
+
+  /// Parse the Dyld binding opcodes
+  bool parse_dyld_bindings = true;
+
+  /// Parse the Dyld rebase opcodes
+  bool parse_dyld_rebases = true;
+
+  /// Whether the overlay data should be parsed
+  bool parse_overlay = true;
 
   /// When parsing Mach-O from memory, this option
   /// can be used to *undo* relocations and symbols bindings.
@@ -53,5 +60,5 @@ struct LIEF_API ParserConfig {
 };
 
 }
-}
+
 #endif

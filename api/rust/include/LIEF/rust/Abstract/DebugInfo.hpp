@@ -1,4 +1,4 @@
-/* Copyright 2022 - 2025 R. Thomas
+/* Copyright 2022 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ class AbstracDebugInfo : public Mirror<LIEF::DebugInfo> {
   using Mirror::Mirror;
   using lief_t = LIEF::DebugInfo;
 
-  uint64_t find_function_address(std::string name, uint32_t& is_set) const {
+  uint64_t find_function_address(const std::string& name, uint32_t& is_set) const {
     return details::make_optional(get().find_function_address(name), is_set);
   }
 };

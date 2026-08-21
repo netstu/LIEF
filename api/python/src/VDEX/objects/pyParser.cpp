@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,7 +48,7 @@ void create<Parser>(nb::module_& m) {
           auto ptr = std::make_unique<PyIOStream>(std::move(*stream));
           return Parser::parse(stream->content(), name);
         }
-        logging::log(logging::LEVEL::ERR,
+        logging::log(logging::Level::Err,
                      "LIEF parser interface does not support Python object: " +
                      type2str(obj));
         return nullptr;

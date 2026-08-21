@@ -1,4 +1,4 @@
-/* Copyright 2022 - 2025 R. Thomas
+/* Copyright 2022 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,33 @@
  */
 #pragma once
 #include "LIEF/PDB/Type.hpp"
+#include "LIEF/rust/DebugDeclOpt.hpp"
 #include "LIEF/rust/Mirror.hpp"
 #include "LIEF/rust/helpers.hpp"
+#include "LIEF/rust/optional.hpp"
 
 class PDB_Type : public Mirror<LIEF::pdb::Type> {
   public:
   using Mirror::Mirror;
   using lief_t = LIEF::pdb::Type;
 
-  auto kind() const { return to_int(get().kind()); }
+  uint32_t kind() const {
+    return as_u32(get().kind());
+  }
+
+  auto name(uint32_t& is_set) const {
+    return to_unique_string(details::make_optional(get().name(), is_set));
+  }
+
+  uint64_t size(uint32_t& is_set) const {
+    return details::make_optional(get().size(), is_set);
+  }
+
+  auto to_decl() const {
+    return to_unique_string(get().to_decl());
+  }
+
+  auto to_decl_with_opt(const LIEF_DeclOpt& opt) const {
+    return to_unique_string(get().to_decl(opt.conf()));
+  }
 };

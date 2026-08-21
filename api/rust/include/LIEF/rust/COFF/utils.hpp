@@ -1,4 +1,4 @@
-/* Copyright 2024 - 2025 R. Thomas
+/* Copyright 2024 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,12 +13,12 @@
  * limitations under the License.
  */
 #pragma once
-#include <string>
 #include "LIEF/COFF/utils.hpp"
+#include <string>
 
 class COFF_Utils {
   public:
-  static bool is_coff(std::string file) { // NOLINT(performance-unnecessary-value-param)
+  static auto is_coff(const std::string& file) {
     return LIEF::COFF::is_coff(file);
   }
 };

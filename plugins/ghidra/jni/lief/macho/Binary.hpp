@@ -1,4 +1,4 @@
-/* Copyright 2022 - 2025 R. Thomas
+/* Copyright 2022 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,12 @@
  */
 #pragma once
 
-#include <jni_bind.h>
 #include "jni/lief/generic/Binary.hpp"
 #include "jni/lief/macho/Header.hpp"
+#include <jni_bind.h>
 
-#include <LIEF/MachO/Binary.hpp>
 #include <LIEF/Abstract/Parser.hpp>
+#include <LIEF/MachO/Binary.hpp>
 
 namespace lief_jni::macho {
 
@@ -27,25 +27,21 @@ class Binary : public generic::Binary {
   public:
   using generic::Binary::Binary;
   using lief_t = LIEF::MachO::Binary;
-  static constexpr jni::Class kClass {
-    "lief/macho/Binary",
-    jni::Constructor{ jlong{} },
+  static constexpr jni::Class kClass{
+      "lief/macho/Binary",
+      jni::Constructor{jlong{}},
   };
 
   static jobject jni_parse(JNIEnv* env, jobject thiz, jstring path) {
     jni::ThreadGuard TG;
     jni::LocalString jpath = path;
     return Binary::create<Binary>(
-      LIEF::Parser::parse(
-        std::string(jpath.Pin().ToString())
-      )
+        LIEF::Parser::parse(std::string(jpath.Pin().ToString()))
     );
   }
 
   static jobject jni_get_header(JNIEnv* env, jobject thiz) {
-    return Header::create(
-      &from_jni(thiz)->cast<lief_t>().header()
-    );
+    return Header::create(&from_jni(thiz)->cast<lief_t>().header());
   }
 
   static int register_natives(JNIEnv* env);

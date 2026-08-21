@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,12 +15,14 @@
  */
 #ifndef LIEF_PE_RESOURCE_VERSION_H
 #define LIEF_PE_RESOURCE_VERSION_H
+#include <cstdint>
 #include <ostream>
+#include <string>
 
-#include "LIEF/visibility.h"
 #include "LIEF/Object.hpp"
 #include "LIEF/errors.hpp"
-#include "LIEF/optional.hpp"
+#include "LIEF/visibility.h"
+#include <optional>
 
 #include "LIEF/PE/resources/ResourceStringFileInfo.hpp"
 #include "LIEF/PE/resources/ResourceVarFileInfo.hpp"
@@ -33,7 +35,8 @@ class ResourceData;
 
 /// Representation of the data associated with the `RT_VERSION` entry
 ///
-/// See: `VS_VERSIONINFO` at https://learn.microsoft.com/en-us/windows/win32/menurc/vs-versioninfo
+/// See: `VS_VERSIONINFO` at
+/// https://learn.microsoft.com/en-us/windows/win32/menurc/vs-versioninfo
 class LIEF_API ResourceVersion : public Object {
   public:
   static result<ResourceVersion> parse(const ResourceData& node);
@@ -44,7 +47,8 @@ class LIEF_API ResourceVersion : public Object {
   /// in `verrsrc.h`.
   struct LIEF_API fixed_file_info_t {
     enum class VERSION_OS : uint32_t {
-      /// The operating system for which the file was designed is unknown to the system.
+      /// The operating system for which the file was designed is unknown to the
+      /// system.
       UNKNOWN = 0x00000000,
 
       /// The file was designed for MS-DOS.
@@ -92,7 +96,7 @@ class LIEF_API ResourceVersion : public Object {
       NT_WINDOWS32 = NT | WINDOWS32,
     };
 
-    enum class FILE_TYPE : uint32_t  {
+    enum class FILE_TYPE : uint32_t {
       /// The file type is unknown to the system.
       UNKNOWN = 0x00000000,
 
@@ -142,7 +146,7 @@ class LIEF_API ResourceVersion : public Object {
       /// The file contains a sound driver.
       DRV_SOUND = 0x00000009 | DRV_K,
       /// The file contains a communications driver.
-      DRV_COMM = 0x0000000A  | DRV_K,
+      DRV_COMM = 0x0000000A | DRV_K,
 
       DRV_INPUTMETHOD = 0x0000000B | DRV_K,
 
@@ -159,7 +163,7 @@ class LIEF_API ResourceVersion : public Object {
       FONT_TRUETYPE = 0x00000003 | FONT_K,
     };
 
-    enum class FILE_FLAGS : uint32_t  {
+    enum class FILE_FLAGS : uint32_t {
       /// The file contains debugging information or is compiled with debugging
       /// features enabled.
       DEBUG = 0x00000001,
@@ -273,9 +277,8 @@ class LIEF_API ResourceVersion : public Object {
 
     std::string to_string() const;
 
-    LIEF_API friend
-      std::ostream& operator<<(std::ostream& os, const fixed_file_info_t& info)
-    {
+    LIEF_API friend std::ostream& operator<<(std::ostream& os,
+                                             const fixed_file_info_t& info) {
       os << info.to_string();
       return os;
     }
@@ -358,30 +361,34 @@ class LIEF_API ResourceVersion : public Object {
 
   void accept(Visitor& visitor) const override;
 
-  LIEF_API friend
-    std::ostream& operator<<(std::ostream& os, const ResourceVersion& version);
+  LIEF_API friend std::ostream& operator<<(std::ostream& os,
+                                           const ResourceVersion& version);
 
   private:
   ResourceVersion() = default;
 
   static ok_error_t parse_children(ResourceVersion& version, BinaryStream& stream);
   static ok_error_t parse_child(ResourceVersion& version, BinaryStream& stream);
-  static ok_error_t parse_fixed_file_info(ResourceVersion& version, BinaryStream& stream);
-  static ok_error_t parse_str_file_info(ResourceVersion& version, BinaryStream& stream);
-  static ok_error_t parse_var_file_info(ResourceVersion& version, BinaryStream& stream);
+  static ok_error_t parse_fixed_file_info(ResourceVersion& version,
+                                          BinaryStream& stream);
+  static ok_error_t parse_str_file_info(ResourceVersion& version,
+                                        BinaryStream& stream);
+  static ok_error_t parse_var_file_info(ResourceVersion& version,
+                                        BinaryStream& stream);
 
   uint16_t type_ = 0;
   std::u16string key_;
   fixed_file_info_t fixed_file_info_;
 
-  optional<ResourceStringFileInfo> string_file_info_;
-  optional<ResourceVarFileInfo> var_file_info_;
+  std::optional<ResourceStringFileInfo> string_file_info_;
+  std::optional<ResourceVarFileInfo> var_file_info_;
 };
 
 LIEF_API const char* to_string(ResourceVersion::fixed_file_info_t::FILE_FLAGS e);
 LIEF_API const char* to_string(ResourceVersion::fixed_file_info_t::VERSION_OS e);
 LIEF_API const char* to_string(ResourceVersion::fixed_file_info_t::FILE_TYPE e);
-LIEF_API const char* to_string(ResourceVersion::fixed_file_info_t::FILE_TYPE_DETAILS e);
+LIEF_API const char*
+    to_string(ResourceVersion::fixed_file_info_t::FILE_TYPE_DETAILS e);
 
 }
 }

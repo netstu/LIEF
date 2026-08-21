@@ -1,4 +1,4 @@
-/* Copyright 2022 - 2025 R. Thomas
+/* Copyright 2022 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,14 +15,15 @@
 #ifndef LIEF_DWARF_PARAMETER_H
 #define LIEF_DWARF_PARAMETER_H
 
+#include "LIEF/compiler_attributes.hpp"
 #include "LIEF/visibility.h"
 
+#include <cstdint>
 #include <memory>
 #include <string>
-#include <cstdint>
 
-namespace LIEF {
-namespace dwarf {
+
+namespace LIEF::dwarf {
 
 class Type;
 
@@ -51,8 +52,7 @@ class LIEF_API Parameter {
       REG,
     };
     Location(Type ty) :
-      type(ty)
-    {}
+      type(ty) {}
 
     template<class T>
     const T* as() const {
@@ -70,8 +70,7 @@ class LIEF_API Parameter {
     public:
     RegisterLoc(uint64_t reg_id) :
       Location(Type::REG),
-      id(reg_id)
-    {}
+      id(reg_id) {}
 
     static bool classof(const Location* loc) {
       return loc->type == Type::REG;
@@ -82,8 +81,8 @@ class LIEF_API Parameter {
   };
 
   Parameter() = delete;
-  Parameter(Parameter&& other);
-  Parameter& operator=(Parameter&& other);
+  Parameter(Parameter&& other) noexcept;
+  Parameter& operator=(Parameter&& other) noexcept;
   Parameter& operator=(const Parameter&) = delete;
   Parameter(const Parameter&) = delete;
 
@@ -94,11 +93,11 @@ class LIEF_API Parameter {
   std::string name() const;
 
   /// Type of this parameter
-  std::unique_ptr<Type> type() const;
+  std::unique_ptr<Type> type() const LIEF_LIFETIMEBOUND;
 
   /// Location of this parameter. For instance it can be a specific register
   /// that is not following the calling convention.
-  std::unique_ptr<Location> location() const;
+  std::unique_ptr<Location> location() const LIEF_LIFETIMEBOUND;
 
   template<class T>
   const T* as() const {
@@ -110,8 +109,8 @@ class LIEF_API Parameter {
 
   virtual ~Parameter();
 
-  LIEF_LOCAL static
-    std::unique_ptr<Parameter> create(std::unique_ptr<details::Parameter> impl);
+  LIEF_LOCAL static std::unique_ptr<Parameter>
+      create(std::unique_ptr<details::Parameter> impl);
 
   protected:
   Parameter(std::unique_ptr<details::Parameter> impl);
@@ -175,7 +174,7 @@ class LIEF_API TemplateValue : public Parameter {
 ///
 /// The function `generic` has one parameters::TemplateType parameter: `Y`.
 class LIEF_API TemplateType : public Parameter {
-public:
+  public:
   using Parameter::Parameter;
   static bool classof(const Parameter* P) {
     return P->kind() == Parameter::KIND::TEMPLATE_TYPE;
@@ -187,5 +186,5 @@ public:
 }
 
 }
-}
+
 #endif

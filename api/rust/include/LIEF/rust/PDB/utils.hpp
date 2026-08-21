@@ -1,4 +1,4 @@
-/* Copyright 2024 - 2025 R. Thomas
+/* Copyright 2024 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,12 @@
  */
 
 #pragma once
-#include <string>
 #include "LIEF/PDB/utils.hpp"
+#include <string>
 
 class PDB_Utils {
   public:
-  static bool is_pdb(std::string file)  {
+  static auto is_pdb(const std::string& file) {
     return LIEF::pdb::is_pdb(file);
   }
 };

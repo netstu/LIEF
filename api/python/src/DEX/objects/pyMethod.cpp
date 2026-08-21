@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@
 #include <sstream>
 #include <nanobind/stl/string.h>
 #include <nanobind/stl/vector.h>
+#include <nanobind/stl/string_view.h>
 
 namespace LIEF::DEX::py {
 
@@ -65,7 +66,7 @@ void create<Method>(nb::module_& m) {
     .def("insert_dex2dex_info", &Method::insert_dex2dex_info,
         "Insert de-optimization information"_doc,
         "pc"_a, "index"_a)
-    
+
     .def_prop_ro("code_info", nb::overload_cast<>(&Method::code_info, nb::const_),
     "" RST_CLASS_REF(lief.DEX.CodeInfo) " associated with this method"_doc)
 

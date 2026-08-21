@@ -1,4 +1,4 @@
-/* Copyright 2025 R. Thomas
+/* Copyright 2025 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,11 +21,9 @@
 using namespace LIEF;
 
 namespace analysis_plugin::dsc {
-std::unique_ptr<Analyzer> Analyzer::from_bv(BinaryNinja::BinaryView& bv) {
+std::unique_ptr<Analyzer> Analyzer::from_bv(BinaryNinja::BinaryView& /*bv*/) {
   return nullptr;
 }
 
-void Analyzer::run() {
-
-}
+void Analyzer::run() {}
 }

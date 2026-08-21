@@ -1,4 +1,4 @@
-/* Copyright 2022 - 2025 R. Thomas
+/* Copyright 2022 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,22 +14,24 @@
  */
 #pragma once
 #include "LIEF/DyldSharedCache/Dylib.hpp"
-#include "LIEF/rust/Mirror.hpp"
 #include "LIEF/rust/MachO/Binary.hpp"
+#include "LIEF/rust/Mirror.hpp"
+#include "LIEF/rust/helpers.hpp"
 
 class dsc_Dylib_extract_opt {
   public:
-  bool pack;
-  bool fix_branches;
-  bool fix_memory;
-  bool fix_relocations;
-  bool fix_objc;
+  bool pack = true;
+  bool fix_branches = false;
+  bool fix_memory = false;
+  bool fix_relocations = false;
+  bool fix_objc = false;
 
-  bool create_dyld_chained_fixup_cmd;
-  bool create_dyld_chained_fixup_cmd_set;
+  bool create_dyld_chained_fixup_cmd = false;
+  bool create_dyld_chained_fixup_cmd_set = false;
 };
 
-inline LIEF::dsc::Dylib::extract_opt_t from_rust(const dsc_Dylib_extract_opt& opt) {
+inline LIEF::dsc::Dylib::extract_opt_t
+    from_rust(const dsc_Dylib_extract_opt& opt) {
   LIEF::dsc::Dylib::extract_opt_t out;
 
   out.pack = opt.pack;
@@ -48,13 +50,23 @@ class dsc_Dylib : private Mirror<LIEF::dsc::Dylib> {
   using lief_t = LIEF::dsc::Dylib;
   using Mirror::Mirror;
 
-  auto path() const { return get().path(); }
-  auto address() const { return get().address(); }
-  auto modtime() const { return get().modtime(); }
-  auto inode() const { return get().inode(); }
-  auto padding() const { return get().padding(); }
+  auto path() const {
+    return to_unique_string(get().path());
+  }
+  auto address() const {
+    return get().address();
+  }
+  auto modtime() const {
+    return get().modtime();
+  }
+  auto inode() const {
+    return get().inode();
+  }
+  auto padding() const {
+    return get().padding();
+  }
 
-  auto get_macho(dsc_Dylib_extract_opt opt) const {
+  auto get_macho(const dsc_Dylib_extract_opt& opt) const {
     return details::try_unique<MachO_Binary>(get().get(from_rust(opt)));
   }
 };

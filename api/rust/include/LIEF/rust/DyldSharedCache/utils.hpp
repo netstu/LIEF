@@ -1,4 +1,4 @@
-/* Copyright 2024 - 2025 R. Thomas
+/* Copyright 2024 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,12 @@
  */
 
 #pragma once
-#include <string>
 #include "LIEF/DyldSharedCache/utils.hpp"
+#include <string>
 
 class dsc_Utils {
   public:
-  static bool is_shared_cache(std::string file)  {
+  static auto is_shared_cache(const std::string& file) {
     return LIEF::dsc::is_shared_cache(file);
   }
 };

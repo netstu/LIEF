@@ -1,4 +1,4 @@
-/* Copyright 2022 - 2025 R. Thomas
+/* Copyright 2022 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,9 +29,9 @@ class RuntimeFunctionAArch64 : public ExceptionInfo {
 
   using ExceptionInfo::ExceptionInfo;
 
-  static constexpr jni::Class kClass {
-    "lief/pe/RuntimeFunctionAArch64",
-    jni::Constructor{ jlong{} },
+  static constexpr jni::Class kClass{
+      "lief/pe/RuntimeFunctionAArch64",
+      jni::Constructor{jlong{}},
   };
 
   static int register_natives(JNIEnv* env);

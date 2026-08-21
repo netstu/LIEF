@@ -1,4 +1,4 @@
-/* Copyright 2025 R. Thomas
+/* Copyright 2025 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,8 +14,8 @@
  */
 #include <LIEF/DWARF/editor/Variable.hpp>
 
-#include "binaryninja/dwarf-export/VarEngine.hpp"
 #include "binaryninja/dwarf-export/TypeEngine.hpp"
+#include "binaryninja/dwarf-export/VarEngine.hpp"
 
 #include "binaryninja/api_compat.hpp"
 
@@ -38,12 +38,9 @@ dw::Variable* VarEngine::add_variable(const bn::DataVariable& var) {
   bool is_external = false;
   if (bn::Ref<bn::Symbol> sym = bv_.GetSymbolByAddress(var.address)) {
     BNSymbolType type = sym->GetType();
-    if (type == ExternalSymbol ||
-        type == ImportedFunctionSymbol ||
-        type == FunctionSymbol ||
-        type == LibraryFunctionSymbol ||
-        type == SymbolicFunctionSymbol
-      )
+    if (type == ExternalSymbol || type == ImportedFunctionSymbol ||
+        type == FunctionSymbol || type == LibraryFunctionSymbol ||
+        type == SymbolicFunctionSymbol)
     {
       return nullptr;
     }
@@ -67,8 +64,6 @@ dw::Variable* VarEngine::add_variable(const bn::DataVariable& var) {
     dw_var->set_external();
   }
 
-  return vars_.insert(
-    {var.address, std::move(dw_var)}
-  ).first->second.get();
+  return vars_.insert({var.address, std::move(dw_var)}).first->second.get();
 }
 }

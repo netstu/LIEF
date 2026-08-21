@@ -1,4 +1,4 @@
-/* Copyright 2022 - 2025 R. Thomas
+/* Copyright 2022 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,16 +20,15 @@ template<class T>
 class List {
   public:
   using Element = T;
-  static constexpr jni::Class kClass {
-    "java/util/List",
-    jni::Method{"size", jni::Return{jint{}}},
-    jni::Method{"get", jni::Return{jni::kJavaLangObject}, jni::Params{jint{}}},
+  static constexpr jni::Class kClass{
+      "java/util/List",
+      jni::Method{"size", jni::Return{jint{}}},
+      jni::Method{"get", jni::Return{jni::kJavaLangObject}, jni::Params{jint{}}},
   };
 
   List() = delete;
   List(jobject thiz) :
-    thiz_(thiz)
-  {}
+    thiz_(thiz) {}
 
   size_t size() const {
     return thiz_.template Call<"size">();

@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_string.hpp>
 
-#include "LIEF/OAT/Binary.hpp"
 #include "LIEF/Abstract/Parser.hpp"
+#include "LIEF/OAT/Binary.hpp"
 
 #include "utils.hpp"
 
@@ -35,5 +35,3 @@ TEST_CASE("lief.test.oat", "[lief][test][oat]") {
     }
   }
 }
-
-

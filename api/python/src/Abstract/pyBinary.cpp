@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,6 +40,8 @@
 
 #include "LIEF/asm/Engine.hpp"
 #include "LIEF/asm/Instruction.hpp"
+
+#include "pyOwningIterator.hpp"
 
 #include "Abstract/pyDebugInfoTyHook.hpp"
 
@@ -99,7 +101,7 @@ void create<Binary>(nb::module_& m) {
         .. warning::
 
             This function requires LIEF's extended version otherwise it
-            **always** return ``None``
+            **always** returns ``None``
         )doc"_doc,
         nb::keep_alive<0, 1>())
 
@@ -126,7 +128,7 @@ void create<Binary>(nb::module_& m) {
     .def("remove_section",
         nb::overload_cast<const std::string&, bool>(&Binary::remove_section),
         "Remove the section with the given name"_doc,
-        "name"_a, "clear"_a = false)
+        "name"_a, "clear"_a = false, nb::lock_self())
 
     .def_prop_ro("sections",
         nb::overload_cast<>(&Binary::sections),
@@ -197,18 +199,20 @@ void create<Binary>(nb::module_& m) {
         If the underlying binary is a PE, one can specify if the virtual address is a :attr:`~lief.Binary.VA_TYPES.RVA` or
         a :attr:`~lief.Binary.VA_TYPES.VA`. By default, it is set to :attr:`~lief.Binary.VA_TYPES.AUTO`.
         )delim"_doc,
-        "address"_a, "patch_value"_a, "va_type"_a = Binary::VA_TYPES::AUTO)
+        "address"_a, "patch_value"_a, "va_type"_a = Binary::VA_TYPES::AUTO,
+        nb::lock_self())
 
     .def("patch_address",
         nb::overload_cast<uint64_t, uint64_t, size_t, Binary::VA_TYPES>(&Binary::patch_address),
         R"delim(
         Patch the address with the given integer value.
-        The virtual address is specified in the first argument, the integer in the second and the integer's size of in third one.
+        The virtual address is specified in the first argument, the integer in the second and the integer's size in the third one.
 
         If the underlying binary is a PE, one can specify if the virtual address is a :attr:`~lief.Binary.VA_TYPES.RVA` or
         a :attr:`~lief.Binary.VA_TYPES.VA`. By default, it is set to :attr:`~lief.Binary.VA_TYPES.AUTO`.
         )delim"_doc,
-        "address"_a, "patch_value"_a, "size"_a = 8, "va_type"_a = Binary::VA_TYPES::AUTO)
+        "address"_a, "patch_value"_a, "size"_a = 8, "va_type"_a = Binary::VA_TYPES::AUTO,
+        nb::lock_self())
 
 
     .def("get_content_from_virtual_address", &Binary::get_content_from_virtual_address,
@@ -264,7 +268,7 @@ void create<Binary>(nb::module_& m) {
           return nb::cast(nb::cast<LIEF::Binary*>(self));
         },
         R"delim(
-        The *concrete* representation of the binary. Basically, this property cast a :class:`lief.Binary`
+        The *concrete* representation of the binary. Basically, this property casts a :class:`lief.Binary`
         into a :class:`lief.PE.Binary`, :class:`lief.ELF.Binary` or :class:`lief.MachO.Binary`.
 
         See also: :attr:`lief.Binary.abstract`
@@ -297,7 +301,7 @@ void create<Binary>(nb::module_& m) {
         "Original size of the binary"_doc)
 
     .def("disassemble", [] (const Binary& self, uint64_t address) {
-          auto insts = self.disassemble(address);
+          auto insts = LIEF::py::owning_range(self.disassemble(address));
           return nb::make_iterator<nb::rv_policy::reference_internal>(
             nb::type<Binary>(), "instructions_it", insts
           );
@@ -316,7 +320,7 @@ void create<Binary>(nb::module_& m) {
     )
 
     .def("disassemble", [] (const Binary& self, uint64_t address, size_t size) {
-          auto insts = self.disassemble(address, size);
+          auto insts = LIEF::py::owning_range(self.disassemble(address, size));
           return nb::make_iterator<nb::rv_policy::reference_internal>(
               nb::type<Binary>(), "instructions_it", insts);
       }, "address"_a, "size"_a, nb::keep_alive<0, 1>(),
@@ -335,7 +339,7 @@ void create<Binary>(nb::module_& m) {
     )
 
     .def("disassemble", [] (const Binary& self, const std::string& function) {
-          auto insts = self.disassemble(function);
+          auto insts = LIEF::py::owning_range(self.disassemble(function));
           return nb::make_iterator<nb::rv_policy::reference_internal>(
               nb::type<Binary>(), "instructions_it", insts);
       }, "function_name"_a, nb::keep_alive<0, 1>(),
@@ -354,10 +358,10 @@ void create<Binary>(nb::module_& m) {
 
     .def("disassemble_from_bytes",
          [] (const Binary& self, const nb::bytes& buffer, uint64_t address) {
-          auto insts = self.disassemble(
+          auto insts = LIEF::py::owning_range(self.disassemble(
             reinterpret_cast<const uint8_t*>(buffer.c_str()),
             buffer.size(), address
-          );
+          ));
           return nb::make_iterator<nb::rv_policy::reference_internal>(
               nb::type<Binary>(), "instructions_it", insts);
       }, "buffer"_a, "address"_a = 0, nb::keep_alive<0, 1>(), nb::keep_alive<0, 2>(),
@@ -409,7 +413,7 @@ void create<Binary>(nb::module_& m) {
 
     .def("load_debug_info", [] (Binary& self, const nb::PathLike& pathlike) {
         return self.load_debug_info(pathlike);
-      }, "path"_a, nb::rv_policy::reference_internal,
+      }, "path"_a, nb::lock_self(), nb::rv_policy::reference_internal,
       R"doc(
       Load and associate an external debug file (e.g., DWARF or PDB) with this
       binary.

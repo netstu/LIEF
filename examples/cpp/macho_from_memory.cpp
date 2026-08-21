@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
 #include <LIEF/logging.hpp>
 #include <mach-o/dyld.h>
 
-#include <iostream>
 #include <iomanip>
+#include <iostream>
 
 using namespace LIEF::MachO;
 
@@ -41,10 +41,10 @@ uintptr_t get_module_base_address(const std::string& name) {
   return 0;
 }
 
-int main(int argc, char **argv) {
-  LIEF::logging::set_level(LIEF::logging::LEVEL::DEBUG);
+int main(int argc, char** argv) {
+  LIEF::logging::set_level(LIEF::logging::Level::Debug);
 
-  //const uintptr_t base = get_module_base_address("macho_from_memory");
+  // const uintptr_t base = get_module_base_address("macho_from_memory");
   const uintptr_t base = get_module_base_address("in_mem.test");
   if (base == 0) {
     return EXIT_FAILURE;
@@ -66,4 +66,3 @@ int main(int argc, char **argv) {
   }
   return EXIT_SUCCESS;
 }
-

@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 #include "internal_utils.hpp"
-#include <ctime>
 #include <chrono>
+#include <ctime>
+#include <istream>
+#include <mutex>
 
 namespace LIEF {
 
-std::string printable_string(const std::string& str) {
+std::string printable_string(std::string_view str) {
   std::string out;
   out.reserve(str.size());
   for (char c : str) {
@@ -35,7 +37,7 @@ std::string hex_dump_impl(T data, const std::string& sep) {
   std::vector<std::string> hexdigits;
   hexdigits.reserve(data.size());
   std::transform(data.begin(), data.end(), std::back_inserter(hexdigits),
-                 [] (uint8_t x) { return fmt::format("{:02x}", x); });
+                 [](uint8_t x) { return fmt::format("{:02x}", x); });
   return fmt::to_string(fmt::join(hexdigits, sep));
 }
 
@@ -55,7 +57,7 @@ inline std::string pretty_hex(char c) {
 }
 
 std::vector<std::string> split(const std::string& input, char c = '\n') {
-  // Not really efficient but does not aim to
+  // Not the most efficient approach, but simplicity is the goal here
   std::stringstream strm(input);
   std::vector<std::string> out;
   std::string element;
@@ -86,10 +88,43 @@ std::string indent(const std::string& input, size_t level) {
 }
 
 
+result<size_t> istream_size(std::istream& stream) {
+  static const uint64_t MAX_VECTOR_SIZE = std::vector<uint8_t>().max_size();
+
+  stream.seekg(0, std::ios::end);
+  const std::streamoff size = stream.tellg();
+
+  if (size < 0) {
+    stream.clear();
+    return make_error_code(lief_errors::read_error);
+  }
+
+  if ((uint64_t)size > MAX_VECTOR_SIZE) {
+    return make_error_code(lief_errors::data_too_large);
+  }
+
+  if (size > 0) {
+    char last = 0;
+    stream.seekg(size - 1, std::ios::beg);
+    stream.read(&last, 1);
+    if (stream.gcount() != 1) {
+      stream.clear();
+      return make_error_code(lief_errors::read_error);
+    }
+  }
+
+  stream.seekg(0, std::ios::beg);
+  return (size_t)size;
+}
+
 std::string ts_to_str(uint64_t timestamp) {
-  using namespace fmt;
   using namespace std::chrono;
-  system_clock::time_point tp = system_clock::time_point(std::chrono::seconds(timestamp));
+
+  static std::mutex mu;
+  std::scoped_lock lock(mu);
+
+  system_clock::time_point tp =
+      system_clock::time_point(std::chrono::seconds(timestamp));
   std::time_t t = std::chrono::system_clock::to_time_t(tp);
   std::string ts = std::ctime(&t);
   ts.resize(ts.size() - 1);

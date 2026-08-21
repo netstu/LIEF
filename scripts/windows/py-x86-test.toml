@@ -4,10 +4,12 @@ cache           = true
 ninja           = true
 parallel-jobs   = 0
 extra-cmake-opt = [
-  "-DLIEF_TESTS=on",
   "-DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded",
+  "-DLIEF_TESTS=on",
+  "-DLIEF_RUST_API=ON",
+  "-DCMAKE_COLOR_DIAGNOSTICS=ON",
 ]
-extra-targets   = ["all"]
+extra-targets = ["all"]
 
 [lief.formats]
 elf     = true

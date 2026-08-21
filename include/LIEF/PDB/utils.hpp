@@ -1,6 +1,6 @@
 
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,12 +20,12 @@
 #include "LIEF/visibility.h"
 #include <string>
 
-namespace LIEF {
-namespace pdb {
+
+namespace LIEF::pdb {
 
 /// Check if the file given in parameter points to a PDB file
 LIEF_API bool is_pdb(const std::string& pdb_path);
 
 }
-}
+
 #endif

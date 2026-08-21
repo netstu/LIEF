@@ -118,6 +118,8 @@ class Type:
     @property
     def scope(self) -> Optional[Scope]: ...
 
+    def to_decl(self, opt: lief.DeclOpt | None = None) -> str: ...
+
 class Variable:
     @property
     def name(self) -> str: ...
@@ -148,6 +150,8 @@ class Variable:
 
     @property
     def description(self) -> str: ...
+
+    def to_decl(self, opt: lief.DeclOpt | None = None) -> str: ...
 
 class Function:
     @property
@@ -198,6 +202,8 @@ class Function:
     @property
     def description(self) -> str: ...
 
+    def to_decl(self, opt: lief.DeclOpt | None = None) -> str: ...
+
 class Parameter:
     class Location:
         class Type(enum.Enum):
@@ -208,7 +214,7 @@ class Parameter:
         @property
         def type(self) -> Parameter.Location.Type: ...
 
-    class RegisterLoc(Parameter.Location):
+    class RegisterLoc(Location):
         @property
         def id(self) -> int: ...
 
@@ -255,7 +261,7 @@ class CompilationUnit:
 
             COBOL = 10
 
-        lang: CompilationUnit.Language.LANG
+        lang: LANG
 
         version: int
 
@@ -307,6 +313,8 @@ class CompilationUnit:
     @property
     def variables(self) -> Iterator[Optional[Variable]]: ...
 
+    def to_decl(self, opt: lief.DeclOpt | None = None) -> str: ...
+
 class DebugInfo(lief.DebugInfo):
     @overload
     def find_function(self, name: str) -> Optional[Function]: ...
@@ -327,13 +335,15 @@ class DebugInfo(lief.DebugInfo):
 
 class Editor:
     class ARCH(enum.Enum):
-        X64 = 0
+        UNKNOWN = 0
 
-        X86 = 1
+        X64 = 1
 
-        AARCH64 = 2
+        X86 = 2
 
-        ARM = 3
+        AARCH64 = 3
+
+        ARM = 4
 
     class FORMAT(enum.Enum):
         ELF = 0
@@ -346,7 +356,7 @@ class Editor:
     def from_binary(bin: lief.Binary) -> Optional[Editor]: ...
 
     @staticmethod
-    def create(fmt: Editor.FORMAT, arch: Editor.ARCH) -> Optional[Editor]: ...
+    def create(fmt: FORMAT, arch: ARCH) -> Optional[Editor]: ...
 
     def create_compilation_unit(self) -> Optional[editor.CompilationUnit]: ...
 

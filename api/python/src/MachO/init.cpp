@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,6 +41,7 @@
 #include <LIEF/MachO/FunctionStarts.hpp>
 #include <LIEF/MachO/FunctionVariants.hpp>
 #include <LIEF/MachO/FunctionVariantFixups.hpp>
+#include <LIEF/MachO/LazyLoadDylibInfo.hpp>
 #include <LIEF/MachO/AtomInfo.hpp>
 #include <LIEF/MachO/Header.hpp>
 #include <LIEF/MachO/IndirectBindingInfo.hpp>
@@ -66,6 +67,7 @@
 #include <LIEF/MachO/Symbol.hpp>
 #include <LIEF/MachO/SymbolCommand.hpp>
 #include <LIEF/MachO/ThreadCommand.hpp>
+#include <LIEF/MachO/ThreadLocalVariables.hpp>
 #include <LIEF/MachO/TwoLevelHints.hpp>
 #include <LIEF/MachO/UUIDCommand.hpp>
 #include <LIEF/MachO/UnknownCommand.hpp>
@@ -98,6 +100,7 @@ void init_objects(nb::module_& m) {
   CREATE(DyldExportsTrie, m);
   CREATE(DylibCommand, m);
   CREATE(ThreadCommand, m);
+  CREATE(ThreadLocalVariables, m);
   CREATE(RPathCommand, m);
   CREATE(Symbol, m);
   CREATE(Relocation, m);
@@ -110,6 +113,7 @@ void init_objects(nb::module_& m) {
   CREATE(FunctionStarts, m);
   CREATE(FunctionVariants, m);
   CREATE(FunctionVariantFixups, m);
+  CREATE(LazyLoadDylibInfo, m);
   CREATE(AtomInfo, m);
   CREATE(CodeSignature, m);
   CREATE(CodeSignatureDir, m);

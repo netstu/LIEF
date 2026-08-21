@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,6 +44,7 @@ void create<AArch64Feature>(nb::module_& m) {
     ENTRY(UNKNOWN, "")
     ENTRY(BTI, "Support Branch Target Identification (BTI)")
     ENTRY(PAC, "Support Pointer authentication (PAC)")
+    ENTRY(GCS, "Support Guarded Control Stack (GCS)")
   ;
 # undef ENTRY
 }

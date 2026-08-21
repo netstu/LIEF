@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,14 @@
 #ifndef LIEF_ELF_DYNAMIC_ENTRY_ARRAY_H
 #define LIEF_ELF_DYNAMIC_ENTRY_ARRAY_H
 
-#include "LIEF/visibility.h"
 #include "LIEF/ELF/DynamicEntry.hpp"
+#include "LIEF/visibility.h"
 
+#include <memory>
 #include <vector>
 
-namespace LIEF {
-namespace ELF {
+
+namespace LIEF::ELF {
 
 /// Class that represent an Array in the dynamic table.
 /// This entry is associated with constructors:
@@ -40,22 +41,21 @@ class LIEF_API DynamicEntryArray : public DynamicEntry {
   DynamicEntryArray() = delete;
   DynamicEntryArray(DynamicEntry::TAG tag, array_t array) :
     DynamicEntry(tag, 0),
-    array_(std::move(array))
-  {}
+    array_(std::move(array)) {}
 
   DynamicEntryArray& operator=(const DynamicEntryArray&) = default;
   DynamicEntryArray(const DynamicEntryArray&) = default;
 
   std::unique_ptr<DynamicEntry> clone() const override {
-    return std::unique_ptr<DynamicEntryArray>(new DynamicEntryArray(*this));
+    return std::make_unique<DynamicEntryArray>(*this);
   }
 
   /// Return the array values (list of pointers)
-  array_t& array() {
+  array_t& array() LIEF_LIFETIMEBOUND {
     return array_;
   }
 
-  const array_t& array() const {
+  const array_t& array() const LIEF_LIFETIMEBOUND {
     return array_;
   }
   void array(const array_t& array) {
@@ -63,18 +63,18 @@ class LIEF_API DynamicEntryArray : public DynamicEntry {
   }
 
   /// Insert the given function at ``pos``
-  DynamicEntryArray& insert(size_t pos, uint64_t function);
+  DynamicEntryArray& insert(size_t pos, uint64_t function) LIEF_LIFETIMEBOUND;
 
   /// Append the given function
-  DynamicEntryArray& append(uint64_t function) {
+  DynamicEntryArray& append(uint64_t function) LIEF_LIFETIMEBOUND {
     array_.push_back(function);
     return *this;
   }
 
   /// Remove the given function
-  DynamicEntryArray& remove(uint64_t function);
+  DynamicEntryArray& remove(uint64_t function) LIEF_LIFETIMEBOUND;
 
-  /// Number of function registred in this array
+  /// Number of functions registered in this array
   size_t size() const {
     return array_.size();
   }
@@ -88,7 +88,7 @@ class LIEF_API DynamicEntryArray : public DynamicEntry {
   }
 
   const uint64_t& operator[](size_t idx) const;
-  uint64_t&       operator[](size_t idx);
+  uint64_t& operator[](size_t idx);
 
   void accept(Visitor& visitor) const override;
 
@@ -107,6 +107,6 @@ class LIEF_API DynamicEntryArray : public DynamicEntry {
   array_t array_;
 };
 }
-}
+
 
 #endif

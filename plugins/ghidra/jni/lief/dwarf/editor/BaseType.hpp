@@ -1,4 +1,4 @@
-/* Copyright 2022 - 2025 R. Thomas
+/* Copyright 2022 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,8 +14,8 @@
  */
 #pragma once
 
-#include <jni_bind.h>
 #include "jni/lief/dwarf/editor/Type.hpp"
+#include <jni_bind.h>
 
 #include <LIEF/DWARF/editor/BaseType.hpp>
 
@@ -24,15 +24,15 @@ namespace lief_jni::dwarf::editor {
 class BaseType : public Type {
   public:
   using Type::Type;
-  static constexpr jni::Class kClass {
-    "lief/dwarf/editor/BaseType",
-    jni::Constructor{ jlong{} },
+  static constexpr jni::Class kClass{
+      "lief/dwarf/editor/BaseType",
+      jni::Constructor{jlong{}},
   };
 
   class Encoding {
     public:
-    static constexpr jni::Class kClass {
-      "lief/dwarf/editor/BaseType$Encoding",
+    static constexpr jni::Class kClass{
+        "lief/dwarf/editor/BaseType$Encoding",
     };
   };
 

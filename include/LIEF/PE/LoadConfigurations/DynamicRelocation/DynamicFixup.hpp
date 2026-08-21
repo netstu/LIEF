@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,12 @@
 #ifndef LIEF_PE_LOAD_CONFIGURATION_DYNAMIC_FIXUP_H
 #define LIEF_PE_LOAD_CONFIGURATION_DYNAMIC_FIXUP_H
 
-#include <ostream>
 #include <memory>
+#include <ostream>
 #include <string>
 
-#include "LIEF/visibility.h"
 #include "LIEF/errors.hpp"
+#include "LIEF/visibility.h"
 
 namespace LIEF {
 class SpanStream;
@@ -44,20 +44,22 @@ class LIEF_API DynamicFixup {
     /// If DynamicRelocation::symbol is set to `IMAGE_DYNAMIC_RELOCATION_ARM64X`
     ARM64X,
 
-    /// If DynamicRelocation::symbol is set to `IMAGE_DYNAMIC_RELOCATION_FUNCTION_OVERRIDE`
+    /// If DynamicRelocation::symbol is set to
+    /// `IMAGE_DYNAMIC_RELOCATION_FUNCTION_OVERRIDE`
     FUNCTION_OVERRIDE,
 
-    /// If DynamicRelocation::symbol is set to `IMAGE_DYNAMIC_RELOCATION_ARM64_KERNEL_IMPORT_CALL_TRANSFER`
+    /// If DynamicRelocation::symbol is set to
+    /// `IMAGE_DYNAMIC_RELOCATION_ARM64_KERNEL_IMPORT_CALL_TRANSFER`
     ARM64_KERNEL_IMPORT_CALL_TRANSFER,
 
-    /// If DynamicRelocation::symbol is set to `IMAGE_DYNAMIC_RELOCATION_GUARD_IMPORT_CONTROL_TRANSFER`
+    /// If DynamicRelocation::symbol is set to
+    /// `IMAGE_DYNAMIC_RELOCATION_GUARD_IMPORT_CONTROL_TRANSFER`
     GUARD_IMPORT_CONTROL_TRANSFER,
   };
 
   DynamicFixup() = delete;
   DynamicFixup(KIND kind) :
-    kind_(kind)
-  {}
+    kind_(kind) {}
 
   DynamicFixup(const DynamicFixup&) = default;
   DynamicFixup& operator=(const DynamicFixup&) = default;
@@ -76,7 +78,7 @@ class LIEF_API DynamicFixup {
 
   template<class T>
   T* as() {
-    static_assert(std::is_base_of<DynamicFixup, T>::value,
+    static_assert(std::is_base_of_v<DynamicFixup, T>,
                   "Require DynamicFixup inheritance");
     if (T::classof(this)) {
       return static_cast<T*>(this);
@@ -89,22 +91,20 @@ class LIEF_API DynamicFixup {
     return const_cast<DynamicFixup*>(this)->as<T>();
   }
 
-  LIEF_API friend
-    std::ostream& operator<<(std::ostream& os, const DynamicFixup& fixup)
-  {
+  LIEF_API friend std::ostream& operator<<(std::ostream& os,
+                                           const DynamicFixup& fixup) {
     os << fixup.to_string();
     return os;
   }
 
   virtual ~DynamicFixup() = default;
 
-  /// \private
-  static LIEF_LOCAL ok_error_t
-    parse(Parser& ctx, SpanStream& stream, DynamicRelocation& R);
+  /// @private
+  static LIEF_LOCAL ok_error_t parse(Parser& ctx, SpanStream& stream,
+                                     DynamicRelocation& R);
 
   protected:
   KIND kind_ = KIND::UNKNOWN;
-
 };
 
 

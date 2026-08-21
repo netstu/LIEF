@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,15 +15,15 @@
  */
 #ifndef LIEF_PE_RESOURCE_VAR_FILE_INFO_H
 #define LIEF_PE_RESOURCE_VAR_FILE_INFO_H
-#include <ostream>
 #include <cstdint>
+#include <ostream>
 #include <vector>
 
-#include "LIEF/visibility.h"
 #include "LIEF/Object.hpp"
+#include "LIEF/PE/resources/ResourceVar.hpp"
 #include "LIEF/errors.hpp"
 #include "LIEF/iterators.hpp"
-#include "LIEF/PE/resources/ResourceVar.hpp"
+#include "LIEF/visibility.h"
 
 namespace LIEF {
 class BinaryStream;
@@ -95,8 +95,8 @@ class LIEF_API ResourceVarFileInfo : public Object {
 
   void accept(Visitor& visitor) const override;
 
-  LIEF_API friend
-    std::ostream& operator<<(std::ostream& os, const ResourceVarFileInfo& entry);
+  LIEF_API friend std::ostream& operator<<(std::ostream& os,
+                                           const ResourceVarFileInfo& entry);
 
   private:
   uint16_t type_ = 0;

@@ -1,4 +1,4 @@
-/* Copyright 2024 - 2025 R. Thomas
+/* Copyright 2024 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,21 +15,27 @@
 #pragma once
 #include <cstdint>
 
-#include "LIEF/rust/PE/debug/Debug.hpp"
 #include "LIEF/PE/debug/CodeView.hpp"
+#include "LIEF/rust/PE/debug/Debug.hpp"
 
 class PE_CodeView : public PE_Debug {
   public:
   using lief_t = LIEF::PE::CodeView;
-  PE_CodeView(const lief_t& obj) : PE_Debug(obj) {}
-  PE_CodeView(std::unique_ptr<lief_t> obj) : PE_Debug(std::move(obj)) {}
+  PE_CodeView(const lief_t& obj) :
+    PE_Debug(obj) {}
+  PE_CodeView(std::unique_ptr<lief_t> obj) :
+    PE_Debug(std::move(obj)) {}
 
-  uint32_t signature() const { return to_int(impl().signature()); }
+  uint32_t signature() const {
+    return to_int(impl().signature());
+  }
 
-  static bool classof(const PE_Debug& entry) {
+  static auto classof(const PE_Debug& entry) {
     return lief_t::classof(&entry.get());
   }
 
   private:
-  const lief_t& impl() const { return as<lief_t>(this); }
+  const lief_t& impl() const {
+    return as<lief_t>(this);
+  }
 };

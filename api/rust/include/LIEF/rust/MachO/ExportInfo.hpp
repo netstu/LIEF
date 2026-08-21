@@ -1,4 +1,4 @@
-/* Copyright 2024 - 2025 R. Thomas
+/* Copyright 2024 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@
 #pragma once
 
 #include "LIEF/MachO/ExportInfo.hpp"
-#include "LIEF/rust/MachO/Symbol.hpp"
 #include "LIEF/rust/MachO/Dylib.hpp"
+#include "LIEF/rust/MachO/Symbol.hpp"
 #include "LIEF/rust/Mirror.hpp"
 #include "LIEF/rust/helpers.hpp"
 
@@ -26,11 +26,21 @@ class MachO_ExportInfo : private Mirror<LIEF::MachO::ExportInfo> {
   using lief_t = LIEF::MachO::ExportInfo;
   using Mirror::Mirror;
 
-  uint64_t node_offset() const { return get().node_offset(); };
-  uint64_t flags() const { return get().flags(); };
-  uint64_t address() const { return get().address(); };
-  uint64_t other() const { return get().other(); };
-  auto kind() const { return to_int(get().kind()); };
+  uint64_t node_offset() const {
+    return get().node_offset();
+  }
+  uint64_t flags() const {
+    return get().flags();
+  }
+  uint64_t address() const {
+    return get().address();
+  }
+  uint64_t other() const {
+    return get().other();
+  }
+  auto kind() const {
+    return as_u64(get().kind());
+  }
 
   auto symbol() const {
     return details::try_unique<MachO_Symbol>(get().symbol());

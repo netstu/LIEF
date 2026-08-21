@@ -1,4 +1,4 @@
-/* Copyright 2022 - 2025 R. Thomas
+/* Copyright 2022 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,12 +15,17 @@
 #pragma once
 #include "LIEF/ObjC/Property.hpp"
 #include "LIEF/rust/Mirror.hpp"
+#include "LIEF/rust/helpers.hpp"
 
 class ObjC_Property : private Mirror<LIEF::objc::Property> {
   public:
   using lief_t = LIEF::objc::Property;
   using Mirror::Mirror;
 
-  auto name() const { return get().name(); }
-  auto attribute() const { return get().attribute(); }
+  auto name() const {
+    return to_unique_string(get().name());
+  }
+  auto attribute() const {
+    return to_unique_string(get().attribute());
+  }
 };

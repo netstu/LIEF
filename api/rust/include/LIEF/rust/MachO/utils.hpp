@@ -1,4 +1,4 @@
-/* Copyright 2024 - 2025 R. Thomas
+/* Copyright 2024 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,34 @@
  */
 
 #pragma once
-#include <string>
 #include "LIEF/MachO/utils.hpp"
+#include "LIEF/rust/MachO/Binary.hpp"
+#include "LIEF/rust/MachO/FatBinary.hpp"
+#include <string>
 
 class MachO_Utils {
   public:
-  inline static bool is_macho(std::string file)  {
+  static auto is_macho(const std::string& file) {
     return LIEF::MachO::is_macho(file);
   }
-};
 
+  static auto is_fat(const std::string& file) {
+    return LIEF::MachO::is_fat(file);
+  }
+
+  static auto is_64(const std::string& file) {
+    return LIEF::MachO::is_64(file);
+  }
+
+  static auto check_layout(const MachO_Binary& bin, std::string* error) {
+    return LIEF::MachO::check_layout(
+        static_cast<const LIEF::MachO::Binary&>(bin.get()), error
+    );
+  }
+
+  static auto check_layout_fat(const MachO_FatBinary& bin, std::string* error) {
+    return LIEF::MachO::check_layout(
+        static_cast<const LIEF::MachO::FatBinary&>(bin.get()), error
+    );
+  }
+};

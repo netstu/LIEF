@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -104,7 +104,7 @@ void create<Symbol>(nb::module_& m) {
         nb::overload_cast<>(&Symbol::value, nb::const_),
         nb::overload_cast<uint64_t>(&Symbol::value),
         R"delim(
-        This member has different menaing depending on the symbol's type and the type of the ELF file (library, object, ...)
+        This member has different meaning depending on the symbol's type and the type of the ELF file (library, object, ...)
 
         - In relocatable files, this property contains the alignment constraints
           of the symbol for which the section index is `SHN_COMMON`.
@@ -148,7 +148,7 @@ void create<Symbol>(nb::module_& m) {
 
     .def_prop_ro("is_static",
         &Symbol::is_static,
-        "True if the symbol is a static visibility"_doc)
+        "True if the symbol has static visibility"_doc)
 
     .def_prop_ro("is_function",
         &Symbol::is_function,

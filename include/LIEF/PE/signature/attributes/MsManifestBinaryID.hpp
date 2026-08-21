@@ -1,6 +1,6 @@
 
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,15 +17,19 @@
 #ifndef LIEF_PE_ATTRIBUTES_MS_MANIFEST_BINARY_ID_H
 #define LIEF_PE_ATTRIBUTES_MS_MANIFEST_BINARY_ID_H
 
-#include "LIEF/visibility.h"
 #include "LIEF/PE/signature/Attribute.hpp"
+#include "LIEF/compiler_attributes.hpp"
+#include "LIEF/visibility.h"
+#include <string_view>
 
-namespace LIEF {
-namespace PE {
 
-/// Interface over the structure described by the OID `1.3.6.1.4.1.311.10.3.28` (szOID_PLATFORM_MANIFEST_BINARY_ID)
+namespace LIEF::PE {
+
+/// Interface over the structure described by the OID `1.3.6.1.4.1.311.10.3.28`
+/// (szOID_PLATFORM_MANIFEST_BINARY_ID)
 ///
-/// The internal structure is not documented but we can infer the following structure:
+/// The internal structure is not documented but we can infer the following
+/// structure:
 ///
 /// ```text
 /// szOID_PLATFORM_MANIFEST_BINARY_ID ::= SET OF BinaryID
@@ -41,8 +45,7 @@ class LIEF_API MsManifestBinaryID : public Attribute {
   MsManifestBinaryID() = delete;
   MsManifestBinaryID(std::string binid) :
     Attribute(Attribute::TYPE::MS_PLATFORM_MANIFEST_BINARY_ID),
-    id_(std::move(binid))
-  {}
+    id_(std::move(binid)) {}
 
   MsManifestBinaryID(const MsManifestBinaryID&) = default;
   MsManifestBinaryID& operator=(const MsManifestBinaryID&) = default;
@@ -53,7 +56,7 @@ class LIEF_API MsManifestBinaryID : public Attribute {
   }
 
   /// The manifest id as a string
-  const std::string& manifest_id() const {
+  std::string_view manifest_id() const LIEF_LIFETIMEBOUND {
     return id_;
   }
 
@@ -71,13 +74,13 @@ class LIEF_API MsManifestBinaryID : public Attribute {
 
   void accept(Visitor& visitor) const override;
 
-  virtual ~MsManifestBinaryID() = default;
+  ~MsManifestBinaryID() override = default;
 
   private:
   std::string id_;
 };
 
 }
-}
+
 
 #endif

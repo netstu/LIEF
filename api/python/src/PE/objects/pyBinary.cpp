@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -70,7 +70,7 @@ void create<Binary>(nb::module_& m) {
   bin
     .def_prop_ro("sections",
         nb::overload_cast<>(&Binary::sections),
-        "Return binary's an iterator over the PE's " RST_CLASS_REF(lief.PE.Section) ""_doc,
+        "Return an iterator over the PE's " RST_CLASS_REF(lief.PE.Section) ""_doc,
         nb::keep_alive<0, 1>())
 
     .def_prop_ro("dos_header",
@@ -131,6 +131,11 @@ void create<Binary>(nb::module_& m) {
         See: :meth:`~lief.PE.Binary.rva_to_offset`
         )delim"_doc)
 
+    .def("offset_to_rva",
+        &Binary::offset_to_rva,
+        "offset"_a,
+        "Convert the given offset into a relative virtual address (RVA)."_doc)
+
     .def("section_from_offset",
         nb::overload_cast<uint64_t>(&Binary::section_from_offset),
         R"delim(
@@ -156,7 +161,7 @@ void create<Binary>(nb::module_& m) {
       nb::rv_policy::reference_internal)
 
     .def("remove_tls", &Binary::remove_tls,
-         "Remove the TLS from the binary"_doc)
+         "Remove the TLS from the binary"_doc, nb::lock_self())
 
     .def_prop_rw("rich_header",
       nb::overload_cast<>(&Binary::rich_header),
@@ -278,14 +283,14 @@ void create<Binary>(nb::module_& m) {
 
     .def("add_debug_info", &Binary::add_debug_info,
          "Add a new debug entry"_doc,
-         "entry"_a, nb::rv_policy::reference_internal)
+         "entry"_a, nb::lock_self(), nb::rv_policy::reference_internal)
 
     .def("remove_debug", &Binary::remove_debug,
          "Remove a specific debug entry"_doc,
-         "entry"_a)
+         "entry"_a, nb::lock_self())
 
     .def("clear_debug", &Binary::clear_debug,
-         "Remove all debug info from the binary"_doc)
+         "Remove all debug info from the binary"_doc, nb::lock_self())
 
     .def_prop_ro("codeview_pdb",
         nb::overload_cast<>(&Binary::codeview_pdb, nb::const_),
@@ -304,6 +309,7 @@ void create<Binary>(nb::module_& m) {
 
     .def("set_export", &Binary::set_export,
         "Add or replace the export table"_doc,
+        nb::lock_self(),
         nb::rv_policy::reference_internal)
 
     .def_prop_ro("symbols",
@@ -313,7 +319,7 @@ void create<Binary>(nb::module_& m) {
 
     .def("get_section",
         nb::overload_cast<const std::string&>(&Binary::get_section),
-        "Return the " RST_CLASS_REF(lief.PE.Section) " object from the given name or None if not not found"_doc,
+        "Return the " RST_CLASS_REF(lief.PE.Section) " object from the given name or None if not found"_doc,
         "section_name"_a,
         nb::rv_policy::reference_internal)
 
@@ -321,6 +327,7 @@ void create<Binary>(nb::module_& m) {
         &Binary::add_section,
         "Add a " RST_CLASS_REF(lief.PE.Section) " to the binary."_doc,
         "section"_a,
+        nb::lock_self(),
         nb::rv_policy::reference_internal)
 
     .def_prop_ro("relocations",
@@ -332,14 +339,15 @@ void create<Binary>(nb::module_& m) {
         &Binary::add_relocation,
         "Add a " RST_CLASS_REF(lief.PE.Relocation) " to the binary"_doc,
         "relocation"_a,
+        nb::lock_self(),
         nb::rv_policy::reference_internal)
 
-    .def("remove_all_relocations", &Binary::remove_all_relocations)
+    .def("remove_all_relocations", &Binary::remove_all_relocations, nb::lock_self())
 
     .def("remove",
         nb::overload_cast<const Section&, bool>(&Binary::remove),
         "Remove the " RST_CLASS_REF(lief.PE.Section) " given in first parameter"_doc,
-        "section"_a, "clear"_a = false)
+        "section"_a, "clear"_a = false, nb::lock_self())
 
     .def_prop_ro("data_directories",
         nb::overload_cast<>(&Binary::data_directories),
@@ -382,20 +390,20 @@ void create<Binary>(nb::module_& m) {
 
     .def("get_delay_import",
         nb::overload_cast<const std::string&>(&Binary::get_delay_import),
-        "Return the " RST_CLASS_REF(lief.PE.DelayImport) " from the given name or None if not not found"_doc,
+        "Return the " RST_CLASS_REF(lief.PE.DelayImport) " from the given name or None if not found"_doc,
         "import_name"_a,
         nb::rv_policy::reference_internal)
 
     .def_prop_ro("resources_manager",
         [] (Binary& self) {
           return error_or(&Binary::resources_manager, self);
-        },
+        }, nb::keep_alive<0, 1>(), nb::rv_policy::reference_internal,
         "Return the " RST_CLASS_REF(lief.PE.ResourcesManager) " to manage resources"_doc)
 
     .def_prop_ro("resources",
         nb::overload_cast<>(&Binary::resources),
-        "Return the " RST_CLASS_REF(lief.PE.ResourceNode) " tree or None if not not present"_doc,
-        nb::rv_policy::reference_internal)
+        "Return the " RST_CLASS_REF(lief.PE.ResourceNode) " tree or None if not present"_doc,
+        nb::rv_policy::reference_internal, nb::keep_alive<0, 1>())
 
     .def_prop_ro("overlay",
         nb::overload_cast<>(&Binary::overlay, nb::const_),
@@ -411,16 +419,22 @@ void create<Binary>(nb::module_& m) {
         "DOS stub content as a ``list`` of bytes"_doc)
 
     .def("add_import", &Binary::add_import,
-        "Add an imported library (i.e. ``DLL``) to the binary"_doc,
-        "import_name"_a,
+        R"doc(
+        Add an imported library (i.e. ``DLL``) to the binary.
+
+        The second parameter ``pos`` defines where to insert the import.
+        If negative (default), the import is appended to the end of the list.
+        )doc"_doc,
+        "import_name"_a, "pos"_a = -1,
+        nb::lock_self(),
         nb::rv_policy::reference_internal)
 
     .def("remove_import", &Binary::remove_import,
         "Remove the imported library with the given name"_doc,
-        "name"_a)
+        "name"_a, nb::lock_self())
 
     .def("remove_all_imports", &Binary::remove_all_imports,
-        "Remove all imported libraries"_doc)
+        "Remove all imported libraries"_doc, nb::lock_self())
 
     .def("set_resources",
          nb::overload_cast<const ResourceNode&>(&Binary::set_resources),
@@ -428,6 +442,7 @@ void create<Binary>(nb::module_& m) {
          Change or set the current resource tree with the new one provided in
          parameter.
          )doc"_doc, "new_tree"_a,
+         nb::lock_self(),
          nb::rv_policy::reference_internal
       )
 
@@ -502,30 +517,31 @@ void create<Binary>(nb::module_& m) {
     .def("write",
       [] (Binary& self, nb::PathLike path) { self.write(path); },
       "Build the binary and write the result in the given ``output`` file"_doc,
-      "output_path"_a)
+      "output_path"_a, nb::lock_self())
 
     .def("write",
       [] (Binary& self, nb::PathLike path, const Builder::config_t& config) {
         self.write(path, config);
       },
       "Build the binary with the given config and write the result in the given ``output`` file"_doc,
-      "output_path"_a, "config"_a)
+      "output_path"_a, "config"_a, nb::lock_self())
 
     .def("write_to_bytes", [] (Binary& bin, const Builder::config_t& config) -> nb::bytes {
           std::ostringstream out;
           bin.write(out, config);
           return nb::to_bytes(out.str());
-        }, "config"_a)
+        }, "config"_a, nb::lock_self())
 
     .def("write_to_bytes", [] (Binary& bin) -> nb::bytes {
           std::ostringstream out;
           bin.write(out);
           return nb::to_bytes(out.str());
-        })
+        }, nb::lock_self())
 
     .def("fill_address", &Binary::fill_address,
-         "Fill the content at the provided with a fixed value"_doc,
-         "address"_a, "size"_a, "value"_a = 0, "addr_type"_a = Binary::VA_TYPES::AUTO)
+         "Fill the content at the provided address with a fixed value"_doc,
+         "address"_a, "size"_a, "value"_a = 0, "addr_type"_a = Binary::VA_TYPES::AUTO,
+         nb::lock_self())
 
     .def_prop_ro("coff_string_table", nb::overload_cast<>(&Binary::coff_string_table),
                  "Iterator over the strings located in the COFF string table"_doc,

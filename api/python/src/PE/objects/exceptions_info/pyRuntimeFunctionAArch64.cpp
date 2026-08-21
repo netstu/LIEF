@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ void create<RuntimeFunctionAArch64>(nb::module_& m) {
 
     Since the ARM64 unwinding info can be encoded in a *packed* and *unpacked*
     format, this class is inherited by :class:`lief.PE.unwind_aarch64.PackedFunction`
-    and :class:`lief.pe.unwind_aarch64.UnpackedFunction`
+    and :class:`lief.PE.unwind_aarch64.UnpackedFunction`
 
     Reference: https://learn.microsoft.com/en-us/cpp/build/arm64-exception-handling#arm64-exception-handling-information
     )doc"_doc);

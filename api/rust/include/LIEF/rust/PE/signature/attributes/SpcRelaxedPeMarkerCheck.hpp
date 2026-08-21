@@ -1,4 +1,4 @@
-/* Copyright 2024 - 2025 R. Thomas
+/* Copyright 2024 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,14 +19,19 @@
 class PE_SpcRelaxedPeMarkerCheck : public PE_Attribute {
   public:
   using lief_t = LIEF::PE::SpcRelaxedPeMarkerCheck;
-  PE_SpcRelaxedPeMarkerCheck(const lief_t& base) : PE_Attribute(base) {}
+  PE_SpcRelaxedPeMarkerCheck(const lief_t& base) :
+    PE_Attribute(base) {}
 
-  static bool classof(const PE_Attribute& attr) {
+  static auto classof(const PE_Attribute& attr) {
     return lief_t::classof(&attr.get());
   }
 
-  auto value() const { return impl().value(); }
+  auto value() const {
+    return impl().value();
+  }
 
   private:
-  const lief_t& impl() const { return as<lief_t>(this); }
+  const lief_t& impl() const {
+    return as<lief_t>(this);
+  }
 };

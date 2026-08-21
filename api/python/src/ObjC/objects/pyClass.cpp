@@ -5,6 +5,8 @@
 #include <nanobind/stl/unique_ptr.h>
 #include <nanobind/make_iterator.h>
 
+#include "pyOwningIterator.hpp"
+
 namespace LIEF::objc::py {
 template<>
 void create<objc::Class>(nb::module_& m) {
@@ -26,7 +28,23 @@ void create<objc::Class>(nb::module_& m) {
     )
     .def_prop_ro("super_class", &objc::Class::super_class,
       R"doc(
-      Parent class in case of inheritance
+      Parent class in case of inheritance.
+
+      This is set **only** when the superclass is defined in the same binary.
+      For root classes (e.g. ``NSObject``) or superclasses imported from another
+      image, it is ``None`` even though :attr:`super_name` /
+      :attr:`demangled_super_name` may still be resolved.
+      )doc"_doc, nb::keep_alive<0, 1>()
+    )
+    .def_prop_ro("super_name", &objc::Class::super_name,
+      R"doc(
+      (raw) name of the superclass (empty for root classes or when it could not
+      be resolved).
+      )doc"_doc
+    )
+    .def_prop_ro("demangled_super_name", &objc::Class::demangled_super_name,
+      R"doc(
+      Demangled name of the superclass.
       )doc"_doc
     )
     .def_prop_ro("is_meta", &objc::Class::is_meta,
@@ -36,7 +54,7 @@ void create<objc::Class>(nb::module_& m) {
     )
     .def_prop_ro("methods",
       [] (objc::Class& self) {
-          auto methods = self.methods();
+          auto methods = LIEF::py::owning_range(self.methods());
           return nb::make_iterator<nb::rv_policy::reference_internal>(
             nb::type<objc::Class>(), "methods_it", methods
           );
@@ -47,7 +65,7 @@ void create<objc::Class>(nb::module_& m) {
     )
     .def_prop_ro("protocols",
       [] (objc::Class& self) {
-          auto protocols = self.protocols();
+          auto protocols = LIEF::py::owning_range(self.protocols());
           return nb::make_iterator<nb::rv_policy::reference_internal>(
             nb::type<objc::Class>(), "protocols_it", protocols
           );
@@ -58,7 +76,7 @@ void create<objc::Class>(nb::module_& m) {
     )
     .def_prop_ro("properties",
       [] (objc::Class& self) {
-          auto properties = self.properties();
+          auto properties = LIEF::py::owning_range(self.properties());
           return nb::make_iterator<nb::rv_policy::reference_internal>(
             nb::type<objc::Class>(), "properties_it", properties
           );
@@ -69,7 +87,7 @@ void create<objc::Class>(nb::module_& m) {
     )
     .def_prop_ro("ivars",
       [] (objc::Class& self) {
-          auto ivars = self.ivars();
+          auto ivars = LIEF::py::owning_range(self.ivars());
           return nb::make_iterator<nb::rv_policy::reference_internal>(
             nb::type<objc::Class>(), "ivars_it", ivars
           );

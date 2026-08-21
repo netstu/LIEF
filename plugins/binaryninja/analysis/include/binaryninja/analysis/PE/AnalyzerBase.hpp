@@ -1,4 +1,4 @@
-/* Copyright 2025 R. Thomas
+/* Copyright 2025 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,8 +32,9 @@ class AnalyzerBase : public analysis_plugin::AnalyzerBase {
   AnalyzerBase() = delete;
   AnalyzerBase(BinaryNinja::BinaryView& bv, LIEF::PE::Binary& pe,
                TypeBuilder& type_builder) :
-    analysis_plugin::AnalyzerBase(bv), pe_(pe), type_builder_(type_builder)
-  {}
+    analysis_plugin::AnalyzerBase(bv),
+    pe_(pe),
+    type_builder_(type_builder) {}
 
   ~AnalyzerBase() override = default;
 

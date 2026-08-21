@@ -1,4 +1,4 @@
-/* Copyright 2022 - 2025 R. Thomas
+/* Copyright 2022 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,10 +14,11 @@
  */
 #ifndef LIEF_DWARF_EDITOR_H
 #define LIEF_DWARF_EDITOR_H
+#include <cstdint>
 #include <memory>
 #include <string>
-#include <cstdint>
 
+#include "LIEF/compiler_attributes.hpp"
 #include "LIEF/visibility.h"
 
 namespace LIEF {
@@ -45,6 +46,7 @@ class LIEF_API Editor {
   };
 
   enum class ARCH : uint32_t {
+    UNKNOWN,
     X64,
     X86,
     AARCH64,
@@ -58,7 +60,8 @@ class LIEF_API Editor {
   static std::unique_ptr<Editor> create(FORMAT fmt, ARCH arch);
 
   /// Create a new compilation unit
-  std::unique_ptr<editor::CompilationUnit> create_compilation_unit();
+  std::unique_ptr<editor::CompilationUnit>
+      create_compilation_unit() LIEF_LIFETIMEBOUND;
 
   /// Write the DWARF file to the specified output
   void write(const std::string& output);
@@ -67,7 +70,6 @@ class LIEF_API Editor {
 
   private:
   std::unique_ptr<details::Editor> impl_;
-
 };
 
 }

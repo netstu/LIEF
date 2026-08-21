@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,15 @@
 #ifndef LIEF_ELF_NOTE_DETAILS_PROPERTIES_H
 #define LIEF_ELF_NOTE_DETAILS_PROPERTIES_H
 
+// IWYU pragma: begin_exports
 #include "LIEF/ELF/NoteDetails/properties/AArch64Feature.hpp"
 #include "LIEF/ELF/NoteDetails/properties/AArch64PAuth.hpp"
+#include "LIEF/ELF/NoteDetails/properties/Generic.hpp"
 #include "LIEF/ELF/NoteDetails/properties/Needed.hpp"
 #include "LIEF/ELF/NoteDetails/properties/NoteNoCopyOnProtected.hpp"
-#include "LIEF/ELF/NoteDetails/properties/X86ISA.hpp"
 #include "LIEF/ELF/NoteDetails/properties/StackSize.hpp"
 #include "LIEF/ELF/NoteDetails/properties/X86Feature.hpp"
-#include "LIEF/ELF/NoteDetails/properties/Generic.hpp"
+#include "LIEF/ELF/NoteDetails/properties/X86ISA.hpp"
+// IWYU pragma: end_exports
 
 #endif

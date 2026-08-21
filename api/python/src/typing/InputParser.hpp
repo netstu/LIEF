@@ -1,5 +1,5 @@
-/* Copyright 2017 - 2025 R. Thomas
- * Copyright 2017 - 2025 Quarkslab
+/* Copyright 2017 - 2026 R. Thomas
+ * Copyright 2017 - 2026 Quarkslab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,56 +18,36 @@
 #include "pyLIEF.hpp"
 #include "typing.hpp"
 #include "LIEF/config.h"
+
 #include <memory>
 #include <nanobind/nanobind.h>
-
-#if LIEF_PE_SUPPORT
-#include "LIEF/PE/Binary.hpp"
-#endif
-
-#if LIEF_ELF_SUPPORT
-#include "LIEF/ELF/Binary.hpp"
-#endif
-
-#if LIEF_OAT_SUPPORT
-#include "LIEF/OAT/Binary.hpp"
-#endif
-
-#if LIEF_MACHO_SUPPORT
-#include "LIEF/MachO/Binary.hpp"
-#endif
-
-#if LIEF_COFF_SUPPORT
-#include "LIEF/COFF/Binary.hpp"
-#endif
 
 namespace LIEF {
 class BinaryStream;
 }
-
 
 namespace LIEF::py::typing {
 
 constexpr auto out_descr() {
   return nb::detail::union_name(
 #if LIEF_PE_SUPPORT
-      nb::detail::make_caster<LIEF::PE::Binary>::Name,
+      nb::detail::const_name("_lief.PE.Binary"),
 #endif
 
 #if LIEF_OAT_SUPPORT
-      nb::detail::make_caster<LIEF::OAT::Binary>::Name,
+      nb::detail::const_name("_lief.OAT.Binary"),
 #endif
 
 #if LIEF_ELF_SUPPORT
-      nb::detail::make_caster<LIEF::ELF::Binary>::Name,
+      nb::detail::const_name("_lief.ELF.Binary"),
 #endif
 
 #if LIEF_MACHO_SUPPORT
-      nb::detail::make_caster<LIEF::MachO::Binary>::Name,
+      nb::detail::const_name("_lief.MachO.Binary"),
 #endif
 
 #if LIEF_COFF_SUPPORT
-      nb::detail::make_caster<LIEF::COFF::Binary>::Name,
+      nb::detail::const_name("_lief.COFF.Binary"),
 #endif
 
       nb::detail::const_name("None")
@@ -81,7 +61,7 @@ struct InputParser : public nanobind::object {
 
   std::unique_ptr<BinaryStream> into_stream();
 
-  static bool check(handle h) {
+  static bool check(handle /*h*/) {
     return true;
   }
 };
@@ -92,7 +72,7 @@ struct OutputParser : public nanobind::object {
   static constexpr auto Name = out_descr();
   NB_OBJECT_DEFAULT_NONAME(OutputParser, object, check);
 
-  static bool check(handle h) {
+  static bool check(handle  /*h*/) {
     return true;
   }
 };

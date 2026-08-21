@@ -1,4 +1,4 @@
-/* Copyright 2022 - 2025 R. Thomas
+/* Copyright 2022 - 2026 R. Thomas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,34 +14,32 @@
  */
 #pragma once
 #include "LIEF/DWARF/types/ClassLike.hpp"
-#include "LIEF/rust/DWARF/Type.hpp"
 #include "LIEF/rust/DWARF/Function.hpp"
+#include "LIEF/rust/DWARF/Type.hpp"
 
 #include "LIEF/rust/Iterator.hpp"
+#include "LIEF/rust/helpers.hpp"
 
-class DWARF_types_ClassLike_Member : private Mirror<LIEF::dwarf::types::ClassLike::Member> {
+class DWARF_types_ClassLike_Member
+  : private Mirror<LIEF::dwarf::types::ClassLike::Member> {
   public:
   using Mirror::Mirror;
   using lief_t = LIEF::dwarf::types::ClassLike::Member;
 
-  auto name() const { return get().name(); }
+  auto name() const {
+    return to_unique_string(get().name());
+  }
 
   uint64_t bit_offset(uint32_t& err) const {
-    return details::make_error<uint64_t>(
-        get().bit_offset(), err
-    );
+    return details::make_error<uint64_t>(get().bit_offset(), err);
   }
 
   uint64_t bit_size(uint32_t& err) const {
-    return details::make_error<uint64_t>(
-        get().bit_size(), err
-    );
+    return details::make_error<uint64_t>(get().bit_size(), err);
   }
 
   uint64_t offset(uint32_t& err) const {
-    return details::make_error<uint64_t>(
-        get().offset(), err
-    );
+    return details::make_error<uint64_t>(get().offset(), err);
   }
 
   auto is_declaration() const {
@@ -53,7 +51,9 @@ class DWARF_types_ClassLike_Member : private Mirror<LIEF::dwarf::types::ClassLik
   }
 
   auto get_type() const {
-    return details::try_unique<DWARF_Type>(get().type()); // NOLINT(clang-analyzer-cplusplus.NewDeleteLeaks)
+    return details::try_unique<DWARF_Type>(
+        get().type()
+    ); // NOLINT(clang-analyzer-cplusplus.NewDeleteLeaks)
   }
 };
 
@@ -62,33 +62,44 @@ class DWARF_types_ClassLike : public DWARF_Type {
   public:
   using lief_t = LIEF::dwarf::types::ClassLike;
 
-  class it_members :
-      public ContainerIterator<DWARF_types_ClassLike_Member,
-                               std::vector<LIEF::dwarf::types::ClassLike::Member>>
-  {
+  class it_members : public ContainerIterator<
+                         DWARF_types_ClassLike_Member,
+                         std::vector<LIEF::dwarf::types::ClassLike::Member>
+                     > {
     public:
     using container_t = std::vector<LIEF::dwarf::types::ClassLike::Member>;
-    it_members(container_t content)
-      : ContainerIterator(std::move(content)) { }
-    auto next() { return ContainerIterator::next(); }
+    it_members(container_t content) :
+      ContainerIterator(std::move(content)) {}
+    auto next() {
+      return ContainerIterator::next();
+    }
+    auto size() const {
+      return ContainerIterator::size();
+    }
   };
 
-  class it_functions :
-      public ForwardIterator<DWARF_Function, LIEF::dwarf::Function::Iterator>
-  {
+  class it_functions
+    : public ForwardIterator<DWARF_Function, LIEF::dwarf::Function::Iterator> {
     public:
-    it_functions(const DWARF_types_ClassLike::lief_t& src)
-      : ForwardIterator(src.functions()) { }
+    it_functions(const DWARF_types_ClassLike::lief_t& src) :
+      ForwardIterator(src.functions()) {}
 
-    auto next() { return ForwardIterator::next(); }
+    auto next() {
+      return ForwardIterator::next();
+    }
+    auto size() const {
+      return ForwardIterator::size();
+    }
   };
 
-  static bool classof(const DWARF_Type& type) {
+  static auto classof(const DWARF_Type& type) {
     return lief_t::classof(&type.get());
   }
 
   auto find_member(uint64_t offset) const {
-    return details::try_unique<DWARF_types_ClassLike_Member>(impl().find_member(offset)); // NOLINT(clang-analyzer-cplusplus.NewDeleteLeaks)
+    return details::try_unique<DWARF_types_ClassLike_Member>(
+        impl().find_member(offset)
+    ); // NOLINT(clang-analyzer-cplusplus.NewDeleteLeaks)
   }
 
   auto members() const {
@@ -101,14 +112,19 @@ class DWARF_types_ClassLike : public DWARF_Type {
   }
 
   private:
-  const lief_t& impl() const { return as<lief_t>(this); }
+  const lief_t& impl() const {
+    return as<lief_t>(this);
+  }
 };
+
+using DWARF_types_ClassLike_it_members = DWARF_types_ClassLike::it_members;
+using DWARF_types_ClassLike_it_functions = DWARF_types_ClassLike::it_functions;
 
 class DWARF_types_Structure : public DWARF_types_ClassLike {
   public:
   using lief_t = LIEF::dwarf::types::Structure;
 
-  static bool classof(const DWARF_Type& type) {
+  static auto classof(const DWARF_Type& type) {
     return lief_t::classof(&type.get());
   }
 };
@@ -117,7 +133,7 @@ class DWARF_types_Class : public DWARF_types_ClassLike {
   public:
   using lief_t = LIEF::dwarf::types::Class;
 
-  static bool classof(const DWARF_Type& type) {
+  static auto classof(const DWARF_Type& type) {
     return lief_t::classof(&type.get());
   }
 };
@@ -126,7 +142,7 @@ class DWARF_types_Union : public DWARF_types_ClassLike {
   public:
   using lief_t = LIEF::dwarf::types::Union;
 
-  static bool classof(const DWARF_Type& type) {
+  static auto classof(const DWARF_Type& type) {
     return lief_t::classof(&type.get());
   }
 };
@@ -135,7 +151,7 @@ class DWARF_types_Packed : public DWARF_types_ClassLike {
   public:
   using lief_t = LIEF::dwarf::types::Packed;
 
-  static bool classof(const DWARF_Type& type) {
+  static auto classof(const DWARF_Type& type) {
     return lief_t::classof(&type.get());
   }
 };
